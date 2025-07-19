@@ -1,0 +1,112 @@
+
+@layer components {
+  /* Rainbow Button Effect - Purple theme */
+  .rainbow-button {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px 32px;
+    font-weight: 600;
+    font-size: 18px;
+    border-radius: 12px;
+    background: hsl(var(--violet-accent));
+    background-size: 300% 300%;
+    animation: rainbow-animation 3s ease infinite;
+    color: white;
+    border: none;
+    cursor: pointer;
+    overflow: hidden;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .rainbow-button::before {
+    content: '';
+    position: absolute;
+    inset: 1px;
+    background: rgba(10, 10, 10, 0.9);
+    border-radius: 11px;
+    z-index: 1;
+    transition: all 0.3s ease;
+  }
+
+  .rainbow-button:hover::before {
+    background: rgba(10, 10, 10, 0.7);
+  }
+
+  .rainbow-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+  }
+
+  .rainbow-button span {
+    position: relative;
+    z-index: 2;
+    background: hsl(var(--violet-accent));
+    background-size: 300% 300%;
+    animation: rainbow-animation 3s ease infinite;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .rainbow-button:hover span {
+    -webkit-text-fill-color: white;
+  }
+
+  /* Premium Glow Button - Purple theme */
+  .premium-glow-button {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px 32px;
+    font-weight: 600;
+    font-size: 18px;
+    border-radius: 12px;
+    background: hsla(var(--violet-accent), 0.2);
+    border: 2px solid transparent;
+    background-clip: padding-box;
+    color: white;
+    cursor: pointer;
+    overflow: hidden;
+    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    box-shadow: 
+      0 0 20px hsla(var(--violet-accent), 0.3),
+      0 0 40px hsla(var(--violet-accent), 0.2),
+      inset 0 0 20px rgba(255, 255, 255, 0.05);
+    animation: glow-pulse 2s ease-in-out infinite alternate;
+  }
+
+  .premium-glow-button::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    padding: 2px;
+    background: hsl(var(--violet-accent));
+    background-size: 300% 300%;
+    border-radius: 12px;
+    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    mask-composite: exclude;
+    animation: border-flow 3s linear infinite;
+  }
+
+  .premium-glow-button:hover {
+    transform: translateY(-3px) scale(1.02);
+    box-shadow: 
+      0 0 30px hsla(var(--violet-accent), 0.5),
+      0 0 60px hsla(var(--violet-accent), 0.3),
+      0 15px 35px rgba(0, 0, 0, 0.3),
+      inset 0 0 30px rgba(255, 255, 255, 0.1);
+  }
+
+  .premium-glow-button span {
+    position: relative;
+    z-index: 2;
+    background: linear-gradient(135deg, #ffffff, #e0e7ff, #c7d2fe);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+  }
+}

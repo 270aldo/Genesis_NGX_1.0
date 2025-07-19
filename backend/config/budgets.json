@@ -1,0 +1,139 @@
+{
+  "default": {
+    "max_tokens": 1000000,
+    "period": "monthly",
+    "action_on_limit": "warn",
+    "reset_day": 1,
+    "fallback_model": "gemini-1.5-flash"
+  },
+  "agents": {
+    "nexus": {
+      "max_tokens": 800000,
+      "period": "monthly",
+      "action_on_limit": "queue",
+      "reset_day": 1,
+      "description": "Orchestrator - Critical but queueable"
+    },
+    "blaze": {
+      "max_tokens": 2500000,
+      "period": "monthly",
+      "action_on_limit": "degrade",
+      "fallback_model": "gemini-1.5-flash",
+      "reset_day": 1,
+      "description": "Elite Training - High usage, performance critical"
+    },
+    "sage": {
+      "max_tokens": 3000000,
+      "period": "monthly", 
+      "action_on_limit": "degrade",
+      "fallback_model": "gemini-1.5-flash",
+      "reset_day": 1,
+      "description": "Nutrition Architect - Highest usage with vision processing"
+    },
+    "volt": {
+      "max_tokens": 2200000,
+      "period": "monthly",
+      "action_on_limit": "degrade",
+      "fallback_model": "gemini-1.5-flash",
+      "reset_day": 1,
+      "description": "Biometrics Engine - High data processing needs"
+    },
+    "spark": {
+      "max_tokens": 1500000,
+      "period": "monthly",
+      "action_on_limit": "queue",
+      "reset_day": 1,
+      "description": "Motivation Coach - Can be delayed for user experience"
+    },
+    "stella": {
+      "max_tokens": 1200000,
+      "period": "monthly",
+      "action_on_limit": "degrade",
+      "fallback_model": "gemini-1.5-flash",
+      "reset_day": 1,
+      "description": "Progress Tracker - Moderate usage with analytics"
+    },
+    "wave": {
+      "max_tokens": 1100000,
+      "period": "monthly",
+      "action_on_limit": "queue",
+      "reset_day": 1,
+      "description": "Recovery Specialist - Can queue non-urgent requests"
+    },
+    "guardian": {
+      "max_tokens": 400000,
+      "period": "monthly",
+      "action_on_limit": "block",
+      "reset_day": 1,
+      "description": "Security Guardian - Must block on limits for security"
+    },
+    "node": {
+      "max_tokens": 500000,
+      "period": "monthly",
+      "action_on_limit": "warn",
+      "reset_day": 1,
+      "description": "Systems Integration - Technical operations"
+    },
+    "nova": {
+      "max_tokens": 1800000,
+      "period": "monthly",
+      "action_on_limit": "degrade",
+      "fallback_model": "gemini-1.5-flash",
+      "reset_day": 1,
+      "description": "Biohacking Innovator - Research intensive"
+    },
+    "aura": {
+      "max_tokens": 1300000,
+      "period": "monthly",
+      "action_on_limit": "queue",
+      "reset_day": 1,
+      "description": "Client Success - User experience focused"
+    },
+    "luna": {
+      "max_tokens": 2000000,
+      "period": "monthly",
+      "action_on_limit": "degrade",
+      "fallback_model": "gemini-1.5-flash",
+      "reset_day": 1,
+      "description": "Female Wellness - Specialized healthcare needs"
+    },
+    "code": {
+      "max_tokens": 1600000,
+      "period": "monthly",
+      "action_on_limit": "warn",
+      "reset_day": 1,
+      "description": "Genetic Specialist - Complex analysis but not frequent"
+    }
+  },
+  "cost_optimization": {
+    "total_monthly_budget_usd": 2500,
+    "high_priority_agents": ["sage", "blaze", "volt", "luna"],
+    "queueable_agents": ["nexus", "spark", "wave", "aura"],
+    "security_agents": ["guardian"],
+    "fallback_strategy": {
+      "primary_model": "gemini-1.5-pro",
+      "fallback_model": "gemini-1.5-flash",
+      "cost_savings_percentage": 65
+    }
+  },
+  "alert_thresholds": {
+    "warning_percentage": 75,
+    "critical_percentage": 90,
+    "notification_endpoints": {
+      "slack_webhook": "https://hooks.slack.com/services/YOUR/SLACK/WEBHOOK",
+      "email": "admin@ngxsystems.com"
+    }
+  },
+  "period_strategies": {
+    "peak_usage_hours": {
+      "start": "08:00",
+      "end": "22:00",
+      "timezone": "UTC",
+      "budget_multiplier": 1.2
+    },
+    "weekend_scaling": {
+      "enabled": true,
+      "budget_multiplier": 0.8
+    }
+  }
+}

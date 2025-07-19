@@ -1,0 +1,130 @@
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 0%;
+    --foreground: 0 0% 100%;
+
+    --card: 0 0% 0%;
+    --card-foreground: 0 0% 100%;
+
+    --popover: 0 0% 0%;
+    --popover-foreground: 0 0% 100%;
+
+    --primary: 271 81% 56%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 0 0% 5%;
+    --secondary-foreground: 0 0% 100%;
+
+    --muted: 0 0% 8%;
+    --muted-foreground: 0 0% 65%;
+
+    --accent: 271 81% 56%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 271 30% 15%;
+    --input: 0 0% 0%;
+    --ring: 271 81% 56%;
+
+    --radius: 0.75rem;
+
+    /* GROK-style variables */
+    --sidebar-background: 0 0% 0%;
+    --sidebar-foreground: 0 0% 100%;
+    --sidebar-primary: 271 81% 56%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 271 50% 8%;
+    --sidebar-accent-foreground: 0 0% 100%;
+    --sidebar-border: 271 30% 15%;
+    --sidebar-ring: 271 81% 56%;
+
+    /* GROK-specific colors */
+    --violet-accent: 271 81% 56%;
+    --violet-hover: 271 81% 65%;
+    --violet-border: 271 30% 25%;
+    --violet-muted: 271 30% 15%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+    background: radial-gradient(circle at 50% 0%, rgba(91, 33, 182, 0.2) 0%, transparent 40%), #000000;
+    min-height: 100vh;
+    font-family: 'DM Sans', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-weight: 400;
+    letter-spacing: -0.01em;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* GROK-style scrollbar */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: hsl(var(--muted));
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: hsl(var(--violet-accent));
+    border-radius: 9999px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: hsl(var(--violet-hover));
+  }
+}
+
+@layer utilities {
+  .glass-ultra {
+    backdrop-filter: blur(16px) saturate(180%);
+    background: rgba(0, 0, 0, 0.5);
+    border: 1px solid hsl(var(--violet-border));
+  }
+
+  .grok-gradient {
+    background: radial-gradient(circle at 50% 0%, rgba(91, 33, 182, 0.2) 0%, transparent 40%);
+  }
+
+  .animate-fade-in {
+    animation: fadeIn 0.5s ease-out forwards;
+  }
+
+  .animate-slide-up {
+    animation: slideUp 0.5s ease-out forwards;
+  }
+
+  .animate-slide-in {
+    animation: slideIn 0.5s ease-out forwards;
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideIn {
+  from { opacity: 0; transform: translateX(-20px); }
+  to { opacity: 1; transform: translateX(0); }
+}

@@ -1,0 +1,195 @@
+[tool.poetry]
+name = "ngx-agents"
+version = "0.1.0"
+description = "Sistema de agentes NGX para entrenamiento y nutrición"
+authors = ["NGX Team"]
+readme = "README.md"
+packages = [
+    {include = "agents"},
+    {include = "app"},
+    {include = "clients"},
+    {include = "core"},
+    {include = "tools"},
+]
+
+[tool.poetry.dependencies]
+python = ">= 3.9.2, < 3.13"
+
+# API y servidor
+fastapi = "^0.115.0"
+uvicorn = {extras = ["standard"], version = "^0.34.2"}
+python-dotenv = "^1.0.0"
+pydantic = ">=2.6.0,<3.0.0"  # Actualizado para consistencia en todo el proyecto
+pydantic-settings = "^2.0.0"
+
+# Comunicación
+websockets = "^13.0.0"
+# Framework Google ADK para agentes A2A
+google-adk = "^0.1.0"
+sse-starlette = "^1.6.0"
+
+# Logging
+python-json-logger = ">=2.0.7,<3.0.0"  # Actualizado para consistencia
+
+# HTTP
+httpx = "^0.28.1"  # Versión requerida por ADK
+
+# Voice and Audio
+elevenlabs = "^1.17.0"  # Para síntesis de voz
+
+# Base de datos
+supabase = ">2.3.0,<3.0.0"  # Actualizado para consistencia
+google-generativeai = "^0.8.5"
+redis = {extras = ["hiredis"], version = "^5.0.1"}  # Para caché y state manager
+
+# Caché avanzado
+xxhash = "^3.4.1"  # Para hashing más rápido
+zstandard = "^0.22.0"  # Algoritmo de compresión alternativo
+matplotlib = "^3.8.3"  # Para visualización en scripts de optimización
+tabulate = "^0.9.0"  # Para formateo tabular en scripts de optimización
+
+# Visualización y reportes
+pandas = "^2.2.0"  # Para manipulación de datos
+seaborn = "^0.13.0"  # Para gráficos estadísticos
+pillow = "^10.2.0"  # Para manipulación de imágenes
+numpy = "^1.26.0"  # Para cálculos numéricos
+
+# Métricas y monitoreo
+prometheus-client = "^0.20.0"  # Cliente de Prometheus para exportar métricas
+prometheus-fastapi-instrumentator = "^7.0.0"  # Instrumentación automática para FastAPI
+
+# Dependencias consolidadas de todos los componentes
+brotli = "^1.1.0"
+google-cloud-discoveryengine = "^0.13.8"
+google-cloud-documentai = "^3.5.0"
+google-cloud-vision = "^3.10.1"
+google-cloud-translate = "^3.20.2"
+firebase-admin = "^6.8.0"
+pyjwt = "^2.10.1"
+passlib = "^1.7.4"
+bcrypt = "^4.3.0"
+sentry-sdk = "^2.29.1"
+plotly = "^6.1.2"
+imageio = "^2.37.0"
+google-cloud-logging = "^3.12.1"
+google-cloud-monitoring = "^2.27.1"
+google-cloud-error-reporting = "^1.11.1"
+google-cloud-pubsub = "^2.29.0"
+opentelemetry-instrumentation = "0.54b0"
+opentelemetry-instrumentation-fastapi = "0.54b0"
+opentelemetry-instrumentation-httpx = "0.54b0"
+opentelemetry-instrumentation-logging = "0.54b0"
+opentelemetry-instrumentation-aiohttp-client = "0.54b0"
+slowapi = "^0.1.9"
+itsdangerous = "^2.2.0"
+[tool.poetry.group.agents]
+optional = true
+
+[tool.poetry.group.agents.dependencies]
+google-adk = "^0.1.0"
+google-generativeai = "^0.8.5"
+pydantic = ">=2.6.0,<3.0.0"
+httpx = "^0.28.1"
+
+[tool.poetry.group.clients]
+optional = true
+
+[tool.poetry.group.clients.dependencies]
+httpx = "^0.28.1"
+websockets = "^13.0.0"
+redis = {extras = ["hiredis"], version = "^5.0.1"}
+xxhash = "^3.4.1"
+zstandard = "^0.22.0"
+google-generativeai = "^0.8.5"
+
+[tool.poetry.group.core]
+optional = true
+
+[tool.poetry.group.core.dependencies]
+pydantic = ">=2.6.0,<3.0.0"
+python-json-logger = ">=2.0.7,<3.0.0"
+
+[tool.poetry.group.tools]
+optional = true
+
+[tool.poetry.group.tools.dependencies]
+supabase = ">=2.3.0,<3.0.0"
+
+[tool.poetry.group.dev.dependencies]
+black = "^24.3.0"
+isort = "^5.13.2"
+mypy = "^1.10.0"
+ruff = "^0.4.7"
+safety = "^3.5.0"
+
+[tool.poetry.group.test.dependencies]
+pytest = ">=8.2.0,<9.0.0"
+pytest-asyncio = ">=0.23.0,<0.24.0"
+pytest-cov = ">=4.1.0,<5.0.0"
+python-multipart = ">=0.0.9"
+pytest-mock = ">=3.14.0,<4.0.0"
+pytest-xdist = "^3.7.0"
+pytest-benchmark = "^5.1.0"
+responses = "^0.25.7"
+factory-boy = "^3.3.3"
+faker = "^37.3.0"
+
+[tool.poetry.group.telemetry]
+optional = true
+
+[tool.poetry.group.telemetry.dependencies]
+opentelemetry-api = "^1.33.0"
+opentelemetry-sdk = "^1.33.0"
+opentelemetry-instrumentation-fastapi = "^0.54b0"
+opentelemetry-instrumentation-httpx = "^0.54b0"
+opentelemetry-instrumentation-logging = "^0.54b0"
+opentelemetry-instrumentation-aiohttp-client = "^0.54b0"
+opentelemetry-exporter-gcp-trace = "^1.9.0"
+google-cloud-trace = "^1.16.1"
+protobuf = "^5.26.1"
+
+[tool.poetry.group.app]
+optional = true
+
+[tool.poetry.group.app.dependencies]
+fastapi = "^0.115.0"
+uvicorn = {extras = ["standard"], version = "^0.34.2"}
+python-dotenv = "^1.0.0"
+pydantic = ">=2.6.0,<3.0.0"
+pydantic-settings = "^2.0.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.pytest.ini_options]
+markers = [
+    "unit: pruebas unitarias que no requieren la aplicación FastAPI completa",
+    "integration: pruebas de integración que requieren la aplicación FastAPI completa",
+    "agents: pruebas específicas para los agentes",
+    "api: pruebas específicas para la API",
+]
+asyncio_mode = "strict"
+python_files = "test_*.py"
+python_classes = "Test*"
+python_functions = "test_*"
+asyncio_default_fixture_loop_scope = "function"
+
+[tool.black]
+line-length = 88
+target-version = ["py39"]
+
+[tool.isort]
+profile = "black"
+line_length = 88
+
+[tool.mypy]
+python_version = "3.9"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+
+[tool.ruff]
+line-length = 88
+target-version = "py39"

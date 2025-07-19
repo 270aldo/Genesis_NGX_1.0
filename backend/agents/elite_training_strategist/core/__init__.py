@@ -1,0 +1,96 @@
+"""
+Core components for BLAZE Elite Training Strategist.
+Provides foundational classes and utilities for training program generation.
+"""
+
+from .dependencies import BlazeAgentDependencies
+from .config import BlazeAgentConfig
+from .exceptions import (
+    BlazeTrainingError,
+    TrainingPlanGenerationError,
+    InvalidTrainingParametersError,
+    AthleteProfileError,
+    PerformanceAnalysisError,
+    PostureDetectionError,
+    TrainingIntensityError,
+    ExercisePrescriptionError,
+    AdaptiveTrainingError,
+    NutritionIntegrationError,
+    BiometricIntegrationError,
+    VoiceCoachingError,
+    InjuryRiskAssessmentError,
+    RecoveryOptimizationError,
+    TrainingProgressTrackingError,
+    create_training_error_response,
+)
+from .constants import (
+    TrainingPhase,
+    TrainingIntensity,
+    ExerciseCategory,
+    BodyRegion,
+    TrainingGoal,
+    AthleteLevel,
+    RecoveryMethod,
+    TRAINING_FREQUENCIES,
+    INTENSITY_DISTRIBUTIONS,
+    RPE_ZONES,
+    HEART_RATE_ZONES,
+    COMPOUND_MOVEMENTS,
+    UNILATERAL_MOVEMENTS,
+    CORRECTIVE_EXERCISES,
+    HIGH_RISK_INDICATORS,
+    STRENGTH_STANDARDS,
+    VOICE_COMMANDS,
+    AUDIO_FEEDBACK_TYPES,
+    AI_MODEL_PARAMETERS,
+    SUPPORTED_DEVICES,
+    BIOMETRIC_PARAMETERS,
+    ERROR_CODES,
+)
+
+__all__ = [
+    # Dependencies
+    "BlazeAgentDependencies",
+    # Configuration
+    "BlazeAgentConfig",
+    # Exceptions
+    "BlazeTrainingError",
+    "TrainingPlanGenerationError",
+    "InvalidTrainingParametersError",
+    "AthleteProfileError",
+    "PerformanceAnalysisError",
+    "PostureDetectionError",
+    "TrainingIntensityError",
+    "ExercisePrescriptionError",
+    "AdaptiveTrainingError",
+    "NutritionIntegrationError",
+    "BiometricIntegrationError",
+    "VoiceCoachingError",
+    "InjuryRiskAssessmentError",
+    "RecoveryOptimizationError",
+    "TrainingProgressTrackingError",
+    "create_training_error_response",
+    # Constants and Enums
+    "TrainingPhase",
+    "TrainingIntensity",
+    "ExerciseCategory",
+    "BodyRegion",
+    "TrainingGoal",
+    "AthleteLevel",
+    "RecoveryMethod",
+    "TRAINING_FREQUENCIES",
+    "INTENSITY_DISTRIBUTIONS",
+    "RPE_ZONES",
+    "HEART_RATE_ZONES",
+    "COMPOUND_MOVEMENTS",
+    "UNILATERAL_MOVEMENTS",
+    "CORRECTIVE_EXERCISES",
+    "HIGH_RISK_INDICATORS",
+    "STRENGTH_STANDARDS",
+    "VOICE_COMMANDS",
+    "AUDIO_FEEDBACK_TYPES",
+    "AI_MODEL_PARAMETERS",
+    "SUPPORTED_DEVICES",
+    "BIOMETRIC_PARAMETERS",
+    "ERROR_CODES",
+]

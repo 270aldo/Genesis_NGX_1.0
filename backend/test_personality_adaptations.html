@@ -1,0 +1,791 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NGX Agents - Testing de Adaptaciones de Personalidad</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+        
+        .header h1 {
+            color: #2c3e50;
+            margin: 0 0 10px 0;
+            font-size: 2.5em;
+        }
+        
+        .header p {
+            color: #7f8c8d;
+            margin: 0;
+            font-size: 1.1em;
+        }
+        
+        .test-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+        
+        .test-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+        
+        .test-card h3 {
+            color: #2c3e50;
+            margin: 0 0 20px 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .program-badge {
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.8em;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+        
+        .prime-badge {
+            background: #3498db;
+            color: white;
+        }
+        
+        .longevity-badge {
+            background: #27ae60;
+            color: white;
+        }
+        
+        .input-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #34495e;
+        }
+        
+        input, textarea, select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ecf0f1;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+        
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: #3498db;
+        }
+        
+        textarea {
+            height: 100px;
+            resize: vertical;
+        }
+        
+        .btn {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: background 0.3s;
+            width: 100%;
+        }
+        
+        .btn:hover {
+            background: #2980b9;
+        }
+        
+        .btn:disabled {
+            background: #bdc3c7;
+            cursor: not-allowed;
+        }
+        
+        .results {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 25px;
+            margin-top: 30px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+        
+        .result-item {
+            background: #f8f9fa;
+            border-left: 4px solid #3498db;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+        }
+        
+        .result-item h4 {
+            margin: 0 0 10px 0;
+            color: #2c3e50;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .result-item p {
+            margin: 10px 0;
+            line-height: 1.6;
+            color: #34495e;
+        }
+        
+        .metrics {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .metric {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            border: 1px solid #ecf0f1;
+        }
+        
+        .metric-value {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #3498db;
+            display: block;
+        }
+        
+        .metric-label {
+            font-size: 0.9em;
+            color: #7f8c8d;
+            margin-top: 5px;
+        }
+        
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #3498db;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .demo-section {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+        
+        .demo-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .demo-btn {
+            background: #9b59b6;
+            color: white;
+            border: none;
+            padding: 15px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: background 0.3s;
+        }
+        
+        .demo-btn:hover {
+            background: #8e44ad;
+        }
+        
+        .error {
+            background: #e74c3c;
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+        }
+        
+        .success {
+            background: #27ae60;
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+        }
+        
+        @media (max-width: 768px) {
+            .test-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .demo-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🎭 NGX Agents - Testing de Personalidad</h1>
+        <p>Prueba cómo los agentes adaptan su comunicación según el programa del usuario</p>
+    </div>
+
+    <!-- Sección de Demo Rápida -->
+    <div class="demo-section">
+        <h2>🚀 Demos Rápidas</h2>
+        <p>Prueba casos predefinidos para ver las adaptaciones en acción:</p>
+        
+        <div class="demo-grid">
+            <button class="demo-btn" onclick="runBlazeComparison()">
+                🔥 BLAZE: PRIME vs LONGEVITY
+            </button>
+            <button class="demo-btn" onclick="runSageComparison()">
+                🥗 SAGE: PRIME vs LONGEVITY
+            </button>
+            <button class="demo-btn" onclick="runBlazeVsSageComparison()">
+                ⚡ BLAZE vs SAGE Comparison
+            </button>
+            <button class="demo-btn" onclick="runSagePlan('PRIME')">
+                💼 SAGE Plan Ejecutivo
+            </button>
+            <button class="demo-btn" onclick="runSagePlan('LONGEVITY')">
+                🌱 SAGE Plan Wellness
+            </button>
+            <button class="demo-btn" onclick="showSupportedCombinations()">
+                📋 Ver Combinaciones Soportadas
+            </button>
+        </div>
+    </div>
+
+    <!-- Testing Manual -->
+    <div class="test-container">
+        <!-- Test PRIME -->
+        <div class="test-card">
+            <h3>
+                💼 Programa PRIME
+                <span class="program-badge prime-badge">Ejecutivo</span>
+            </h3>
+            
+            <div class="input-group">
+                <label for="agent-prime">Agente:</label>
+                <select id="agent-prime">
+                    <option value="BLAZE">BLAZE - Elite Training</option>
+                    <option value="SAGE">SAGE - Precision Nutrition</option>
+                    <option value="SPARK">SPARK - Motivation Coach</option>
+                    <option value="VOLT">VOLT - Biometrics Engine</option>
+                    <option value="CODE">CODE - Genetic Specialist</option>
+                </select>
+            </div>
+            
+            <div class="input-group">
+                <label for="message-prime">Mensaje de prueba:</label>
+                <textarea id="message-prime" placeholder="Escribe un mensaje para adaptar...">He creado un plan personalizado que optimizará tu rendimiento físico y mental.</textarea>
+            </div>
+            
+            <button class="btn" onclick="testPersonalityAdaptation('PRIME')">
+                Probar Adaptación PRIME
+            </button>
+        </div>
+
+        <!-- Test LONGEVITY -->
+        <div class="test-card">
+            <h3>
+                🌱 Programa LONGEVITY
+                <span class="program-badge longevity-badge">Bienestar</span>
+            </h3>
+            
+            <div class="input-group">
+                <label for="agent-longevity">Agente:</label>
+                <select id="agent-longevity">
+                    <option value="BLAZE">BLAZE - Elite Training</option>
+                    <option value="SAGE">SAGE - Precision Nutrition</option>
+                    <option value="SPARK">SPARK - Motivation Coach</option>
+                    <option value="VOLT">VOLT - Biometrics Engine</option>
+                    <option value="CODE">CODE - Genetic Specialist</option>
+                </select>
+            </div>
+            
+            <div class="input-group">
+                <label for="message-longevity">Mensaje de prueba:</label>
+                <textarea id="message-longevity" placeholder="Escribe un mensaje para adaptar...">He creado un plan personalizado que optimizará tu rendimiento físico y mental.</textarea>
+            </div>
+            
+            <button class="btn" onclick="testPersonalityAdaptation('LONGEVITY')">
+                Probar Adaptación LONGEVITY
+            </button>
+        </div>
+    </div>
+
+    <!-- Resultados -->
+    <div id="results" class="results" style="display: none;">
+        <h2>📊 Resultados de Testing</h2>
+        <div id="results-content"></div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:8000/api/personality';
+        
+        // Función para mostrar resultados
+        function showResults() {
+            document.getElementById('results').style.display = 'block';
+            document.getElementById('results').scrollIntoView({ behavior: 'smooth' });
+        }
+        
+        // Función para agregar resultado
+        function addResult(title, data, badge = '') {
+            const resultsContent = document.getElementById('results-content');
+            
+            const resultDiv = document.createElement('div');
+            resultDiv.className = 'result-item';
+            
+            let metricsHtml = '';
+            if (data.confidence_score !== undefined) {
+                metricsHtml = `
+                    <div class="metrics">
+                        <div class="metric">
+                            <span class="metric-value">${(data.confidence_score * 100).toFixed(1)}%</span>
+                            <div class="metric-label">Confianza</div>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-value">${data.adaptation_details?.processing_time_ms?.toFixed(1) || 'N/A'}ms</span>
+                            <div class="metric-label">Tiempo</div>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-value">${data.adaptation_details?.adaptations_applied?.length || 0}</span>
+                            <div class="metric-label">Adaptaciones</div>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            resultDiv.innerHTML = `
+                <h4>${title} ${badge}</h4>
+                <p><strong>Original:</strong> ${data.original_message || data.message || 'N/A'}</p>
+                <p><strong>Adaptado:</strong> ${data.adapted_message || data.adapted_response || data.response || 'N/A'}</p>
+                ${metricsHtml}
+            `;
+            
+            resultsContent.appendChild(resultDiv);
+        }
+        
+        // Test de adaptación de personalidad
+        async function testPersonalityAdaptation(programType) {
+            const agentId = document.getElementById(`agent-${programType.toLowerCase()}`).value;
+            const message = document.getElementById(`message-${programType.toLowerCase()}`).value;
+            
+            if (!message.trim()) {
+                alert('Por favor, escribe un mensaje para probar');
+                return;
+            }
+            
+            const button = event.target;
+            const originalText = button.textContent;
+            button.innerHTML = '<span class="loading"></span> Procesando...';
+            button.disabled = true;
+            
+            try {
+                const response = await fetch(`${API_BASE}/test-adaptation`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        agent_id: agentId,
+                        program_type: programType,
+                        sample_message: message,
+                        user_context: {
+                            test_mode: true
+                        }
+                    })
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                const data = await response.json();
+                
+                const badge = programType === 'PRIME' 
+                    ? '<span class="program-badge prime-badge">PRIME</span>'
+                    : '<span class="program-badge longevity-badge">LONGEVITY</span>';
+                
+                addResult(`${agentId} - ${programType}`, data, badge);
+                showResults();
+                
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('results-content').innerHTML += `
+                    <div class="error">
+                        Error probando ${agentId} - ${programType}: ${error.message}
+                    </div>
+                `;
+                showResults();
+            } finally {
+                button.textContent = originalText;
+                button.disabled = false;
+            }
+        }
+        
+        // Demo de comparación BLAZE
+        async function runBlazeComparison() {
+            const button = event.target;
+            button.innerHTML = '<span class="loading"></span> Comparando...';
+            button.disabled = true;
+            
+            try {
+                const response = await fetch(`${API_BASE}/demo/blaze-prime-vs-longevity`);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                const data = await response.json();
+                
+                // Limpiar resultados anteriores
+                document.getElementById('results-content').innerHTML = '';
+                
+                // Mostrar comparación
+                addResult('BLAZE - PRIME', {
+                    original_message: data.base_message,
+                    adapted_message: data.adaptations.PRIME.adapted_message,
+                    confidence_score: data.adaptations.PRIME.confidence
+                }, '<span class="program-badge prime-badge">PRIME</span>');
+                
+                addResult('BLAZE - LONGEVITY', {
+                    original_message: data.base_message,
+                    adapted_message: data.adaptations.LONGEVITY.adapted_message,
+                    confidence_score: data.adaptations.LONGEVITY.confidence
+                }, '<span class="program-badge longevity-badge">LONGEVITY</span>');
+                
+                // Mostrar diferencias clave
+                const differencesDiv = document.createElement('div');
+                differencesDiv.className = 'result-item';
+                differencesDiv.innerHTML = `
+                    <h4>🔍 Diferencias Clave</h4>
+                    ${data.key_differences.map(diff => `<p>• ${diff}</p>`).join('')}
+                `;
+                document.getElementById('results-content').appendChild(differencesDiv);
+                
+                showResults();
+                
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('results-content').innerHTML += `
+                    <div class="error">Error en demo de comparación: ${error.message}</div>
+                `;
+                showResults();
+            } finally {
+                button.textContent = '🔥 BLAZE: PRIME vs LONGEVITY';
+                button.disabled = false;
+            }
+        }
+        
+        // Demo de plan BLAZE
+        async function runBlazePlan(programType) {
+            const button = event.target;
+            const originalText = button.textContent;
+            button.innerHTML = '<span class="loading"></span> Generando...';
+            button.disabled = true;
+            
+            try {
+                const query = programType === 'PRIME' 
+                    ? 'Necesito optimizar mi rendimiento para ser más productivo en el trabajo'
+                    : 'Quiero mantener mi salud y vitalidad a medida que envejezco';
+                
+                const response = await fetch(`${API_BASE}/test-blaze-integration`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        user_query: query,
+                        program_type: programType
+                    })
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                const data = await response.json();
+                
+                const badge = programType === 'PRIME' 
+                    ? '<span class="program-badge prime-badge">PRIME</span>'
+                    : '<span class="program-badge longevity-badge">LONGEVITY</span>';
+                
+                addResult(`Plan Completo BLAZE`, {
+                    original_message: data.user_query,
+                    adapted_message: data.generated_plan.adapted_response
+                }, badge);
+                
+                showResults();
+                
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('results-content').innerHTML += `
+                    <div class="error">Error generando plan BLAZE: ${error.message}</div>
+                `;
+                showResults();
+            } finally {
+                button.textContent = originalText;
+                button.disabled = false;
+            }
+        }
+        
+        // Mostrar combinaciones soportadas
+        async function showSupportedCombinations() {
+            const button = event.target;
+            button.innerHTML = '<span class="loading"></span> Cargando...';
+            button.disabled = true;
+            
+            try {
+                const response = await fetch(`${API_BASE}/supported-combinations`);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                const data = await response.json();
+                
+                const combinationsDiv = document.createElement('div');
+                combinationsDiv.className = 'result-item';
+                
+                let html = '<h4>📋 Combinaciones Soportadas</h4>';
+                html += `<p><strong>Programas disponibles:</strong> ${data.available_programs.join(', ')}</p>`;
+                html += `<p><strong>Agentes con adaptaciones específicas:</strong> ${data.available_agents.join(', ')}</p>`;
+                html += '<h5>Compatibilidad por Agente:</h5>';
+                
+                for (const [agent, programs] of Object.entries(data.supported_combinations)) {
+                    html += `<p><strong>${agent}:</strong> ${programs.join(', ')}</p>`;
+                }
+                
+                combinationsDiv.innerHTML = html;
+                document.getElementById('results-content').appendChild(combinationsDiv);
+                showResults();
+                
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('results-content').innerHTML += `
+                    <div class="error">Error cargando combinaciones: ${error.message}</div>
+                `;
+                showResults();
+            } finally {
+                button.textContent = '📋 Ver Combinaciones Soportadas';
+                button.disabled = false;
+            }
+        }
+        
+        // Demo de comparación SAGE
+        async function runSageComparison() {
+            const button = event.target;
+            button.innerHTML = '<span class="loading"></span> Comparando...';
+            button.disabled = true;
+            
+            try {
+                const response = await fetch(`${API_BASE}/demo/sage-prime-vs-longevity`);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                const data = await response.json();
+                
+                // Limpiar resultados anteriores
+                document.getElementById('results-content').innerHTML = '';
+                
+                // Mostrar comparación
+                addResult('SAGE - PRIME', {
+                    original_message: data.base_message,
+                    adapted_message: data.adaptations.PRIME.adapted_message,
+                    confidence_score: data.adaptations.PRIME.confidence
+                }, '<span class="program-badge prime-badge">PRIME</span>');
+                
+                addResult('SAGE - LONGEVITY', {
+                    original_message: data.base_message,
+                    adapted_message: data.adaptations.LONGEVITY.adapted_message,
+                    confidence_score: data.adaptations.LONGEVITY.confidence
+                }, '<span class="program-badge longevity-badge">LONGEVITY</span>');
+                
+                // Mostrar diferencias clave
+                const differencesDiv = document.createElement('div');
+                differencesDiv.className = 'result-item';
+                differencesDiv.innerHTML = `
+                    <h4>🔍 Diferencias Clave SAGE</h4>
+                    ${data.key_differences.map(diff => `<p>• ${diff}</p>`).join('')}
+                `;
+                document.getElementById('results-content').appendChild(differencesDiv);
+                
+                showResults();
+                
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('results-content').innerHTML += `
+                    <div class="error">Error en demo de comparación SAGE: ${error.message}</div>
+                `;
+                showResults();
+            } finally {
+                button.textContent = '🥗 SAGE: PRIME vs LONGEVITY';
+                button.disabled = false;
+            }
+        }
+        
+        // Demo BLAZE vs SAGE
+        async function runBlazeVsSageComparison() {
+            const button = event.target;
+            button.innerHTML = '<span class="loading"></span> Comparando...';
+            button.disabled = true;
+            
+            try {
+                const response = await fetch(`${API_BASE}/demo/blaze-vs-sage-comparison`);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                const data = await response.json();
+                
+                // Limpiar resultados anteriores
+                document.getElementById('results-content').innerHTML = '';
+                
+                // Mostrar comparación
+                addResult('BLAZE (Training)', {
+                    original_message: data.base_message,
+                    adapted_message: data.agent_adaptations.BLAZE.adapted_message,
+                    confidence_score: data.agent_adaptations.BLAZE.confidence
+                }, '<span class="program-badge prime-badge">PRIME</span>');
+                
+                addResult('SAGE (Nutrition)', {
+                    original_message: data.base_message,
+                    adapted_message: data.agent_adaptations.SAGE.adapted_message,
+                    confidence_score: data.agent_adaptations.SAGE.confidence
+                }, '<span class="program-badge prime-badge">PRIME</span>');
+                
+                // Mostrar diferencias de especialización
+                const differencesDiv = document.createElement('div');
+                differencesDiv.className = 'result-item';
+                differencesDiv.innerHTML = `
+                    <h4>🎯 Diferencias de Especialización</h4>
+                    ${data.specialization_differences.map(diff => `<p>• ${diff}</p>`).join('')}
+                `;
+                document.getElementById('results-content').appendChild(differencesDiv);
+                
+                showResults();
+                
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('results-content').innerHTML += `
+                    <div class="error">Error en demo BLAZE vs SAGE: ${error.message}</div>
+                `;
+                showResults();
+            } finally {
+                button.textContent = '⚡ BLAZE vs SAGE Comparison';
+                button.disabled = false;
+            }
+        }
+        
+        // Demo de plan SAGE
+        async function runSagePlan(programType) {
+            const button = event.target;
+            const originalText = button.textContent;
+            button.innerHTML = '<span class="loading"></span> Generando...';
+            button.disabled = true;
+            
+            try {
+                const query = programType === 'PRIME' 
+                    ? 'Necesito optimizar mi nutrición para maximizar mi rendimiento ejecutivo'
+                    : 'Quiero un plan nutricional saludable para envejecer con vitalidad';
+                
+                const response = await fetch(`${API_BASE}/test-sage-integration`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        user_query: query,
+                        program_type: programType
+                    })
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                const data = await response.json();
+                
+                const badge = programType === 'PRIME' 
+                    ? '<span class="program-badge prime-badge">PRIME</span>'
+                    : '<span class="program-badge longevity-badge">LONGEVITY</span>';
+                
+                addResult(`Plan Nutricional SAGE`, {
+                    original_message: data.user_query,
+                    adapted_message: data.generated_plan.adapted_recommendations?.join(' ') || 'Plan generado exitosamente'
+                }, badge);
+                
+                showResults();
+                
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('results-content').innerHTML += `
+                    <div class="error">Error generando plan SAGE: ${error.message}</div>
+                `;
+                showResults();
+            } finally {
+                button.textContent = originalText;
+                button.disabled = false;
+            }
+        }
+        
+        // Sincronizar mensajes entre los dos campos de texto
+        document.getElementById('message-prime').addEventListener('input', function() {
+            document.getElementById('message-longevity').value = this.value;
+        });
+        
+        document.getElementById('message-longevity').addEventListener('input', function() {
+            document.getElementById('message-prime').value = this.value;
+        });
+        
+        // Sincronizar selección de agentes
+        document.getElementById('agent-prime').addEventListener('change', function() {
+            document.getElementById('agent-longevity').value = this.value;
+        });
+        
+        document.getElementById('agent-longevity').addEventListener('change', function() {
+            document.getElementById('agent-prime').value = this.value;
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,1315 @@
+{
+  "summary": {
+    "total_files": 55,
+    "refactorable_files": 48,
+    "total_lines": 29956,
+    "potential_lines_saved": 15672,
+    "savings_percentage": 52.31673120576846,
+    "by_type": {
+      "data": 14,
+      "security": 18,
+      "integration": 16
+    }
+  },
+  "services": [
+    {
+      "file": "/Users/aldoolivas/Desktop/GENESIS_oficial_BETA/backend/agents/base/base_integration_service.py",
+      "type": "integration",
+      "lines": 437,
+      "classes": 1,
+      "methods": 8,
+      "can_refactor": true,
+      "method_patterns": {
+        "custom": 5,
+        "get": 3
+      }
+    },
+    {
+      "file": "/Users/aldoolivas/Desktop/GENESIS_oficial_BETA/backend/agents/base/base_data_service.py",
+      "type": "data",
+      "lines": 369,
+      "classes": 1,
+      "methods": 4,
+      "can_refactor": true,
+      "method_patterns": {
+        "custom": 3,
+        "validate": 1
+      }
+    },
+    {
+      "file": "/Users/aldoolivas/Desktop/GENESIS_oficial_BETA/backend/agents/base/base_security_service.py",
+      "type": "security",
+      "lines": 442,
+      "classes": 1,
+      "methods": 18,
+      "can_refactor": true,
+      "method_patterns": {
+        "custom": 13,
+        "get": 3,
+        "validate": 2
+      }
+    },
+    {
+      "file": "/Users/aldoolivas/Desktop/GENESIS_oficial_BETA/backend/agents/progress_tracker/services/progress_security_service.py",
+      "type": "security",
+      "lines": 587,
+      "classes": 1,
+      "methods": 17,
+      "can_refactor": true,
+      "method_patterns": {
+        "custom": 13,
+        "validate": 2,
+        "get": 2
+      }
+    },
+    {
+      "file": "/Users/aldoolivas/Desktop/GENESIS_oficial_BETA/backend/agents/progress_tracker/services/progress_integration_service.py",
+      "type": "integration",
+      "lines": 646,
+      "classes": 1,
+      "methods": 6,
+      "can_refactor": true,
+      "method_patterns": {
+        "custom": 1,
+        "get": 5
+      }
+    },
+    {
+      "file": "/Users/aldoolivas/Desktop/GENESIS_oficial_BETA/backend/agents/progress_tracker/services/progress_data_service.py",
+      "type": "data",
+      "lines": 831,
+      "classes": 1,
+      "methods": 24,
+      "can_refactor": true,
+      "method_patterns": {
+        "custom": 21,
+        "validate": 1,
+        "get": 2
+      }
+    },
+    {
+      "file": "/Users/aldoolivas/Desktop/GENESIS_oficial_BETA/backend/agents/motivation_behavior_coach/services/motivation_integration_service.py",
+      "type": "integration",
+      "lines": 571,
+      "classes": 1,
+      "methods": 8,
+      "can_refactor": true,
+      "method_patterns": {
+        "custom": 6,
+        "get": 2
+      }
+    },
+    {
+      "file": "/Users/aldoolivas/Desktop/GENESIS_oficial_BETA/backend/agents/motivation_behavior_coach/services/motivation_data_service.py",
+      "type": "data",
+      "lines": 534,
+      "classes": 1,
+      "methods": 14,
+      "can_refactor": true,
+      "method_patterns": {
+        "custom": 9,
+        "update": 1,
+        "get": 3,
+        "validate": 1
+      }
+    },
+    {
+      "file": "/Users/aldoolivas/Desktop/GENESIS_oficial_BETA/backend/agents/motivation_behavior_coach/services/motivation_security_service.py",
+      "type": "security",
+      "lines": 416,
+      "classes": 1,
+      "methods": 13,
+      "can_refactor": true,
+      "method_patterns": {
+        "custom": 9,
+        "validate": 2,
+        "get": 2
+      }
+    },
+    {
+      "file": "/Users/aldoolivas/Desktop/GENESIS_oficial_BETA/backend/agents/female_wellness_coach/services/female_wellness_security_service.py",
+      "type": "security",
+      "lines": 432,
+      "classes": 1,
+      "methods": 5,
+      "can_refactor": true,
+      "method_patterns": {
+        "custom": 4,
+        "get": 1
+      }
+    },
+    {
+      "file": "/Users/aldoolivas/Desktop/GENESIS_oficial_BETA/backend/agents/female_wellness_coach/services/female_wellness_data_service.py",
+      "type": "data",
+      "lines": 626,
+      "classes": 1,
+      "methods": 5,
+      "can_refactor": true,
+      "method_patterns": {
+        "custom": 4,
+        "get": 1
+      }
+    },
+    {
+      "file": "/Users/aldoolivas/Desktop/GENESIS_oficial_BETA/backend/agents/female_wellness_coach/services/female_wellness_integration_service.py",
+      "type": "integration",
+      "lines": 497,
+      "classes": 1,
+      "methods": 1,
+      "can_refactor": true,
+      "method_patterns": {
+        "custom": 1
+      }
+    },
+    {
+      "file": "/Users/aldoolivas/Desktop/GENESIS_oficial_BETA/backend/agents/backend/guardian/services/security_monitor_service.py",
+      "type": "security",
+      "lines": 998,
+      "classes": 0,
+      "methods": 0,
+      "can_refactor": false,
+      "method_patterns": {}
+    },
+    {
+      "file": "/Users/aldoolivas/Desktop/GENESIS_oficial_BETA/backend/agents/backend/guardian/services/compliance_checker_service.py",
+      "type": "unknown",
+      "lines": 1142,
+      "classes": 0,
+      "methods": 0,
+      "can_refactor": false,
+      "method_patterns": {}
+    },
+    {
+      "file": "/Users/aldoolivas/Desktop/GENESIS_oficial_BETA/backend/agents/backend/guardian/services/audit_trail_service.py",
+      "type": "unknown",
+      "lines": 1362,
+      "classes": 0,
+      "methods": 0,
+      "can_refactor": false,
+      "method_patterns": {}
+    },
+    {
+      "file": "/Users/aldoolivas/Desktop/GENESIS_oficial_BETA/backend/agents/backend/node/services/systems_integration_service.py",
+      "type": "integration",
+      "lines": 645,
+      "classes": 1,
+      "methods": 1,
+      "can_refactor": true,
+      "method_patterns": {
+        "custom": 1
+      }
+    },
+    {
+      "file": "/Users/aldoolivas/Desktop/GENESIS_oficial_BETA/backend/agents/backend/node/services/data_pipeline_service.py",
+      "type": "data",
+      "lines": 762,
+      "classes": 0,
+      "methods": 0,
+      "can_refactor": false,
+      "method_patterns": {}
+    },
+    {
+      "file": "/Users/aldoolivas/Desktop/GENESIS_oficial_BETA/backend/agents/backend/node/services/infrastructure_automation_service.py",
+      "type": "unknown",
+      "lines": 647,
+      "classes": 0,
+      "methods": 0,
+      "can_refactor": false,
+      "method_patterns": {}
+    },
+    {
+      "file": "/Users/aldoolivas/Desktop/GENESIS_oficial_BETA/backend/agents/precision_nutrition_architect/services/nutrition_integration_service.py",
+      "type": "integration",
+      "lines": 449,
+      "classes": 1,
+      "methods": 6,
+      "can_refactor": true,
+      "method_patterns": {
+        "custom": 6
+      }
+    },
+    {
+      "file": "/Users/aldoolivas/Desktop/GENESIS_oficial_BETA/backend/agents/precision_nutrition_architect/services/nutrition_data_service.py",
+      "type": "data",
+      "lines": 469,
+      "classes": 1,
+      "methods": 5,
+      "can_refactor": true,
+      "method_patterns": {
+        "custom": 5
+      }
+    },
+    {
+      "file": "/Users/aldoolivas/Desktop/GENESIS_oficial_BETA/backend/agents/precision_nutrition_architect/services/nutrition_security_service.py",
+      "type": "security",
+      "lines": 364,
+      "classes": 1,
+      "methods": 14,
+      "can_refactor": true,
+      "method_patterns": {
+        "custom": 13,
+        "get": 1
+      }
+    },
+    {
+      "file": "/Users/aldoolivas/Desktop/GENESIS_oficial_BETA/backend/agents/wave_performance_analytics/services/recovery_service.py",
+      "type": "unknown",
+      "lines": 424,
+      "classes": 0,
+      "methods": 0,
+      "can_refactor": false,
+      "method_patterns": {}
+    },
+    {
+      "file": "/Users/aldoolivas/Desktop/GENESIS_oficial_BETA/backend/agents/elite_training_strategist/services/training_data_service.py",
+      "type": "data",
+      "lines": 392,
+      "classes": 1,
+      "methods": 6,
+      "can_refactor": true,
+      "method_patterns": {
+        "custom": 6
+      }
+    },
+    {
+      "file": "/Users/aldoolivas/Desktop/GENESIS_oficial_BETA/backend/agents/elite_training_strategist/services/training_security_service.py",
+      "type": "security",
+      "lines": 317,
+      "classes": 1,
+      "methods": 9,
+      "can_refactor": true,
+      "method_patterns": {
+        "custom": 6,
+        "validate": 2,
+        "get": 1
+      }
+    },
+    {
+      "file": "/Users/aldoolivas/Desktop/GENESIS_oficial_BETA/backend/agents/elite_training_strategist/services/training_integration_service.py",
+      "type": "integration",
+      "lines": 465,
+      "classes": 1,
+      "methods": 9,
+      "can_refactor": true,
+      "method_patterns": {
+        "custom": 8,
+        "get": 1
+      }
+    },
+    {
+      "file": "/Users/aldoolivas/Desktop/GENESIS_oficial_BETA/backend/agents/orchestrator/services/orchestration_security_service.py",
+      "type": "security",
+      "lines": 455,
+      "classes": 1,
+      "methods": 11,
+      "can_refactor": true,
+      "method_patterns": {
+        "custom": 10,
+        "get": 1
+      }
+    },
+    {
+      "file": "/Users/aldoolivas/Desktop/GENESIS_oficial_BETA/backend/agents/code_genetic_specialist/services/consent_management_service.py",
+      "type": "unknown",
+      "lines": 471,
+      "classes": 0,
+      "methods": 0,
+      "can_refactor": false,
+      "method_patterns": {}
+    },
+    {
+      "file": "/Users/aldoolivas/Desktop/GENESIS_oficial_BETA/backend/agents/code_genetic_specialist/services/genetic_security_service.py",
+      "type": "security",
+      "lines": 375,
+      "classes": 1,
+      "methods": 4,
+      "can_refactor": true,
+      "method_patterns": {
+        "custom": 4
+      }
+    },
+    {
+      "file": "/Users/aldoolivas/Desktop/GENESIS_oficial_BETA/backend/agents/nova_biohacking_innovator/services/biohacking_integration_service.py",
+      "type": "integration",
+      "lines": 675,
+      "classes": 1,
+      "methods": 7,
+      "can_refactor": true,
+      "method_patterns": {
+        "custom": 6,
+        "get": 1
+      }
+    },
+    {
+      "file": "/Users/aldoolivas/Desktop/GENESIS_oficial_BETA/backend/agents/nova_biohacking_innovator/services/biohacking_security_service.py",
+      "type": "security",
+      "lines": 483,
+      "classes": 1,
+      "methods": 11,
+      "can_refactor": true,
+      "method_patterns": {
+        "custom": 7,
+        "validate": 4
+      }
+    },
+    {
+      "file": "/Users/aldoolivas/Desktop/GENESIS_oficial_BETA/backend/agents/nova_biohacking_innovator/services/biohacking_data_service.py",
+      "type": "data",
+      "lines": 598,
+      "classes": 1,
+      "methods": 14,
+      "can_refactor": true,
+      "method_patterns": {
+        "custom": 13,
+        "get": 1
+      }
+    },
+    {
+      "file": "/Users/aldoolivas/Desktop/GENESIS_oficial_BETA/backend/agents/base/base_data_service.py",
+      "type": "data",
+      "lines": 369,
+      "classes": 1,
+      "methods": 4,
+      "can_refactor": true,
+      "method_patterns": {
+        "custom": 3,
+        "validate": 1
+      }
+    },
+    {
+      "file": "/Users/aldoolivas/Desktop/GENESIS_oficial_BETA/backend/agents/progress_tracker/services/progress_data_service.py",
+      "type": "data",
+      "lines": 831,
+      "classes": 1,
+      "methods": 24,
+      "can_refactor": true,
+      "method_patterns": {
+        "custom": 21,
+        "validate": 1,
+        "get": 2
+      }
+    },
+    {
+      "file": "/Users/aldoolivas/Desktop/GENESIS_oficial_BETA/backend/agents/motivation_behavior_coach/services/motivation_data_service.py",
+      "type": "data",
+      "lines": 534,
+      "classes": 1,
+      "methods": 14,
+      "can_refactor": true,
+      "method_patterns": {
+        "custom": 9,
+        "update": 1,
+        "get": 3,
+        "validate": 1
+      }
+    },
+    {
+      "file": "/Users/aldoolivas/Desktop/GENESIS_oficial_BETA/backend/agents/female_wellness_coach/services/female_wellness_data_service.py",
+      "type": "data",
+      "lines": 626,
+      "classes": 1,
+      "methods": 5,
+      "can_refactor": true,
+      "method_patterns": {
+        "custom": 4,
+        "get": 1
+      }
+    },
+    {
+      "file": "/Users/aldoolivas/Desktop/GENESIS_oficial_BETA/backend/agents/precision_nutrition_architect/services/nutrition_data_service.py",
+      "type": "data",
+      "lines": 469,
+      "classes": 1,
+      "methods": 5,
+      "can_refactor": true,
+      "method_patterns": {
+        "custom": 5
+      }
+    },
+    {
+      "file": "/Users/aldoolivas/Desktop/GENESIS_oficial_BETA/backend/agents/elite_training_strategist/services/training_data_service.py",
+      "type": "data",
+      "lines": 392,
+      "classes": 1,
+      "methods": 6,
+      "can_refactor": true,
+      "method_patterns": {
+        "custom": 6
+      }
+    },
+    {
+      "file": "/Users/aldoolivas/Desktop/GENESIS_oficial_BETA/backend/agents/nova_biohacking_innovator/services/biohacking_data_service.py",
+      "type": "data",
+      "lines": 598,
+      "classes": 1,
+      "methods": 14,
+      "can_refactor": true,
+      "method_patterns": {
+        "custom": 13,
+        "get": 1
+      }
+    },
+    {
+      "file": "/Users/aldoolivas/Desktop/GENESIS_oficial_BETA/backend/agents/base/base_security_service.py",
+      "type": "security",
+      "lines": 442,
+      "classes": 1,
+      "methods": 18,
+      "can_refactor": true,
+      "method_patterns": {
+        "custom": 13,
+        "get": 3,
+        "validate": 2
+      }
+    },
+    {
+      "file": "/Users/aldoolivas/Desktop/GENESIS_oficial_BETA/backend/agents/progress_tracker/services/progress_security_service.py",
+      "type": "security",
+      "lines": 587,
+      "classes": 1,
+      "methods": 17,
+      "can_refactor": true,
+      "method_patterns": {
+        "custom": 13,
+        "validate": 2,
+        "get": 2
+      }
+    },
+    {
+      "file": "/Users/aldoolivas/Desktop/GENESIS_oficial_BETA/backend/agents/motivation_behavior_coach/services/motivation_security_service.py",
+      "type": "security",
+      "lines": 416,
+      "classes": 1,
+      "methods": 13,
+      "can_refactor": true,
+      "method_patterns": {
+        "custom": 9,
+        "validate": 2,
+        "get": 2
+      }
+    },
+    {
+      "file": "/Users/aldoolivas/Desktop/GENESIS_oficial_BETA/backend/agents/female_wellness_coach/services/female_wellness_security_service.py",
+      "type": "security",
+      "lines": 432,
+      "classes": 1,
+      "methods": 5,
+      "can_refactor": true,
+      "method_patterns": {
+        "custom": 4,
+        "get": 1
+      }
+    },
+    {
+      "file": "/Users/aldoolivas/Desktop/GENESIS_oficial_BETA/backend/agents/precision_nutrition_architect/services/nutrition_security_service.py",
+      "type": "security",
+      "lines": 364,
+      "classes": 1,
+      "methods": 14,
+      "can_refactor": true,
+      "method_patterns": {
+        "custom": 13,
+        "get": 1
+      }
+    },
+    {
+      "file": "/Users/aldoolivas/Desktop/GENESIS_oficial_BETA/backend/agents/elite_training_strategist/services/training_security_service.py",
+      "type": "security",
+      "lines": 317,
+      "classes": 1,
+      "methods": 9,
+      "can_refactor": true,
+      "method_patterns": {
+        "custom": 6,
+        "validate": 2,
+        "get": 1
+      }
+    },
+    {
+      "file": "/Users/aldoolivas/Desktop/GENESIS_oficial_BETA/backend/agents/orchestrator/services/orchestration_security_service.py",
+      "type": "security",
+      "lines": 455,
+      "classes": 1,
+      "methods": 11,
+      "can_refactor": true,
+      "method_patterns": {
+        "custom": 10,
+        "get": 1
+      }
+    },
+    {
+      "file": "/Users/aldoolivas/Desktop/GENESIS_oficial_BETA/backend/agents/code_genetic_specialist/services/genetic_security_service.py",
+      "type": "security",
+      "lines": 375,
+      "classes": 1,
+      "methods": 4,
+      "can_refactor": true,
+      "method_patterns": {
+        "custom": 4
+      }
+    },
+    {
+      "file": "/Users/aldoolivas/Desktop/GENESIS_oficial_BETA/backend/agents/nova_biohacking_innovator/services/biohacking_security_service.py",
+      "type": "security",
+      "lines": 483,
+      "classes": 1,
+      "methods": 11,
+      "can_refactor": true,
+      "method_patterns": {
+        "custom": 7,
+        "validate": 4
+      }
+    },
+    {
+      "file": "/Users/aldoolivas/Desktop/GENESIS_oficial_BETA/backend/agents/base/base_integration_service.py",
+      "type": "integration",
+      "lines": 437,
+      "classes": 1,
+      "methods": 8,
+      "can_refactor": true,
+      "method_patterns": {
+        "custom": 5,
+        "get": 3
+      }
+    },
+    {
+      "file": "/Users/aldoolivas/Desktop/GENESIS_oficial_BETA/backend/agents/progress_tracker/services/progress_integration_service.py",
+      "type": "integration",
+      "lines": 646,
+      "classes": 1,
+      "methods": 6,
+      "can_refactor": true,
+      "method_patterns": {
+        "custom": 1,
+        "get": 5
+      }
+    },
+    {
+      "file": "/Users/aldoolivas/Desktop/GENESIS_oficial_BETA/backend/agents/motivation_behavior_coach/services/motivation_integration_service.py",
+      "type": "integration",
+      "lines": 571,
+      "classes": 1,
+      "methods": 8,
+      "can_refactor": true,
+      "method_patterns": {
+        "custom": 6,
+        "get": 2
+      }
+    },
+    {
+      "file": "/Users/aldoolivas/Desktop/GENESIS_oficial_BETA/backend/agents/female_wellness_coach/services/female_wellness_integration_service.py",
+      "type": "integration",
+      "lines": 497,
+      "classes": 1,
+      "methods": 1,
+      "can_refactor": true,
+      "method_patterns": {
+        "custom": 1
+      }
+    },
+    {
+      "file": "/Users/aldoolivas/Desktop/GENESIS_oficial_BETA/backend/agents/backend/node/services/systems_integration_service.py",
+      "type": "integration",
+      "lines": 645,
+      "classes": 1,
+      "methods": 1,
+      "can_refactor": true,
+      "method_patterns": {
+        "custom": 1
+      }
+    },
+    {
+      "file": "/Users/aldoolivas/Desktop/GENESIS_oficial_BETA/backend/agents/precision_nutrition_architect/services/nutrition_integration_service.py",
+      "type": "integration",
+      "lines": 449,
+      "classes": 1,
+      "methods": 6,
+      "can_refactor": true,
+      "method_patterns": {
+        "custom": 6
+      }
+    },
+    {
+      "file": "/Users/aldoolivas/Desktop/GENESIS_oficial_BETA/backend/agents/elite_training_strategist/services/training_integration_service.py",
+      "type": "integration",
+      "lines": 465,
+      "classes": 1,
+      "methods": 9,
+      "can_refactor": true,
+      "method_patterns": {
+        "custom": 8,
+        "get": 1
+      }
+    },
+    {
+      "file": "/Users/aldoolivas/Desktop/GENESIS_oficial_BETA/backend/agents/nova_biohacking_innovator/services/biohacking_integration_service.py",
+      "type": "integration",
+      "lines": 675,
+      "classes": 1,
+      "methods": 7,
+      "can_refactor": true,
+      "method_patterns": {
+        "custom": 6,
+        "get": 1
+      }
+    }
+  ],
+  "by_type": {
+    "data": [
+      {
+        "file": "/Users/aldoolivas/Desktop/GENESIS_oficial_BETA/backend/agents/base/base_data_service.py",
+        "type": "data",
+        "lines": 369,
+        "classes": 1,
+        "methods": 4,
+        "can_refactor": true,
+        "method_patterns": {
+          "custom": 3,
+          "validate": 1
+        }
+      },
+      {
+        "file": "/Users/aldoolivas/Desktop/GENESIS_oficial_BETA/backend/agents/progress_tracker/services/progress_data_service.py",
+        "type": "data",
+        "lines": 831,
+        "classes": 1,
+        "methods": 24,
+        "can_refactor": true,
+        "method_patterns": {
+          "custom": 21,
+          "validate": 1,
+          "get": 2
+        }
+      },
+      {
+        "file": "/Users/aldoolivas/Desktop/GENESIS_oficial_BETA/backend/agents/motivation_behavior_coach/services/motivation_data_service.py",
+        "type": "data",
+        "lines": 534,
+        "classes": 1,
+        "methods": 14,
+        "can_refactor": true,
+        "method_patterns": {
+          "custom": 9,
+          "update": 1,
+          "get": 3,
+          "validate": 1
+        }
+      },
+      {
+        "file": "/Users/aldoolivas/Desktop/GENESIS_oficial_BETA/backend/agents/female_wellness_coach/services/female_wellness_data_service.py",
+        "type": "data",
+        "lines": 626,
+        "classes": 1,
+        "methods": 5,
+        "can_refactor": true,
+        "method_patterns": {
+          "custom": 4,
+          "get": 1
+        }
+      },
+      {
+        "file": "/Users/aldoolivas/Desktop/GENESIS_oficial_BETA/backend/agents/backend/node/services/data_pipeline_service.py",
+        "type": "data",
+        "lines": 762,
+        "classes": 0,
+        "methods": 0,
+        "can_refactor": false,
+        "method_patterns": {}
+      },
+      {
+        "file": "/Users/aldoolivas/Desktop/GENESIS_oficial_BETA/backend/agents/precision_nutrition_architect/services/nutrition_data_service.py",
+        "type": "data",
+        "lines": 469,
+        "classes": 1,
+        "methods": 5,
+        "can_refactor": true,
+        "method_patterns": {
+          "custom": 5
+        }
+      },
+      {
+        "file": "/Users/aldoolivas/Desktop/GENESIS_oficial_BETA/backend/agents/elite_training_strategist/services/training_data_service.py",
+        "type": "data",
+        "lines": 392,
+        "classes": 1,
+        "methods": 6,
+        "can_refactor": true,
+        "method_patterns": {
+          "custom": 6
+        }
+      },
+      {
+        "file": "/Users/aldoolivas/Desktop/GENESIS_oficial_BETA/backend/agents/nova_biohacking_innovator/services/biohacking_data_service.py",
+        "type": "data",
+        "lines": 598,
+        "classes": 1,
+        "methods": 14,
+        "can_refactor": true,
+        "method_patterns": {
+          "custom": 13,
+          "get": 1
+        }
+      },
+      {
+        "file": "/Users/aldoolivas/Desktop/GENESIS_oficial_BETA/backend/agents/base/base_data_service.py",
+        "type": "data",
+        "lines": 369,
+        "classes": 1,
+        "methods": 4,
+        "can_refactor": true,
+        "method_patterns": {
+          "custom": 3,
+          "validate": 1
+        }
+      },
+      {
+        "file": "/Users/aldoolivas/Desktop/GENESIS_oficial_BETA/backend/agents/progress_tracker/services/progress_data_service.py",
+        "type": "data",
+        "lines": 831,
+        "classes": 1,
+        "methods": 24,
+        "can_refactor": true,
+        "method_patterns": {
+          "custom": 21,
+          "validate": 1,
+          "get": 2
+        }
+      },
+      {
+        "file": "/Users/aldoolivas/Desktop/GENESIS_oficial_BETA/backend/agents/motivation_behavior_coach/services/motivation_data_service.py",
+        "type": "data",
+        "lines": 534,
+        "classes": 1,
+        "methods": 14,
+        "can_refactor": true,
+        "method_patterns": {
+          "custom": 9,
+          "update": 1,
+          "get": 3,
+          "validate": 1
+        }
+      },
+      {
+        "file": "/Users/aldoolivas/Desktop/GENESIS_oficial_BETA/backend/agents/female_wellness_coach/services/female_wellness_data_service.py",
+        "type": "data",
+        "lines": 626,
+        "classes": 1,
+        "methods": 5,
+        "can_refactor": true,
+        "method_patterns": {
+          "custom": 4,
+          "get": 1
+        }
+      },
+      {
+        "file": "/Users/aldoolivas/Desktop/GENESIS_oficial_BETA/backend/agents/precision_nutrition_architect/services/nutrition_data_service.py",
+        "type": "data",
+        "lines": 469,
+        "classes": 1,
+        "methods": 5,
+        "can_refactor": true,
+        "method_patterns": {
+          "custom": 5
+        }
+      },
+      {
+        "file": "/Users/aldoolivas/Desktop/GENESIS_oficial_BETA/backend/agents/elite_training_strategist/services/training_data_service.py",
+        "type": "data",
+        "lines": 392,
+        "classes": 1,
+        "methods": 6,
+        "can_refactor": true,
+        "method_patterns": {
+          "custom": 6
+        }
+      },
+      {
+        "file": "/Users/aldoolivas/Desktop/GENESIS_oficial_BETA/backend/agents/nova_biohacking_innovator/services/biohacking_data_service.py",
+        "type": "data",
+        "lines": 598,
+        "classes": 1,
+        "methods": 14,
+        "can_refactor": true,
+        "method_patterns": {
+          "custom": 13,
+          "get": 1
+        }
+      }
+    ],
+    "security": [
+      {
+        "file": "/Users/aldoolivas/Desktop/GENESIS_oficial_BETA/backend/agents/base/base_security_service.py",
+        "type": "security",
+        "lines": 442,
+        "classes": 1,
+        "methods": 18,
+        "can_refactor": true,
+        "method_patterns": {
+          "custom": 13,
+          "get": 3,
+          "validate": 2
+        }
+      },
+      {
+        "file": "/Users/aldoolivas/Desktop/GENESIS_oficial_BETA/backend/agents/progress_tracker/services/progress_security_service.py",
+        "type": "security",
+        "lines": 587,
+        "classes": 1,
+        "methods": 17,
+        "can_refactor": true,
+        "method_patterns": {
+          "custom": 13,
+          "validate": 2,
+          "get": 2
+        }
+      },
+      {
+        "file": "/Users/aldoolivas/Desktop/GENESIS_oficial_BETA/backend/agents/motivation_behavior_coach/services/motivation_security_service.py",
+        "type": "security",
+        "lines": 416,
+        "classes": 1,
+        "methods": 13,
+        "can_refactor": true,
+        "method_patterns": {
+          "custom": 9,
+          "validate": 2,
+          "get": 2
+        }
+      },
+      {
+        "file": "/Users/aldoolivas/Desktop/GENESIS_oficial_BETA/backend/agents/female_wellness_coach/services/female_wellness_security_service.py",
+        "type": "security",
+        "lines": 432,
+        "classes": 1,
+        "methods": 5,
+        "can_refactor": true,
+        "method_patterns": {
+          "custom": 4,
+          "get": 1
+        }
+      },
+      {
+        "file": "/Users/aldoolivas/Desktop/GENESIS_oficial_BETA/backend/agents/backend/guardian/services/security_monitor_service.py",
+        "type": "security",
+        "lines": 998,
+        "classes": 0,
+        "methods": 0,
+        "can_refactor": false,
+        "method_patterns": {}
+      },
+      {
+        "file": "/Users/aldoolivas/Desktop/GENESIS_oficial_BETA/backend/agents/precision_nutrition_architect/services/nutrition_security_service.py",
+        "type": "security",
+        "lines": 364,
+        "classes": 1,
+        "methods": 14,
+        "can_refactor": true,
+        "method_patterns": {
+          "custom": 13,
+          "get": 1
+        }
+      },
+      {
+        "file": "/Users/aldoolivas/Desktop/GENESIS_oficial_BETA/backend/agents/elite_training_strategist/services/training_security_service.py",
+        "type": "security",
+        "lines": 317,
+        "classes": 1,
+        "methods": 9,
+        "can_refactor": true,
+        "method_patterns": {
+          "custom": 6,
+          "validate": 2,
+          "get": 1
+        }
+      },
+      {
+        "file": "/Users/aldoolivas/Desktop/GENESIS_oficial_BETA/backend/agents/orchestrator/services/orchestration_security_service.py",
+        "type": "security",
+        "lines": 455,
+        "classes": 1,
+        "methods": 11,
+        "can_refactor": true,
+        "method_patterns": {
+          "custom": 10,
+          "get": 1
+        }
+      },
+      {
+        "file": "/Users/aldoolivas/Desktop/GENESIS_oficial_BETA/backend/agents/code_genetic_specialist/services/genetic_security_service.py",
+        "type": "security",
+        "lines": 375,
+        "classes": 1,
+        "methods": 4,
+        "can_refactor": true,
+        "method_patterns": {
+          "custom": 4
+        }
+      },
+      {
+        "file": "/Users/aldoolivas/Desktop/GENESIS_oficial_BETA/backend/agents/nova_biohacking_innovator/services/biohacking_security_service.py",
+        "type": "security",
+        "lines": 483,
+        "classes": 1,
+        "methods": 11,
+        "can_refactor": true,
+        "method_patterns": {
+          "custom": 7,
+          "validate": 4
+        }
+      },
+      {
+        "file": "/Users/aldoolivas/Desktop/GENESIS_oficial_BETA/backend/agents/base/base_security_service.py",
+        "type": "security",
+        "lines": 442,
+        "classes": 1,
+        "methods": 18,
+        "can_refactor": true,
+        "method_patterns": {
+          "custom": 13,
+          "get": 3,
+          "validate": 2
+        }
+      },
+      {
+        "file": "/Users/aldoolivas/Desktop/GENESIS_oficial_BETA/backend/agents/progress_tracker/services/progress_security_service.py",
+        "type": "security",
+        "lines": 587,
+        "classes": 1,
+        "methods": 17,
+        "can_refactor": true,
+        "method_patterns": {
+          "custom": 13,
+          "validate": 2,
+          "get": 2
+        }
+      },
+      {
+        "file": "/Users/aldoolivas/Desktop/GENESIS_oficial_BETA/backend/agents/motivation_behavior_coach/services/motivation_security_service.py",
+        "type": "security",
+        "lines": 416,
+        "classes": 1,
+        "methods": 13,
+        "can_refactor": true,
+        "method_patterns": {
+          "custom": 9,
+          "validate": 2,
+          "get": 2
+        }
+      },
+      {
+        "file": "/Users/aldoolivas/Desktop/GENESIS_oficial_BETA/backend/agents/female_wellness_coach/services/female_wellness_security_service.py",
+        "type": "security",
+        "lines": 432,
+        "classes": 1,
+        "methods": 5,
+        "can_refactor": true,
+        "method_patterns": {
+          "custom": 4,
+          "get": 1
+        }
+      },
+      {
+        "file": "/Users/aldoolivas/Desktop/GENESIS_oficial_BETA/backend/agents/precision_nutrition_architect/services/nutrition_security_service.py",
+        "type": "security",
+        "lines": 364,
+        "classes": 1,
+        "methods": 14,
+        "can_refactor": true,
+        "method_patterns": {
+          "custom": 13,
+          "get": 1
+        }
+      },
+      {
+        "file": "/Users/aldoolivas/Desktop/GENESIS_oficial_BETA/backend/agents/elite_training_strategist/services/training_security_service.py",
+        "type": "security",
+        "lines": 317,
+        "classes": 1,
+        "methods": 9,
+        "can_refactor": true,
+        "method_patterns": {
+          "custom": 6,
+          "validate": 2,
+          "get": 1
+        }
+      },
+      {
+        "file": "/Users/aldoolivas/Desktop/GENESIS_oficial_BETA/backend/agents/orchestrator/services/orchestration_security_service.py",
+        "type": "security",
+        "lines": 455,
+        "classes": 1,
+        "methods": 11,
+        "can_refactor": true,
+        "method_patterns": {
+          "custom": 10,
+          "get": 1
+        }
+      },
+      {
+        "file": "/Users/aldoolivas/Desktop/GENESIS_oficial_BETA/backend/agents/code_genetic_specialist/services/genetic_security_service.py",
+        "type": "security",
+        "lines": 375,
+        "classes": 1,
+        "methods": 4,
+        "can_refactor": true,
+        "method_patterns": {
+          "custom": 4
+        }
+      },
+      {
+        "file": "/Users/aldoolivas/Desktop/GENESIS_oficial_BETA/backend/agents/nova_biohacking_innovator/services/biohacking_security_service.py",
+        "type": "security",
+        "lines": 483,
+        "classes": 1,
+        "methods": 11,
+        "can_refactor": true,
+        "method_patterns": {
+          "custom": 7,
+          "validate": 4
+        }
+      }
+    ],
+    "integration": [
+      {
+        "file": "/Users/aldoolivas/Desktop/GENESIS_oficial_BETA/backend/agents/base/base_integration_service.py",
+        "type": "integration",
+        "lines": 437,
+        "classes": 1,
+        "methods": 8,
+        "can_refactor": true,
+        "method_patterns": {
+          "custom": 5,
+          "get": 3
+        }
+      },
+      {
+        "file": "/Users/aldoolivas/Desktop/GENESIS_oficial_BETA/backend/agents/progress_tracker/services/progress_integration_service.py",
+        "type": "integration",
+        "lines": 646,
+        "classes": 1,
+        "methods": 6,
+        "can_refactor": true,
+        "method_patterns": {
+          "custom": 1,
+          "get": 5
+        }
+      },
+      {
+        "file": "/Users/aldoolivas/Desktop/GENESIS_oficial_BETA/backend/agents/motivation_behavior_coach/services/motivation_integration_service.py",
+        "type": "integration",
+        "lines": 571,
+        "classes": 1,
+        "methods": 8,
+        "can_refactor": true,
+        "method_patterns": {
+          "custom": 6,
+          "get": 2
+        }
+      },
+      {
+        "file": "/Users/aldoolivas/Desktop/GENESIS_oficial_BETA/backend/agents/female_wellness_coach/services/female_wellness_integration_service.py",
+        "type": "integration",
+        "lines": 497,
+        "classes": 1,
+        "methods": 1,
+        "can_refactor": true,
+        "method_patterns": {
+          "custom": 1
+        }
+      },
+      {
+        "file": "/Users/aldoolivas/Desktop/GENESIS_oficial_BETA/backend/agents/backend/node/services/systems_integration_service.py",
+        "type": "integration",
+        "lines": 645,
+        "classes": 1,
+        "methods": 1,
+        "can_refactor": true,
+        "method_patterns": {
+          "custom": 1
+        }
+      },
+      {
+        "file": "/Users/aldoolivas/Desktop/GENESIS_oficial_BETA/backend/agents/precision_nutrition_architect/services/nutrition_integration_service.py",
+        "type": "integration",
+        "lines": 449,
+        "classes": 1,
+        "methods": 6,
+        "can_refactor": true,
+        "method_patterns": {
+          "custom": 6
+        }
+      },
+      {
+        "file": "/Users/aldoolivas/Desktop/GENESIS_oficial_BETA/backend/agents/elite_training_strategist/services/training_integration_service.py",
+        "type": "integration",
+        "lines": 465,
+        "classes": 1,
+        "methods": 9,
+        "can_refactor": true,
+        "method_patterns": {
+          "custom": 8,
+          "get": 1
+        }
+      },
+      {
+        "file": "/Users/aldoolivas/Desktop/GENESIS_oficial_BETA/backend/agents/nova_biohacking_innovator/services/biohacking_integration_service.py",
+        "type": "integration",
+        "lines": 675,
+        "classes": 1,
+        "methods": 7,
+        "can_refactor": true,
+        "method_patterns": {
+          "custom": 6,
+          "get": 1
+        }
+      },
+      {
+        "file": "/Users/aldoolivas/Desktop/GENESIS_oficial_BETA/backend/agents/base/base_integration_service.py",
+        "type": "integration",
+        "lines": 437,
+        "classes": 1,
+        "methods": 8,
+        "can_refactor": true,
+        "method_patterns": {
+          "custom": 5,
+          "get": 3
+        }
+      },
+      {
+        "file": "/Users/aldoolivas/Desktop/GENESIS_oficial_BETA/backend/agents/progress_tracker/services/progress_integration_service.py",
+        "type": "integration",
+        "lines": 646,
+        "classes": 1,
+        "methods": 6,
+        "can_refactor": true,
+        "method_patterns": {
+          "custom": 1,
+          "get": 5
+        }
+      },
+      {
+        "file": "/Users/aldoolivas/Desktop/GENESIS_oficial_BETA/backend/agents/motivation_behavior_coach/services/motivation_integration_service.py",
+        "type": "integration",
+        "lines": 571,
+        "classes": 1,
+        "methods": 8,
+        "can_refactor": true,
+        "method_patterns": {
+          "custom": 6,
+          "get": 2
+        }
+      },
+      {
+        "file": "/Users/aldoolivas/Desktop/GENESIS_oficial_BETA/backend/agents/female_wellness_coach/services/female_wellness_integration_service.py",
+        "type": "integration",
+        "lines": 497,
+        "classes": 1,
+        "methods": 1,
+        "can_refactor": true,
+        "method_patterns": {
+          "custom": 1
+        }
+      },
+      {
+        "file": "/Users/aldoolivas/Desktop/GENESIS_oficial_BETA/backend/agents/backend/node/services/systems_integration_service.py",
+        "type": "integration",
+        "lines": 645,
+        "classes": 1,
+        "methods": 1,
+        "can_refactor": true,
+        "method_patterns": {
+          "custom": 1
+        }
+      },
+      {
+        "file": "/Users/aldoolivas/Desktop/GENESIS_oficial_BETA/backend/agents/precision_nutrition_architect/services/nutrition_integration_service.py",
+        "type": "integration",
+        "lines": 449,
+        "classes": 1,
+        "methods": 6,
+        "can_refactor": true,
+        "method_patterns": {
+          "custom": 6
+        }
+      },
+      {
+        "file": "/Users/aldoolivas/Desktop/GENESIS_oficial_BETA/backend/agents/elite_training_strategist/services/training_integration_service.py",
+        "type": "integration",
+        "lines": 465,
+        "classes": 1,
+        "methods": 9,
+        "can_refactor": true,
+        "method_patterns": {
+          "custom": 8,
+          "get": 1
+        }
+      },
+      {
+        "file": "/Users/aldoolivas/Desktop/GENESIS_oficial_BETA/backend/agents/nova_biohacking_innovator/services/biohacking_integration_service.py",
+        "type": "integration",
+        "lines": 675,
+        "classes": 1,
+        "methods": 7,
+        "can_refactor": true,
+        "method_patterns": {
+          "custom": 6,
+          "get": 1
+        }
+      }
+    ],
+    "unknown": [
+      {
+        "file": "/Users/aldoolivas/Desktop/GENESIS_oficial_BETA/backend/agents/backend/guardian/services/compliance_checker_service.py",
+        "type": "unknown",
+        "lines": 1142,
+        "classes": 0,
+        "methods": 0,
+        "can_refactor": false,
+        "method_patterns": {}
+      },
+      {
+        "file": "/Users/aldoolivas/Desktop/GENESIS_oficial_BETA/backend/agents/backend/guardian/services/audit_trail_service.py",
+        "type": "unknown",
+        "lines": 1362,
+        "classes": 0,
+        "methods": 0,
+        "can_refactor": false,
+        "method_patterns": {}
+      },
+      {
+        "file": "/Users/aldoolivas/Desktop/GENESIS_oficial_BETA/backend/agents/backend/node/services/infrastructure_automation_service.py",
+        "type": "unknown",
+        "lines": 647,
+        "classes": 0,
+        "methods": 0,
+        "can_refactor": false,
+        "method_patterns": {}
+      },
+      {
+        "file": "/Users/aldoolivas/Desktop/GENESIS_oficial_BETA/backend/agents/wave_performance_analytics/services/recovery_service.py",
+        "type": "unknown",
+        "lines": 424,
+        "classes": 0,
+        "methods": 0,
+        "can_refactor": false,
+        "method_patterns": {}
+      },
+      {
+        "file": "/Users/aldoolivas/Desktop/GENESIS_oficial_BETA/backend/agents/code_genetic_specialist/services/consent_management_service.py",
+        "type": "unknown",
+        "lines": 471,
+        "classes": 0,
+        "methods": 0,
+        "can_refactor": false,
+        "method_patterns": {}
+      }
+    ]
+  },
+  "recommendations": [
+    "\ud83c\udfaf HIGH PRIORITY: You can reduce 52% (15672 lines) by refactoring to base classes",
+    "- Refactor 14 data services to use BaseDataService",
+    "- Refactor 18 security services to use BaseSecurityService",
+    "- Refactor 16 integration services to use BaseIntegrationService",
+    "- Most common patterns: custom (348x), get (60x), validate (30x)"
+  ]
+}

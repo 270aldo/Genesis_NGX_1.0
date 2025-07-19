@@ -1,0 +1,853 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NGX - Test de Análisis Visual Nutricional</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            padding: 40px;
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        .test-section {
+            margin-bottom: 40px;
+            padding: 25px;
+            background: #f7f9fc;
+            border-radius: 15px;
+            border: 1px solid #e1e8ed;
+        }
+        .test-section h2 {
+            color: #5a67d8;
+            margin-bottom: 20px;
+        }
+        .upload-area {
+            border: 2px dashed #cbd5e0;
+            border-radius: 10px;
+            padding: 30px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-bottom: 20px;
+        }
+        .upload-area:hover {
+            border-color: #5a67d8;
+            background: #f0f4ff;
+        }
+        .upload-area.dragover {
+            border-color: #5a67d8;
+            background: #e6ecff;
+        }
+        input[type="file"] {
+            display: none;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #4a5568;
+            font-weight: 500;
+        }
+        input[type="text"], textarea, select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+        textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+        button {
+            background: #5a67d8;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-right: 10px;
+        }
+        button:hover {
+            background: #4c51bf;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        button:disabled {
+            background: #a0aec0;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .preview-image {
+            max-width: 300px;
+            max-height: 300px;
+            margin: 20px auto;
+            display: block;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .results {
+            margin-top: 30px;
+            padding: 20px;
+            background: #f0f4f8;
+            border-radius: 10px;
+            display: none;
+        }
+        .results.show {
+            display: block;
+        }
+        .result-item {
+            background: white;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            border-left: 4px solid #5a67d8;
+        }
+        .result-item h4 {
+            margin: 0 0 10px 0;
+            color: #2d3748;
+        }
+        .loading {
+            text-align: center;
+            padding: 20px;
+            display: none;
+        }
+        .loading.show {
+            display: block;
+        }
+        .spinner {
+            border: 3px solid #f3f4f6;
+            border-top: 3px solid #5a67d8;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .error {
+            background: #fed7d7;
+            color: #c53030;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            display: none;
+        }
+        .error.show {
+            display: block;
+        }
+        .nutrition-facts {
+            background: white;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+        .nutrition-facts h3 {
+            margin-top: 0;
+            color: #2d3748;
+        }
+        .nutrition-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+        .nutrition-item {
+            background: #f7fafc;
+            padding: 10px;
+            border-radius: 6px;
+            border: 1px solid #e2e8f0;
+        }
+        .health-score {
+            font-size: 48px;
+            font-weight: bold;
+            text-align: center;
+            color: #5a67d8;
+            margin: 20px 0;
+        }
+        .components-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        .component-tag {
+            background: #e6ecff;
+            color: #4c51bf;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+        }
+        .batch-upload {
+            background: #f7fafc;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+        .file-list {
+            margin-top: 15px;
+        }
+        .file-item {
+            background: white;
+            padding: 10px;
+            margin-bottom: 5px;
+            border-radius: 6px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .remove-file {
+            color: #e53e3e;
+            cursor: pointer;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔬 NGX - Test de Análisis Visual Nutricional con SAGE</h1>
+
+        <!-- Análisis de Etiquetas Nutricionales -->
+        <div class="test-section">
+            <h2>📋 Análisis de Etiquetas Nutricionales</h2>
+            <div class="upload-area" onclick="document.getElementById('labelFile').click()">
+                <p>📸 Arrastra una imagen de etiqueta nutricional aquí o haz clic para seleccionar</p>
+                <input type="file" id="labelFile" accept="image/*" onchange="handleLabelUpload(event)">
+            </div>
+            <img id="labelPreview" class="preview-image" style="display:none;">
+            
+            <div class="form-group">
+                <label>Pregunta específica (opcional):</label>
+                <input type="text" id="labelQuestion" placeholder="Ej: ¿Es apto para diabéticos?">
+            </div>
+            
+            <div class="form-group">
+                <label>Restricciones dietéticas:</label>
+                <input type="text" id="dietaryRestrictions" placeholder="Ej: gluten-free, vegano, sin lactosa">
+            </div>
+            
+            <div class="form-group">
+                <label>
+                    <input type="checkbox" id="comparisonMode"> Comparar con productos similares
+                </label>
+            </div>
+            
+            <button onclick="analyzeLabelImage()">🔍 Analizar Etiqueta</button>
+            
+            <div class="loading" id="labelLoading">
+                <div class="spinner"></div>
+                <p>Analizando etiqueta nutricional...</p>
+            </div>
+            
+            <div class="error" id="labelError"></div>
+            <div class="results" id="labelResults"></div>
+        </div>
+
+        <!-- Análisis de Platos Preparados -->
+        <div class="test-section">
+            <h2>🍽️ Análisis Avanzado de Platos Preparados</h2>
+            <div class="upload-area" onclick="document.getElementById('mealFile').click()">
+                <p>📸 Arrastra una imagen de tu plato aquí o haz clic para seleccionar</p>
+                <input type="file" id="mealFile" accept="image/*" onchange="handleMealUpload(event)">
+            </div>
+            <img id="mealPreview" class="preview-image" style="display:none;">
+            
+            <div class="form-group">
+                <label>Descripción del plato:</label>
+                <textarea id="mealDescription" placeholder="Ej: Pollo a la plancha con arroz integral y ensalada"></textarea>
+            </div>
+            
+            <div class="form-group">
+                <label>Tipo de comida:</label>
+                <select id="mealType">
+                    <option value="">Seleccionar...</option>
+                    <option value="desayuno">Desayuno</option>
+                    <option value="almuerzo">Almuerzo</option>
+                    <option value="cena">Cena</option>
+                    <option value="snack">Snack</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label>Hora de la comida:</label>
+                <input type="time" id="mealTime">
+            </div>
+            
+            <div class="form-group">
+                <label>Nivel de precisión:</label>
+                <select id="nutritionPrecision">
+                    <option value="basic">Básico</option>
+                    <option value="standard" selected>Estándar</option>
+                    <option value="detailed">Detallado</option>
+                </select>
+            </div>
+            
+            <button onclick="analyzeMealImage()">🔬 Analizar Plato</button>
+            
+            <div class="loading" id="mealLoading">
+                <div class="spinner"></div>
+                <p>Analizando plato preparado con estimación de porciones...</p>
+            </div>
+            
+            <div class="error" id="mealError"></div>
+            <div class="results" id="mealResults"></div>
+        </div>
+
+        <!-- Análisis Batch -->
+        <div class="test-section">
+            <h2>📦 Análisis Batch (Múltiples Imágenes)</h2>
+            <div class="batch-upload">
+                <p>Selecciona hasta 5 imágenes para analizar en batch:</p>
+                <input type="file" id="batchFiles" accept="image/*" multiple onchange="handleBatchUpload(event)">
+                <button onclick="document.getElementById('batchFiles').click()">Seleccionar Imágenes</button>
+                
+                <div class="file-list" id="batchFileList"></div>
+                
+                <div class="form-group" style="margin-top: 20px;">
+                    <label>Tipo de análisis:</label>
+                    <select id="batchAnalysisType">
+                        <option value="label">Etiquetas Nutricionales</option>
+                        <option value="meal">Platos Preparados</option>
+                        <option value="food">Alimentos General</option>
+                    </select>
+                </div>
+                
+                <button onclick="analyzeBatch()">🚀 Analizar Batch</button>
+            </div>
+            
+            <div class="loading" id="batchLoading">
+                <div class="spinner"></div>
+                <p>Procesando batch de imágenes...</p>
+            </div>
+            
+            <div class="error" id="batchError"></div>
+            <div class="results" id="batchResults"></div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:8000';
+        let authToken = localStorage.getItem('ngx_token');
+        let selectedBatchFiles = [];
+
+        // Setup drag and drop
+        document.querySelectorAll('.upload-area').forEach(area => {
+            area.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                area.classList.add('dragover');
+            });
+            
+            area.addEventListener('dragleave', () => {
+                area.classList.remove('dragover');
+            });
+            
+            area.addEventListener('drop', (e) => {
+                e.preventDefault();
+                area.classList.remove('dragover');
+                const input = area.querySelector('input[type="file"]');
+                if (input && e.dataTransfer.files.length > 0) {
+                    input.files = e.dataTransfer.files;
+                    input.dispatchEvent(new Event('change'));
+                }
+            });
+        });
+
+        // Get auth token
+        async function getAuthToken() {
+            if (!authToken) {
+                const email = prompt('Por favor ingresa tu email:');
+                const password = prompt('Por favor ingresa tu contraseña:');
+                
+                try {
+                    const response = await fetch(`${API_BASE}/auth/login`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ email, password }),
+                    });
+                    
+                    if (response.ok) {
+                        const data = await response.json();
+                        authToken = data.access_token;
+                        localStorage.setItem('ngx_token', authToken);
+                    } else {
+                        alert('Error de autenticación');
+                        return null;
+                    }
+                } catch (error) {
+                    alert('Error de conexión');
+                    return null;
+                }
+            }
+            return authToken;
+        }
+
+        // Handle label upload
+        function handleLabelUpload(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    document.getElementById('labelPreview').src = e.target.result;
+                    document.getElementById('labelPreview').style.display = 'block';
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        // Handle meal upload
+        function handleMealUpload(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    document.getElementById('mealPreview').src = e.target.result;
+                    document.getElementById('mealPreview').style.display = 'block';
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        // Handle batch upload
+        function handleBatchUpload(event) {
+            const files = Array.from(event.target.files).slice(0, 5);
+            selectedBatchFiles = files;
+            
+            const fileList = document.getElementById('batchFileList');
+            fileList.innerHTML = '';
+            
+            files.forEach((file, index) => {
+                const fileItem = document.createElement('div');
+                fileItem.className = 'file-item';
+                fileItem.innerHTML = `
+                    <span>${file.name}</span>
+                    <span class="remove-file" onclick="removeBatchFile(${index})">✕</span>
+                `;
+                fileList.appendChild(fileItem);
+            });
+        }
+
+        function removeBatchFile(index) {
+            selectedBatchFiles.splice(index, 1);
+            handleBatchUpload({ target: { files: selectedBatchFiles } });
+        }
+
+        // Analyze label image
+        async function analyzeLabelImage() {
+            const token = await getAuthToken();
+            if (!token) return;
+
+            const fileInput = document.getElementById('labelFile');
+            if (!fileInput.files[0]) {
+                alert('Por favor selecciona una imagen');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('file', fileInput.files[0]);
+            
+            const question = document.getElementById('labelQuestion').value;
+            if (question) formData.append('user_input', question);
+            
+            const restrictions = document.getElementById('dietaryRestrictions').value;
+            if (restrictions) {
+                const restrictionsArray = restrictions.split(',').map(r => r.trim());
+                formData.append('dietary_restrictions', JSON.stringify(restrictionsArray));
+            }
+            
+            formData.append('comparison_mode', document.getElementById('comparisonMode').checked);
+
+            showLoading('labelLoading', true);
+            hideError('labelError');
+            hideResults('labelResults');
+
+            try {
+                const response = await fetch(`${API_BASE}/api/nutrition/vision/analyze-label`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                    },
+                    body: formData,
+                });
+
+                const data = await response.json();
+                
+                if (response.ok) {
+                    displayLabelResults(data.data);
+                } else {
+                    showError('labelError', data.detail || 'Error al analizar la imagen');
+                }
+            } catch (error) {
+                showError('labelError', 'Error de conexión: ' + error.message);
+            } finally {
+                showLoading('labelLoading', false);
+            }
+        }
+
+        // Analyze meal image
+        async function analyzeMealImage() {
+            const token = await getAuthToken();
+            if (!token) return;
+
+            const fileInput = document.getElementById('mealFile');
+            if (!fileInput.files[0]) {
+                alert('Por favor selecciona una imagen');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('file', fileInput.files[0]);
+            
+            const description = document.getElementById('mealDescription').value;
+            if (description) formData.append('user_input', description);
+            
+            const mealType = document.getElementById('mealType').value;
+            if (mealType) formData.append('meal_type', mealType);
+            
+            const mealTime = document.getElementById('mealTime').value;
+            if (mealTime) formData.append('meal_time', mealTime);
+            
+            formData.append('nutrition_precision', document.getElementById('nutritionPrecision').value);
+            formData.append('portion_estimation_mode', 'true');
+
+            showLoading('mealLoading', true);
+            hideError('mealError');
+            hideResults('mealResults');
+
+            try {
+                const response = await fetch(`${API_BASE}/api/nutrition/vision/analyze-prepared-meal`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                    },
+                    body: formData,
+                });
+
+                const data = await response.json();
+                
+                if (response.ok) {
+                    displayMealResults(data.data);
+                } else {
+                    showError('mealError', data.detail || 'Error al analizar la imagen');
+                }
+            } catch (error) {
+                showError('mealError', 'Error de conexión: ' + error.message);
+            } finally {
+                showLoading('mealLoading', false);
+            }
+        }
+
+        // Analyze batch
+        async function analyzeBatch() {
+            const token = await getAuthToken();
+            if (!token) return;
+
+            if (selectedBatchFiles.length === 0) {
+                alert('Por favor selecciona al menos una imagen');
+                return;
+            }
+
+            const formData = new FormData();
+            selectedBatchFiles.forEach(file => {
+                formData.append('files', file);
+            });
+            formData.append('analysis_type', document.getElementById('batchAnalysisType').value);
+
+            showLoading('batchLoading', true);
+            hideError('batchError');
+            hideResults('batchResults');
+
+            try {
+                const response = await fetch(`${API_BASE}/api/nutrition/vision/batch-analyze`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                    },
+                    body: formData,
+                });
+
+                const data = await response.json();
+                
+                if (response.ok) {
+                    displayBatchResults(data);
+                } else {
+                    showError('batchError', data.detail || 'Error al analizar las imágenes');
+                }
+            } catch (error) {
+                showError('batchError', 'Error de conexión: ' + error.message);
+            } finally {
+                showLoading('batchLoading', false);
+            }
+        }
+
+        // Display functions
+        function displayLabelResults(data) {
+            const resultsDiv = document.getElementById('labelResults');
+            
+            let html = '<h3>📊 Resultados del Análisis</h3>';
+            
+            // Product info
+            html += `
+                <div class="result-item">
+                    <h4>🏷️ ${data.product_name || 'Producto'}</h4>
+                    <p><strong>Marca:</strong> ${data.brand || 'No especificada'}</p>
+                </div>
+            `;
+            
+            // Health assessment
+            if (data.product_assessment) {
+                html += `
+                    <div class="nutrition-facts">
+                        <h3>Evaluación de Salud</h3>
+                        <div class="health-score">${data.product_assessment.health_score}/10</div>
+                        <p><strong>Calificación:</strong> ${data.product_assessment.quality_grade}</p>
+                        <p><strong>Nivel de procesamiento:</strong> ${data.product_assessment.processing_level}</p>
+                    </div>
+                `;
+            }
+            
+            // Nutrition facts
+            if (data.nutrition_facts) {
+                html += '<div class="nutrition-facts"><h3>Información Nutricional</h3><div class="nutrition-grid">';
+                Object.entries(data.nutrition_facts).forEach(([key, value]) => {
+                    if (value) {
+                        html += `<div class="nutrition-item"><strong>${formatNutrientName(key)}:</strong> ${value}</div>`;
+                    }
+                });
+                html += '</div></div>';
+            }
+            
+            // Ingredients
+            if (data.ingredients_list && data.ingredients_list.length > 0) {
+                html += '<div class="result-item"><h4>📝 Ingredientes</h4><p>' + data.ingredients_list.join(', ') + '</p></div>';
+            }
+            
+            // Warnings
+            if (data.warnings && data.warnings.length > 0) {
+                html += '<div class="result-item"><h4>⚠️ Advertencias</h4>';
+                data.warnings.forEach(warning => {
+                    html += `<p>• ${warning}</p>`;
+                });
+                html += '</div>';
+            }
+            
+            // Recommendations
+            if (data.personalized_recommendations && data.personalized_recommendations.length > 0) {
+                html += '<div class="result-item"><h4>💡 Recomendaciones Personalizadas</h4>';
+                data.personalized_recommendations.forEach(rec => {
+                    html += `<p>• ${rec}</p>`;
+                });
+                html += '</div>';
+            }
+            
+            resultsDiv.innerHTML = html;
+            showResults('labelResults');
+        }
+
+        function displayMealResults(data) {
+            const resultsDiv = document.getElementById('mealResults');
+            
+            let html = '<h3>🍽️ Análisis del Plato</h3>';
+            
+            // Meal identification
+            html += `
+                <div class="result-item">
+                    <h4>🍴 ${data.meal_identification || 'Plato identificado'}</h4>
+                    ${data.cuisine_type ? `<p><strong>Tipo de cocina:</strong> ${data.cuisine_type}</p>` : ''}
+                </div>
+            `;
+            
+            // Health score
+            html += `
+                <div class="nutrition-facts">
+                    <h3>Puntuación de Salud</h3>
+                    <div class="health-score">${data.health_score}/10</div>
+                </div>
+            `;
+            
+            // Food components
+            if (data.food_components && data.food_components.length > 0) {
+                html += '<div class="result-item"><h4>🥗 Componentes del Plato</h4><div class="components-list">';
+                data.food_components.forEach(comp => {
+                    html += `<span class="component-tag">${comp.name} (${comp.portion_size})</span>`;
+                });
+                html += '</div></div>';
+            }
+            
+            // Nutrition analysis
+            if (data.nutrition_analysis) {
+                const analysis = data.nutrition_analysis;
+                html += '<div class="nutrition-facts"><h3>Análisis Nutricional</h3>';
+                
+                if (analysis.calories_range) {
+                    html += `<p><strong>Calorías estimadas:</strong> ${analysis.calories_range.min} - ${analysis.calories_range.max} kcal</p>`;
+                }
+                
+                if (analysis.macronutrient_breakdown) {
+                    html += '<div class="nutrition-grid">';
+                    const macros = analysis.macronutrient_breakdown;
+                    if (macros.protein_grams) html += `<div class="nutrition-item"><strong>Proteínas:</strong> ${macros.protein_grams}g</div>`;
+                    if (macros.carbs_grams) html += `<div class="nutrition-item"><strong>Carbohidratos:</strong> ${macros.carbs_grams}g</div>`;
+                    if (macros.fat_grams) html += `<div class="nutrition-item"><strong>Grasas:</strong> ${macros.fat_grams}g</div>`;
+                    html += '</div>';
+                }
+                
+                html += `<p><strong>Balance nutricional:</strong> ${analysis.nutritional_balance_score}/10</p>`;
+                html += `<p><strong>Completitud:</strong> ${analysis.meal_completeness}</p>`;
+                html += '</div>';
+            }
+            
+            // Portion assessment
+            if (data.portion_assessment) {
+                html += '<div class="result-item"><h4>📏 Evaluación de Porciones</h4>';
+                html += `<p><strong>Tamaño:</strong> ${data.portion_assessment.portion_adequacy}</p>`;
+                html += `<p><strong>Densidad calórica:</strong> ${data.portion_assessment.caloric_density}</p>`;
+                data.portion_assessment.portion_recommendations.forEach(rec => {
+                    html += `<p>• ${rec}</p>`;
+                });
+                html += '</div>';
+            }
+            
+            // Timing analysis
+            if (data.timing_analysis) {
+                html += '<div class="result-item"><h4>⏰ Análisis de Timing</h4>';
+                html += `<p><strong>Momentos óptimos:</strong> ${data.timing_analysis.optimal_timing.join(', ')}</p>`;
+                html += `<p><strong>Pre/Post entrenamiento:</strong> ${data.timing_analysis.pre_post_workout_suitability}</p>`;
+                html += `<p><strong>Perfil energético:</strong> ${data.timing_analysis.energy_profile}</p>`;
+                html += '</div>';
+            }
+            
+            // Personalized feedback
+            if (data.personalized_feedback && data.personalized_feedback.length > 0) {
+                html += '<div class="result-item"><h4>💬 Feedback Personalizado</h4>';
+                data.personalized_feedback.forEach(feedback => {
+                    html += `<p>• ${feedback}</p>`;
+                });
+                html += '</div>';
+            }
+            
+            // Improvement suggestions
+            if (data.improvement_suggestions && data.improvement_suggestions.length > 0) {
+                html += '<div class="result-item"><h4>🎯 Sugerencias de Mejora</h4>';
+                data.improvement_suggestions.forEach(suggestion => {
+                    html += `<p>• ${suggestion}</p>`;
+                });
+                html += '</div>';
+            }
+            
+            resultsDiv.innerHTML = html;
+            showResults('mealResults');
+        }
+
+        function displayBatchResults(data) {
+            const resultsDiv = document.getElementById('batchResults');
+            
+            let html = `
+                <h3>📦 Resultados del Análisis Batch</h3>
+                <p><strong>Total de archivos:</strong> ${data.total_files}</p>
+                <p><strong>Exitosos:</strong> ${data.successful}</p>
+                <p><strong>Fallidos:</strong> ${data.failed}</p>
+            `;
+            
+            if (data.results && data.results.length > 0) {
+                html += '<h4>✅ Análisis Exitosos</h4>';
+                data.results.forEach(result => {
+                    html += `<div class="result-item">`;
+                    html += `<h5>${result.file}</h5>`;
+                    
+                    // Show simplified results based on analysis type
+                    if (data.analysis_type === 'label') {
+                        html += `<p><strong>Producto:</strong> ${result.result.product_name || 'N/A'}</p>`;
+                        html += `<p><strong>Puntuación:</strong> ${result.result.product_assessment?.health_score || 'N/A'}/10</p>`;
+                    } else if (data.analysis_type === 'meal') {
+                        html += `<p><strong>Plato:</strong> ${result.result.meal_identification || 'N/A'}</p>`;
+                        html += `<p><strong>Puntuación:</strong> ${result.result.health_score || 'N/A'}/10</p>`;
+                    } else {
+                        html += `<p><strong>Alimentos:</strong> ${result.result.identified_foods?.length || 0} identificados</p>`;
+                    }
+                    
+                    html += `</div>`;
+                });
+            }
+            
+            if (data.errors && data.errors.length > 0) {
+                html += '<h4>❌ Errores</h4>';
+                data.errors.forEach(error => {
+                    html += `<div class="result-item">`;
+                    html += `<p><strong>${error.file}:</strong> ${error.error}</p>`;
+                    html += `</div>`;
+                });
+            }
+            
+            resultsDiv.innerHTML = html;
+            showResults('batchResults');
+        }
+
+        // Utility functions
+        function showLoading(id, show) {
+            document.getElementById(id).classList.toggle('show', show);
+        }
+
+        function showError(id, message) {
+            const errorDiv = document.getElementById(id);
+            errorDiv.textContent = message;
+            errorDiv.classList.add('show');
+        }
+
+        function hideError(id) {
+            document.getElementById(id).classList.remove('show');
+        }
+
+        function showResults(id) {
+            document.getElementById(id).classList.add('show');
+        }
+
+        function hideResults(id) {
+            document.getElementById(id).classList.remove('show');
+        }
+
+        function formatNutrientName(name) {
+            const nameMap = {
+                'serving_size': 'Tamaño de porción',
+                'servings_per_container': 'Porciones por envase',
+                'calories_per_serving': 'Calorías por porción',
+                'total_fat': 'Grasa total',
+                'saturated_fat': 'Grasa saturada',
+                'trans_fat': 'Grasa trans',
+                'cholesterol': 'Colesterol',
+                'sodium': 'Sodio',
+                'total_carbs': 'Carbohidratos totales',
+                'dietary_fiber': 'Fibra dietética',
+                'sugars': 'Azúcares',
+                'added_sugars': 'Azúcares añadidos',
+                'protein': 'Proteína'
+            };
+            return nameMap[name] || name;
+        }
+    </script>
+</body>
+</html>
