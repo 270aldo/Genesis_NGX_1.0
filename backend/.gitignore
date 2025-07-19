@@ -101,11 +101,16 @@ jest-results.xml
 
 # Backups
 *.bak
+*.backup
 *.new
 *.old
 *.orig
+*_old.*
+*_original.*
+*_backup.*
 backup_*/
 archive_*/
+.archive/
 
 # Frontend / Next.js
 frontend/.next/
@@ -173,3 +178,9 @@ CONTEXTO_SESION_*.md
 SESION_*.md
 PROJECT_STATUS_*.md
 RESUMEN_*.md
+credentials.json
+*.png
+*.jpg
+*.jpeg
+Screenshot*
+Captura*

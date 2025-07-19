@@ -813,6 +813,108 @@ class VertexAIClient:
         finally:
             telemetry_adapter.end_span(span)
 
+    @measure_execution_time("vertex_ai.client.batch_generate_embeddings")
+    @with_retries(max_retries=2, base_delay=0.5, backoff_factor=2)
+    async def batch_generate_embeddings(self, texts: List[str]) -> List[List[float]]:
+        """
+        Genera embeddings para múltiples textos en lote.
+
+        Args:
+            texts: Lista de textos para generar embeddings
+
+        Returns:
+            List[List[float]]: Lista de embeddings generados
+        """
+        await self._ensure_initialized()
+
+        span = telemetry_adapter.start_span(
+            "VertexAIClient.batch_generate_embeddings", 
+            {"client.text_count": len(texts)}
+        )
+
+        try:
+            telemetry_adapter.add_span_event(span, "batch_embedding.start")
+            self.stats["batch_embedding_requests"] += 1
+
+            # Si no hay textos, retornar lista vacía
+            if not texts:
+                return []
+
+            start_time = time.time()
+
+            # Adquirir cliente del pool
+            client = await self.connection_pool.acquire()
+
+            try:
+                # Modo mock si no está disponible Vertex AI
+                if client.get("mock", False):
+                    await asyncio.sleep(0.1 * len(texts))  # Simular latencia proporcional
+
+                    # Generar embeddings aleatorios de 3072 dimensiones
+                    import random
+
+                    embeddings = []
+                    for _ in texts:
+                        vector = [random.uniform(-1, 1) for _ in range(3072)]
+                        embeddings.append(vector)
+
+                    telemetry_adapter.set_span_attribute(span, "client.mode", "mock")
+                else:
+                    # Generar embeddings en lote
+                    model = client["embedding_model"]
+                    results = model.get_embeddings(texts)
+                    
+                    embeddings = []
+                    for result in results:
+                        embeddings.append(result.values)
+
+                    telemetry_adapter.set_span_attribute(span, "client.mode", "real")
+            finally:
+                # Liberar cliente al pool
+                await self.connection_pool.release(client)
+
+            end_time = time.time()
+
+            # Actualizar estadísticas
+            latency_ms = (end_time - start_time) * 1000
+
+            op_latencies = self.stats["latency_ms"].setdefault("batch_embedding", [])
+            op_latencies.append(latency_ms)
+            if len(op_latencies) > 100:
+                op_latencies.pop(0)
+
+            # Registrar métricas de telemetría
+            telemetry_adapter.set_span_attribute(span, "client.latency_ms", latency_ms)
+            telemetry_adapter.set_span_attribute(
+                span, "client.embeddings_generated", len(embeddings)
+            )
+            telemetry_adapter.record_metric(
+                "vertex_ai.client.batch_latency", latency_ms, {"operation": "batch_embedding"}
+            )
+
+            return embeddings
+
+        except Exception as e:
+            error_type = type(e).__name__
+            error_count = self.stats["errors"].get(error_type, 0) + 1
+            self.stats["errors"][error_type] = error_count
+
+            telemetry_adapter.record_exception(span, e)
+            telemetry_adapter.set_span_attribute(span, "client.error", str(e))
+            telemetry_adapter.record_metric(
+                "vertex_ai.client.errors",
+                1,
+                {"operation": "batch_embedding", "error_type": error_type},
+            )
+
+            logger.error(f"Error al generar embeddings en lote: {str(e)}")
+
+            # Retornar embeddings vacíos en caso de error
+            return [[0.0] * 3072 for _ in range(len(texts))]
+
+        finally:
+            telemetry_adapter.end_span(span)
+
     async def generate_with_functions(
         self,
         prompt: str,
