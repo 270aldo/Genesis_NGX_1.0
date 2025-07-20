@@ -1,0 +1,29 @@
+[Unit]
+Description=GENESIS MCP Startup Orchestrator
+Documentation=https://github.com/ngx-genesis/docs
+After=network.target
+
+[Service]
+Type=simple
+User=genesis
+Group=genesis
+WorkingDirectory=/opt/genesis/backend
+Environment="PYTHONPATH=/opt/genesis/backend"
+Environment="MCP_HOST=0.0.0.0"
+Environment="MCP_PORT=3000"
+ExecStart=/usr/bin/python3 -m mcp.startup_orchestrator
+Restart=always
+RestartSec=10
+StandardOutput=append:/var/log/genesis/orchestrator.log
+StandardError=append:/var/log/genesis/orchestrator-error.log
+
+# Resource limits
+LimitNOFILE=65536
+LimitNPROC=4096
+
+# Security
+NoNewPrivileges=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target

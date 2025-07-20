@@ -1,0 +1,32 @@
+{
+  "mcpServers": {
+    "genesis-ngx-ecosystem": {
+      "command": "python",
+      "args": [
+        "-m",
+        "mcp.main"
+      ],
+      "cwd": "/Users/aldoolivas/Desktop/GENESIS_oficial_BETA/backend",
+      "env": {
+        "PYTHONPATH": "/Users/aldoolivas/Desktop/GENESIS_oficial_BETA/backend",
+        "MCP_HOST": "127.0.0.1",
+        "MCP_PORT": "3000",
+        "MCP_API_KEY": "genesis-mcp-secure-key-2025",
+        "MCP_DEBUG": "true",
+        "NEXUS_CORE_URL": "http://localhost:8001",
+        "NEXUS_CRM_URL": "http://localhost:8002",
+        "NGX_PULSE_URL": "http://localhost:8003",
+        "NGX_BLOG_URL": "http://localhost:8004",
+        "NEXUS_CONV_URL": "http://localhost:8005"
+      },
+      "description": "GENESIS MCP Gateway - Unified access to all NGX ecosystem tools",
+      "capabilities": [
+        "tools",
+        "streaming",
+        "function_calling",
+        "analytics",
+        "health_monitoring"
+      ]
+    }
+  }
+}

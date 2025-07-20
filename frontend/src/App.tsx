@@ -1,22 +1,23 @@
 
-import React from 'react';
+import React, { Suspense } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { useAuthStore } from './store/authStore';
 import { Toaster } from '@/components/ui/toaster';
+import { PageLoader } from '@/components/ui/page-loader';
 
-// Pages
-import Landing from './pages/Landing';
-import SignIn from './pages/SignIn';
-import SignUp from './pages/SignUp';
-import ForgotPassword from './pages/ForgotPassword';
-import Dashboard from './pages/Dashboard';
-import Settings from './pages/Settings';
-import Profile from './pages/Profile';
-import ProgressDashboard from './pages/ProgressDashboard';
-import TrainingDashboard from './pages/TrainingDashboard';
-import NutritionDashboard from './pages/NutritionDashboard';
-import QuickActions from './pages/QuickActions';
-import { ChatLayout } from './components/layout/ChatLayout';
+// Lazy loaded pages
+const Landing = React.lazy(() => import('./pages/Landing'));
+const SignIn = React.lazy(() => import('./pages/SignIn'));
+const SignUp = React.lazy(() => import('./pages/SignUp'));
+const ForgotPassword = React.lazy(() => import('./pages/ForgotPassword'));
+const Dashboard = React.lazy(() => import('./pages/Dashboard'));
+const Settings = React.lazy(() => import('./pages/Settings'));
+const Profile = React.lazy(() => import('./pages/Profile'));
+const ProgressDashboard = React.lazy(() => import('./pages/ProgressDashboard'));
+const TrainingDashboard = React.lazy(() => import('./pages/TrainingDashboard'));
+const NutritionDashboard = React.lazy(() => import('./pages/NutritionDashboard'));
+const QuickActions = React.lazy(() => import('./pages/QuickActions'));
+const ChatLayout = React.lazy(() => import('./components/layout/ChatLayout').then(module => ({ default: module.ChatLayout })));
 
 // Mock user for development
 const mockUser = {
@@ -50,9 +51,10 @@ const App: React.FC = () => {
   return (
     <Router>
       <div className="App">
-        <Routes>
-          {/* Public Routes */}
-          <Route path="/" element={<Landing />} />
+        <Suspense fallback={<PageLoader />}>
+          <Routes>
+            {/* Public Routes */}
+            <Route path="/" element={<Landing />} />
           <Route path="/signin" element={
             <PublicRoute>
               <SignIn />
@@ -125,6 +127,7 @@ const App: React.FC = () => {
             </ProtectedRoute>
           } />
         </Routes>
+        </Suspense>
         <Toaster />
       </div>
     </Router>

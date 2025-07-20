@@ -1,0 +1,152 @@
+groups:
+  - name: genesis_availability
+    interval: 30s
+    rules:
+      # MCP Gateway Alerts
+      - alert: MCPGatewayDown
+        expr: up{job="mcp-gateway"} == 0
+        for: 2m
+        labels:
+          severity: critical
+          component: mcp-gateway
+        annotations:
+          summary: "MCP Gateway instance {{ $labels.instance }} is down"
+          description: "MCP Gateway {{ $labels.instance }} has been down for more than 2 minutes."
+
+      - alert: MCPGatewayHighLatency
+        expr: histogram_quantile(0.95, rate(http_request_duration_seconds_bucket{job="mcp-gateway"}[5m])) > 1
+        for: 5m
+        labels:
+          severity: warning
+          component: mcp-gateway
+        annotations:
+          summary: "High latency on MCP Gateway"
+          description: "95th percentile latency is above 1 second for 5 minutes."
+
+      # GENESIS Backend Alerts
+      - alert: GenesisBackendDown
+        expr: up{job="genesis-backend"} == 0
+        for: 2m
+        labels:
+          severity: critical
+          component: genesis-backend
+        annotations:
+          summary: "GENESIS Backend instance {{ $labels.instance }} is down"
+          description: "GENESIS Backend {{ $labels.instance }} has been down for more than 2 minutes."
+
+      - alert: GenesisHighErrorRate
+        expr: rate(http_requests_total{job="genesis-backend",status=~"5.."}[5m]) > 0.05
+        for: 5m
+        labels:
+          severity: warning
+          component: genesis-backend
+        annotations:
+          summary: "High error rate on GENESIS Backend"
+          description: "Error rate is above 5% for the last 5 minutes."
+
+      # Database Alerts
+      - alert: PostgreSQLDown
+        expr: up{job="postgres"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          component: database
+        annotations:
+          summary: "PostgreSQL is down"
+          description: "PostgreSQL database has been down for more than 1 minute."
+
+      - alert: PostgreSQLHighConnections
+        expr: pg_stat_database_numbackends{datname="genesis"} / pg_settings_max_connections > 0.8
+        for: 5m
+        labels:
+          severity: warning
+          component: database
+        annotations:
+          summary: "PostgreSQL connection pool near limit"
+          description: "PostgreSQL is using more than 80% of max connections."
+
+      # Redis Alerts
+      - alert: RedisDown
+        expr: up{job="redis"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          component: cache
+        annotations:
+          summary: "Redis is down"
+          description: "Redis cache has been down for more than 1 minute."
+
+      - alert: RedisHighMemory
+        expr: redis_memory_used_bytes / redis_memory_max_bytes > 0.9
+        for: 5m
+        labels:
+          severity: warning
+          component: cache
+        annotations:
+          summary: "Redis memory usage high"
+          description: "Redis is using more than 90% of max memory."
+
+      # System Alerts
+      - alert: HighCPUUsage
+        expr: (1 - avg(rate(node_cpu_seconds_total{mode="idle"}[5m]))) > 0.8
+        for: 10m
+        labels:
+          severity: warning
+          component: system
+        annotations:
+          summary: "High CPU usage detected"
+          description: "CPU usage has been above 80% for 10 minutes."
+
+      - alert: HighMemoryUsage
+        expr: (1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) > 0.9
+        for: 5m
+        labels:
+          severity: warning
+          component: system
+        annotations:
+          summary: "High memory usage detected"
+          description: "Memory usage is above 90%."
+
+      - alert: DiskSpaceLow
+        expr: (node_filesystem_avail_bytes{mountpoint="/"} / node_filesystem_size_bytes{mountpoint="/"}) < 0.1
+        for: 5m
+        labels:
+          severity: critical
+          component: system
+        annotations:
+          summary: "Low disk space"
+          description: "Less than 10% disk space remaining on root filesystem."
+
+  - name: genesis_business_metrics
+    interval: 60s
+    rules:
+      # Business Metric Alerts
+      - alert: LowActiveUsers
+        expr: genesis_active_users < 10
+        for: 30m
+        labels:
+          severity: info
+          component: business
+        annotations:
+          summary: "Low active user count"
+          description: "Active users have been below 10 for 30 minutes."
+
+      - alert: HighAITokenUsage
+        expr: rate(genesis_ai_tokens_used_total[1h]) > 100000
+        for: 5m
+        labels:
+          severity: warning
+          component: ai
+        annotations:
+          summary: "High AI token usage rate"
+          description: "AI token usage rate exceeds 100k tokens per hour."
+
+      - alert: CriticalServiceFailure
+        expr: sum(up{job=~"mcp-gateway|genesis-backend"}) < 2
+        for: 1m
+        labels:
+          severity: critical
+          component: cluster
+        annotations:
+          summary: "Critical service failure - less than 2 instances running"
+          description: "The GENESIS cluster has less than 2 healthy instances across MCP Gateway and Backend."

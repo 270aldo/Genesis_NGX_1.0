@@ -1,0 +1,80 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  external_labels:
+    monitor: 'genesis-ha-cluster'
+
+# Alertmanager configuration
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets:
+          # - 'alertmanager:9093'
+
+# Load rules once and periodically evaluate them
+rule_files:
+  - "alerts/*.yml"
+
+# Scrape configurations
+scrape_configs:
+  # MCP Gateway Metrics
+  - job_name: 'mcp-gateway'
+    static_configs:
+      - targets: 
+          - 'mcp-gateway-primary:3000'
+          - 'mcp-gateway-backup:3001'
+    metrics_path: '/metrics'
+    scrape_interval: 10s
+
+  # GENESIS Backend Metrics
+  - job_name: 'genesis-backend'
+    static_configs:
+      - targets:
+          - 'genesis-backend-primary:8000'
+          - 'genesis-backend-backup:8000'
+    metrics_path: '/metrics'
+    scrape_interval: 10s
+
+  # HAProxy Metrics
+  - job_name: 'haproxy'
+    static_configs:
+      - targets: ['haproxy:8404']
+    metrics_path: '/stats;csv'
+    scrape_interval: 5s
+
+  # Redis Exporter
+  - job_name: 'redis'
+    static_configs:
+      - targets: ['redis-exporter:9121']
+    scrape_interval: 10s
+
+  # PostgreSQL Exporter
+  - job_name: 'postgres'
+    static_configs:
+      - targets: ['postgres-exporter:9187']
+    scrape_interval: 10s
+
+  # Node Exporter (for host metrics)
+  - job_name: 'node'
+    static_configs:
+      - targets: ['node-exporter:9100']
+    scrape_interval: 10s
+
+  # Blackbox Exporter (for endpoint monitoring)
+  - job_name: 'blackbox'
+    metrics_path: /probe
+    params:
+      module: [http_2xx]
+    static_configs:
+      - targets:
+          - http://mcp-gateway-primary:3000/health
+          - http://mcp-gateway-backup:3001/health
+          - http://genesis-backend-primary:8000/health
+          - http://genesis-backend-backup:8000/health
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+      - target_label: __address__
+        replacement: blackbox-exporter:9115

@@ -1,0 +1,230 @@
+version: '3.8'
+
+services:
+  # MCP Gateway - Primary
+  mcp-gateway-primary:
+    build:
+      context: ../
+      dockerfile: Dockerfile
+    container_name: mcp-gateway-primary
+    environment:
+      - MCP_HOST=0.0.0.0
+      - MCP_PORT=3000
+      - MCP_API_KEY=${MCP_API_KEY}
+      - NEXUS_CORE_URL=http://nexus-core:8001
+      - NEXUS_CRM_URL=http://nexus-crm:8002
+      - NGX_PULSE_URL=http://ngx-pulse:8003
+      - NGX_BLOG_URL=http://ngx-blog:8004
+      - NEXUS_CONV_URL=http://nexus-conv:8005
+      - REDIS_URL=redis://redis:6379/0
+    ports:
+      - "3000:3000"
+    depends_on:
+      - redis
+      - postgres
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    restart: unless-stopped
+    networks:
+      - genesis-network
+    command: python -m mcp.main
+
+  # MCP Gateway - Backup (for failover)
+  mcp-gateway-backup:
+    build:
+      context: ../
+      dockerfile: Dockerfile
+    container_name: mcp-gateway-backup
+    environment:
+      - MCP_HOST=0.0.0.0
+      - MCP_PORT=3001
+      - MCP_API_KEY=${MCP_API_KEY}
+      - NEXUS_CORE_URL=http://nexus-core:8001
+      - NEXUS_CRM_URL=http://nexus-crm:8002
+      - NGX_PULSE_URL=http://ngx-pulse:8003
+      - NGX_BLOG_URL=http://ngx-blog:8004
+      - NEXUS_CONV_URL=http://nexus-conv:8005
+      - REDIS_URL=redis://redis:6379/0
+    ports:
+      - "3001:3001"
+    depends_on:
+      - redis
+      - postgres
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3001/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    restart: unless-stopped
+    networks:
+      - genesis-network
+    command: python -m mcp.main
+
+  # GENESIS Backend - Primary
+  genesis-backend-primary:
+    build:
+      context: ../
+      dockerfile: Dockerfile
+    container_name: genesis-backend-primary
+    environment:
+      - DATABASE_URL=postgresql://genesis:${DB_PASSWORD}@postgres:5432/genesis
+      - REDIS_URL=redis://redis:6379/0
+      - MCP_GATEWAY_URL=http://mcp-gateway-primary:3000
+      - JWT_SECRET=${JWT_SECRET}
+      - VERTEX_AI_PROJECT=${VERTEX_AI_PROJECT}
+      - VERTEX_AI_LOCATION=${VERTEX_AI_LOCATION}
+    ports:
+      - "8000:8000"
+    depends_on:
+      - postgres
+      - redis
+      - mcp-gateway-primary
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    restart: unless-stopped
+    networks:
+      - genesis-network
+    command: uvicorn main:app --host 0.0.0.0 --port 8000 --workers 4
+
+  # GENESIS Backend - Backup
+  genesis-backend-backup:
+    build:
+      context: ../
+      dockerfile: Dockerfile
+    container_name: genesis-backend-backup
+    environment:
+      - DATABASE_URL=postgresql://genesis:${DB_PASSWORD}@postgres:5432/genesis
+      - REDIS_URL=redis://redis:6379/0
+      - MCP_GATEWAY_URL=http://mcp-gateway-backup:3001
+      - JWT_SECRET=${JWT_SECRET}
+      - VERTEX_AI_PROJECT=${VERTEX_AI_PROJECT}
+      - VERTEX_AI_LOCATION=${VERTEX_AI_LOCATION}
+    ports:
+      - "8001:8000"
+    depends_on:
+      - postgres
+      - redis
+      - mcp-gateway-backup
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    restart: unless-stopped
+    networks:
+      - genesis-network
+    command: uvicorn main:app --host 0.0.0.0 --port 8000 --workers 4
+
+  # Load Balancer (HAProxy)
+  haproxy:
+    image: haproxy:2.8-alpine
+    container_name: genesis-haproxy
+    volumes:
+      - ./haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg:ro
+    ports:
+      - "80:80"
+      - "443:443"
+      - "8404:8404"  # HAProxy stats
+    depends_on:
+      - mcp-gateway-primary
+      - mcp-gateway-backup
+      - genesis-backend-primary
+      - genesis-backend-backup
+    healthcheck:
+      test: ["CMD", "haproxy", "-c", "-f", "/usr/local/etc/haproxy/haproxy.cfg"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    networks:
+      - genesis-network
+
+  # Redis (shared cache)
+  redis:
+    image: redis:7-alpine
+    container_name: genesis-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    networks:
+      - genesis-network
+
+  # PostgreSQL (shared database)
+  postgres:
+    image: postgres:15-alpine
+    container_name: genesis-postgres
+    environment:
+      - POSTGRES_DB=genesis
+      - POSTGRES_USER=genesis
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U genesis"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    networks:
+      - genesis-network
+
+  # Monitoring (Prometheus)
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: genesis-prometheus
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus-data:/prometheus
+    ports:
+      - "9090:9090"
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+    restart: unless-stopped
+    networks:
+      - genesis-network
+
+  # Grafana (metrics visualization)
+  grafana:
+    image: grafana/grafana:latest
+    container_name: genesis-grafana
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD:-admin}
+    ports:
+      - "3002:3000"
+    volumes:
+      - grafana-data:/var/lib/grafana
+    depends_on:
+      - prometheus
+    restart: unless-stopped
+    networks:
+      - genesis-network
+
+networks:
+  genesis-network:
+    driver: bridge
+
+volumes:
+  postgres-data:
+  redis-data:
+  prometheus-data:
+  grafana-data:
