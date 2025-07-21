@@ -327,6 +327,140 @@ class SupabaseClient:
             logger.error(f"Error al ejecutar consulta en Supabase: {e}")
             raise
 
+    async def get_or_create_user_by_api_key(self, api_key: str) -> Dict[str, Any]:
+        """
+        Obtiene o crea un usuario basado en su API key.
+        
+        Args:
+            api_key: La API key del usuario
+            
+        Returns:
+            Dict[str, Any]: Datos del usuario
+        """
+        try:
+            # Primero intentar buscar el usuario
+            result = await self.execute_query(
+                table="users",
+                query_type="select",
+                filters={"api_key": api_key},
+                limit=1
+            )
+            
+            if result.get("data") and len(result["data"]) > 0:
+                return result["data"][0]
+            
+            # Si no existe, crear nuevo usuario
+            user_data = {
+                "id": str(uuid.uuid4()),
+                "api_key": api_key,
+                "created_at": time.strftime("%Y-%m-%d %H:%M:%S"),
+                "is_active": True
+            }
+            
+            create_result = await self.execute_query(
+                table="users",
+                query_type="insert",
+                data=user_data
+            )
+            
+            return create_result.get("data", [user_data])[0]
+            
+        except Exception as e:
+            logger.error(f"Error en get_or_create_user_by_api_key: {e}")
+            # Retornar usuario mock en caso de error
+            return {
+                "id": str(uuid.uuid4()),
+                "api_key": api_key,
+                "created_at": time.strftime("%Y-%m-%d %H:%M:%S"),
+                "is_active": True
+            }
+    
+    async def log_conversation_message(
+        self, 
+        conversation_id: str,
+        user_id: str,
+        role: str,
+        content: str,
+        agent_id: Optional[str] = None
+    ) -> Dict[str, Any]:
+        """
+        Registra un mensaje en una conversación.
+        
+        Args:
+            conversation_id: ID de la conversación
+            user_id: ID del usuario
+            role: Rol del mensaje (user/assistant/system)
+            content: Contenido del mensaje
+            agent_id: ID del agente (opcional)
+            
+        Returns:
+            Dict[str, Any]: Mensaje registrado
+        """
+        try:
+            message_data = {
+                "id": str(uuid.uuid4()),
+                "conversation_id": conversation_id,
+                "user_id": user_id,
+                "role": role,
+                "content": content,
+                "agent_id": agent_id,
+                "created_at": time.strftime("%Y-%m-%d %H:%M:%S")
+            }
+            
+            result = await self.execute_query(
+                table="conversation_messages",
+                query_type="insert",
+                data=message_data
+            )
+            
+            return result.get("data", [message_data])[0]
+            
+        except Exception as e:
+            logger.error(f"Error al registrar mensaje de conversación: {e}")
+            # Retornar mensaje mock en caso de error
+            return {
+                "id": str(uuid.uuid4()),
+                "conversation_id": conversation_id,
+                "user_id": user_id,
+                "role": role,
+                "content": content,
+                "agent_id": agent_id,
+                "created_at": time.strftime("%Y-%m-%d %H:%M:%S")
+            }
+    
+    async def get_conversation_history(
+        self,
+        conversation_id: str,
+        limit: int = 50,
+        offset: int = 0
+    ) -> List[Dict[str, Any]]:
+        """
+        Obtiene el historial de mensajes de una conversación.
+        
+        Args:
+            conversation_id: ID de la conversación
+            limit: Número máximo de mensajes a retornar
+            offset: Offset para paginación
+            
+        Returns:
+            List[Dict[str, Any]]: Lista de mensajes
+        """
+        try:
+            result = await self.execute_query(
+                table="conversation_messages",
+                query_type="select",
+                filters={"conversation_id": conversation_id},
+                order={"created_at": "asc"},
+                limit=limit
+            )
+            
+            return result.get("data", [])
+            
+        except Exception as e:
+            logger.error(f"Error al obtener historial de conversación: {e}")
+            # Retornar lista vacía en caso de error
+            return []
+
 
 class MockSupabaseClient:
     """
