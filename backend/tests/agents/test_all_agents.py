@@ -13,7 +13,7 @@ from agents.orchestrator.agent import OrchestratorAgent
 from agents.precision_nutrition_architect.agent import PrecisionNutritionArchitect
 from agents.elite_training_strategist.agent import EliteTrainingStrategist
 from agents.female_wellness_coach.agent import FemaleWellnessCoach
-from agents.progress_tracker.agent import ProgressTrackerAgent
+from agents.progress_tracker.agent import ProgressTracker as ProgressTrackerAgent
 from agents.motivation_behavior_coach.agent import MotivationBehaviorCoach
 from agents.nova_biohacking_innovator.agent import NovaBiohackingInnovator
 from agents.wave_performance_analytics.agent import WavePerformanceAnalytics

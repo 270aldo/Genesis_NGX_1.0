@@ -8,7 +8,7 @@ del agente EliteTrainingStrategist.
 import pytest
 from unittest.mock import patch
 
-from agents.elite_training_strategist import EliteTrainingStrategist
+from agents.blaze_turbo_trainer.agent import BlazeTurboTrainer as EliteTrainingStrategist
 
 
 # Mock para VertexAIClient
