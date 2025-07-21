@@ -363,16 +363,21 @@ async def get_domain_profile(
         )
 
 
-@router.post("/recommendations", response_model=List[SpecializedRecommendationResponse])
+@router.post("/recommendations", response_model=PaginatedResponse[SpecializedRecommendationResponse])
 @trace_async("generate_specialized_recommendations_api")
 async def generate_specialized_recommendations(
-    request: GenerateRecommendationsRequest, user_id: str = Depends(get_current_user)
-) -> List[SpecializedRecommendationResponse]:
+    request: GenerateRecommendationsRequest,
+    http_request: Request,
+    page: int = Query(default=1, ge=1, description="Page number"),
+    page_size: int = Query(default=5, ge=1, le=20, description="Items per page"),
+    user_id: str = Depends(get_current_user)
+) -> PaginatedResponse[SpecializedRecommendationResponse]:
     """
     Generate domain-specialized recommendations for the user.
 
     This endpoint creates highly personalized recommendations based on
     the user's domain profile and requested specialization type.
+    Results are paginated for better performance.
     """
     try:
         # Get user's domain profile
@@ -387,20 +392,42 @@ async def generate_specialized_recommendations(
         # Convert specialization string to enum
         specialization = ModelSpecialization(request.specialization)
 
+        # Generate more recommendations than requested to allow for pagination
+        max_recommendations = min(request.limit * 3, 30)  # Generate up to 30 recommendations
+        
         # Generate recommendations
         recommendations = await domain_models.generate_specialized_recommendations(
             profile, specialization, request.context
         )
 
-        # Limit results
-        recommendations = recommendations[: request.limit]
+        # Limit to max_recommendations
+        recommendations = recommendations[:max_recommendations]
 
         logger.info(
             f"Generated {len(recommendations)} specialized recommendations "
             f"for user {user_id} in {specialization.value}"
         )
 
-        return [_recommendation_to_response(rec) for rec in recommendations]
+        # Convert to response format
+        recommendation_responses = [_recommendation_to_response(rec) for rec in recommendations]
+        
+        # Create pagination params
+        pagination_params = PaginationParams(
+            page=page,
+            page_size=page_size,
+            sort_by="priority_level",
+            sort_order="desc"
+        )
+        
+        # Apply pagination
+        base_url = str(http_request.url).split('?')[0]
+        paginated_response = paginate_list(
+            items=recommendation_responses,
+            params=pagination_params,
+            base_url=base_url
+        )
+        
+        return paginated_response
 
     except HTTPException:
         raise

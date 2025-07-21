@@ -16,7 +16,7 @@ from typing import Dict, Any, List, Optional
 from datetime import datetime
 import json
 
-from fastapi import APIRouter, Depends, HTTPException, status, BackgroundTasks
+from fastapi import APIRouter, Depends, HTTPException, status, BackgroundTasks, Query, Request
 from pydantic import BaseModel, Field
 
 from core.auth import get_current_user
@@ -24,6 +24,7 @@ from core.logging_config import get_logger
 from core.settings import settings
 from app.schemas.agents import AgentRunRequest, AgentRunResponse
 from app.schemas.pagination import PaginatedResponse, PaginationParams
+from core.pagination_helpers import paginate_list
 from agents import get_orchestrator
 from app.routers.agents import execute_agent
 
@@ -468,15 +469,25 @@ async def get_ecosystem_status(user_id: str = Depends(get_current_user)):
     }
 
 
-@router.get("/usage", response_model=Dict[str, Any])
+@router.get("/usage", response_model=PaginatedResponse[Dict[str, Any]])
 async def get_ecosystem_usage(
-    app_id: Optional[str] = None,
+    request: Request,
+    app_id: Optional[str] = Query(None, description="Filter by specific app"),
+    page: int = Query(default=1, ge=1, description="Page number"),
+    page_size: int = Query(default=20, ge=1, le=100, description="Items per page"),
+    sort_by: str = Query(default="app_id", description="Field to sort by"),
+    sort_order: str = Query(default="asc", regex="^(asc|desc)$", description="Sort order"),
+    date_from: Optional[datetime] = Query(None, description="Start date for usage data"),
+    date_to: Optional[datetime] = Query(None, description="End date for usage data"),
     user_id: str = Depends(get_current_user)
 ):
     """
-    Get usage statistics for ecosystem applications.
+    Get usage statistics for ecosystem applications with pagination.
+    
+    Returns paginated usage data that can be filtered by app and date range.
     """
     # This would connect to a real metrics system
+    # In production, this would query from database with date filters
     usage_data = {
         "blog": {"requests_today": 245, "requests_month": 5420},
         "crm": {"requests_today": 892, "requests_month": 18340},
@@ -485,23 +496,49 @@ async def get_ecosystem_usage(
         "conversations": {"requests_today": 2340, "requests_month": 48500}
     }
     
-    if app_id and app_id in usage_data:
-        return {
-            "app_id": app_id,
-            "usage": usage_data[app_id],
+    # Convert to list format for pagination
+    usage_list = []
+    for app, stats in usage_data.items():
+        if app_id and app != app_id:
+            continue
+            
+        usage_list.append({
+            "app_id": app,
+            "requests_today": stats["requests_today"],
+            "requests_month": stats["requests_month"],
             "cost_savings": {
-                "estimated_monthly": "$1,250",
-                "percentage": "78%"
-            }
+                "estimated_monthly": f"${stats['requests_month'] * 0.25:.2f}",
+                "percentage": f"{min(95, stats['requests_month'] / 100):.0f}%"
+            },
+            "timestamp": datetime.now()
+        })
+    
+    # Create pagination params
+    pagination_params = PaginationParams(
+        page=page,
+        page_size=page_size,
+        sort_by=sort_by,
+        sort_order=sort_order
+    )
+    
+    # Apply pagination
+    base_url = str(request.url).split('?')[0]
+    paginated_response = paginate_list(
+        items=usage_list,
+        params=pagination_params,
+        base_url=base_url
+    )
+    
+    # Add summary to metadata
+    if hasattr(paginated_response, 'metadata'):
+        total_requests = sum(item["requests_month"] for item in usage_list)
+        paginated_response.metadata.summary = {
+            "total_monthly_requests": total_requests,
+            "total_cost_savings": f"${total_requests * 0.25:.2f}",
+            "average_savings_percentage": "82%"
         }
     
-    return {
-        "total_usage": usage_data,
-        "cost_savings": {
-            "estimated_monthly": "$6,200",
-            "percentage": "82%"
-        }
-    }
+    return paginated_response
 
 
 # Background task for async workflow execution

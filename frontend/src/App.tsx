@@ -1,23 +1,34 @@
 
 import React, { Suspense } from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, Link } from 'react-router-dom';
 import { useAuthStore } from './store/authStore';
 import { Toaster } from '@/components/ui/toaster';
 import { PageLoader } from '@/components/ui/page-loader';
+import { lazyWithPreload } from '@/utils/lazyWithPreload';
+import { LazyBoundary } from '@/components/ui/lazy-loading';
+import { ChunkProvider } from '@/components/providers/ChunkProvider';
 
-// Lazy loaded pages
-const Landing = React.lazy(() => import('./pages/Landing'));
-const SignIn = React.lazy(() => import('./pages/SignIn'));
-const SignUp = React.lazy(() => import('./pages/SignUp'));
-const ForgotPassword = React.lazy(() => import('./pages/ForgotPassword'));
-const Dashboard = React.lazy(() => import('./pages/Dashboard'));
-const Settings = React.lazy(() => import('./pages/Settings'));
-const Profile = React.lazy(() => import('./pages/Profile'));
-const ProgressDashboard = React.lazy(() => import('./pages/ProgressDashboard'));
-const TrainingDashboard = React.lazy(() => import('./pages/TrainingDashboard'));
-const NutritionDashboard = React.lazy(() => import('./pages/NutritionDashboard'));
-const QuickActions = React.lazy(() => import('./pages/QuickActions'));
-const ChatLayout = React.lazy(() => import('./components/layout/ChatLayout').then(module => ({ default: module.ChatLayout })));
+// Lazy loaded pages with preload support
+const Landing = lazyWithPreload(() => import('./pages/Landing'));
+const SignIn = lazyWithPreload(() => import('./pages/SignIn'));
+const SignUp = lazyWithPreload(() => import('./pages/SignUp'));
+const ForgotPassword = lazyWithPreload(() => import('./pages/ForgotPassword'));
+const Dashboard = lazyWithPreload(() => import('./pages/Dashboard'));
+const Settings = lazyWithPreload(() => import('./pages/Settings'));
+const Profile = lazyWithPreload(() => import('./pages/Profile'));
+const ProgressDashboard = lazyWithPreload(() => import('./pages/ProgressDashboard'));
+const TrainingDashboard = lazyWithPreload(() => import('./pages/TrainingDashboard'));
+const NutritionDashboard = lazyWithPreload(() => import('./pages/NutritionDashboard'));
+const QuickActions = lazyWithPreload(() => import('./pages/QuickActions'));
+const ChatLayout = lazyWithPreload(() => import('./components/layout/ChatLayout').then(module => ({ default: module.ChatLayout })));
+
+// Preload critical routes on idle
+if ('requestIdleCallback' in window) {
+  requestIdleCallback(() => {
+    Dashboard.preload();
+    ChatLayout.preload();
+  });
+}
 
 // Mock user for development
 const mockUser = {
@@ -50,86 +61,88 @@ const App: React.FC = () => {
 
   return (
     <Router>
-      <div className="App">
-        <Suspense fallback={<PageLoader />}>
-          <Routes>
+      <ChunkProvider>
+        <div className="App">
+          <LazyBoundary fallback={<PageLoader />}>
+            <Routes>
             {/* Public Routes */}
-            <Route path="/" element={<Landing />} />
+            <Route path="/" element={<Landing.Component />} />
           <Route path="/signin" element={
             <PublicRoute>
-              <SignIn />
+              <SignIn.Component />
             </PublicRoute>
           } />
           <Route path="/signup" element={
             <PublicRoute>
-              <SignUp />
+              <SignUp.Component />
             </PublicRoute>
           } />
           <Route path="/forgot-password" element={
             <PublicRoute>
-              <ForgotPassword />
+              <ForgotPassword.Component />
             </PublicRoute>
           } />
 
           {/* Protected Routes */}
           <Route path="/dashboard" element={
             <ProtectedRoute>
-              <Dashboard />
+              <Dashboard.Component />
             </ProtectedRoute>
           } />
           
           <Route path="/dashboard/progress" element={
             <ProtectedRoute>
-              <ProgressDashboard />
+              <ProgressDashboard.Component />
             </ProtectedRoute>
           } />
           
           <Route path="/dashboard/training" element={
             <ProtectedRoute>
-              <TrainingDashboard />
+              <TrainingDashboard.Component />
             </ProtectedRoute>
           } />
           
           <Route path="/dashboard/nutrition" element={
             <ProtectedRoute>
-              <NutritionDashboard />
+              <NutritionDashboard.Component />
             </ProtectedRoute>
           } />
           
           <Route path="/quick-actions" element={
             <ProtectedRoute>
-              <QuickActions />
+              <QuickActions.Component />
             </ProtectedRoute>
           } />
           
           <Route path="/settings" element={
             <ProtectedRoute>
-              <Settings />
+              <Settings.Component />
             </ProtectedRoute>
           } />
 
           <Route path="/profile" element={
             <ProtectedRoute>
-              <Profile />
+              <Profile.Component />
             </ProtectedRoute>
           } />
 
           {/* Chat Routes */}
           <Route path="/chat" element={
             <ProtectedRoute>
-              <ChatLayout />
+              <ChatLayout.Component />
             </ProtectedRoute>
           } />
           
           <Route path="/chat/:agentId" element={
             <ProtectedRoute>
-              <ChatLayout />
+              <ChatLayout.Component />
             </ProtectedRoute>
           } />
         </Routes>
-        </Suspense>
-        <Toaster />
-      </div>
+          </LazyBoundary>
+          <Toaster />
+        </div>
+      </ChunkProvider>
     </Router>
   );
 };

@@ -24,12 +24,14 @@ from app.routers import (
     degraded_mode,
     chaos_testing,
     stream,
+    stream_v2,  # Enhanced streaming with ADK
     feedback,
     audio,
     visualization,
     wearables,
     nutrition_vision,
     ecosystem,  # NEW: Ecosystem gateway
+    feature_flags,  # Feature flag management
     # audio_coaching,  # TODO: implement
     # voice_synthesis,  # TODO: implement
     # conversation_history,  # TODO: implement
@@ -82,6 +84,7 @@ def register_routes(app: FastAPI) -> None:
     
     # Streaming y feedback
     app.include_router(stream.router, prefix=api_v1_prefix)
+    app.include_router(stream_v2.router, prefix="/api")  # v2 streaming with ADK
     app.include_router(feedback.router, prefix=api_v1_prefix)
     
     # Multimodal
@@ -94,6 +97,9 @@ def register_routes(app: FastAPI) -> None:
     
     # Ecosystem Gateway - Central API for all NGX tools
     app.include_router(ecosystem.router, prefix=api_v1_prefix)
+    
+    # Feature Flags
+    app.include_router(feature_flags.router, prefix=api_v1_prefix)
     
     # Datos y exportación
     # app.include_router(conversation_history.router, prefix=api_v1_prefix)  # TODO

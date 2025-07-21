@@ -3,7 +3,7 @@ Budget Monitoring API
 Real-time monitoring and management of agent budgets
 """
 
-from fastapi import APIRouter, HTTPException, Depends, BackgroundTasks
+from fastapi import APIRouter, HTTPException, Depends, BackgroundTasks, Query, Request
 from typing import Dict, Any, List, Optional
 from datetime import datetime, timedelta
 import logging
@@ -17,6 +17,8 @@ from app.schemas.budget import (
     BudgetUsageResponse,
     BudgetSummaryResponse,
 )
+from app.schemas.pagination import PaginationParams, PaginatedResponse
+from core.pagination_helpers import paginate_list
 from tasks.budget import check_budget_alerts, reset_period_budgets
 
 logger = logging.getLogger(__name__)
@@ -24,14 +26,21 @@ logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/api/budget", tags=["Budget Monitoring"])
 
 
-@router.get("/status", response_model=List[BudgetStatusResponse])
+@router.get("/status", response_model=PaginatedResponse[BudgetStatusResponse])
 async def get_all_budget_status(
+    request: Request,
+    page: int = Query(default=1, ge=1, description="Page number"),
+    page_size: int = Query(default=20, ge=1, le=100, description="Items per page"),
+    sort_by: str = Query(default="agent_id", description="Field to sort by"),
+    sort_order: str = Query(default="asc", regex="^(asc|desc)$", description="Sort order"),
+    health_filter: Optional[str] = Query(None, description="Filter by health status (healthy, moderate, warning, critical)"),
     current_user: Dict = Depends(get_current_user),
-) -> List[BudgetStatusResponse]:
+) -> PaginatedResponse[BudgetStatusResponse]:
     """
-    Get budget status for all agents.
+    Get budget status for all agents with pagination.
 
     Returns current usage, limits, and projections for each agent.
+    Supports filtering by health status.
     """
     try:
         statuses = []
@@ -58,18 +67,40 @@ async def get_all_budget_status(
                 # Trending direction
                 trend = _calculate_usage_trend(agent_id)
 
+                health_status = _get_health_status(status["percentage"])
+                
                 status.update(
                     {
                         "estimated_monthly_cost_usd": estimated_cost,
                         "days_until_reset": days_until_reset,
                         "usage_trend": trend,
-                        "health_status": _get_health_status(status["percentage"]),
+                        "health_status": health_status,
                     }
                 )
+                
+                # Apply health filter if specified
+                if health_filter and health_status != health_filter:
+                    continue
 
             statuses.append(BudgetStatusResponse(**status))
 
-        return statuses
+        # Create pagination params
+        pagination_params = PaginationParams(
+            page=page,
+            page_size=page_size,
+            sort_by=sort_by,
+            sort_order=sort_order
+        )
+        
+        # Apply pagination
+        base_url = str(request.url).split('?')[0]
+        paginated_response = paginate_list(
+            items=statuses,
+            params=pagination_params,
+            base_url=base_url
+        )
+        
+        return paginated_response
 
     except Exception as e:
         logger.error(f"Error getting budget status: {e}")
@@ -206,12 +237,22 @@ async def reset_agent_budget(
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@router.get("/alerts", response_model=List[BudgetAlertResponse])
+@router.get("/alerts", response_model=PaginatedResponse[BudgetAlertResponse])
 async def get_budget_alerts(
-    background_tasks: BackgroundTasks, current_user: Dict = Depends(get_current_user)
-) -> List[BudgetAlertResponse]:
+    request: Request,
+    background_tasks: BackgroundTasks,
+    page: int = Query(default=1, ge=1, description="Page number"),
+    page_size: int = Query(default=20, ge=1, le=100, description="Items per page"),
+    sort_by: str = Query(default="percentage", description="Field to sort by"),
+    sort_order: str = Query(default="desc", regex="^(asc|desc)$", description="Sort order"),
+    alert_type: Optional[str] = Query(None, description="Filter by alert type (warning, critical)"),
+    current_user: Dict = Depends(get_current_user)
+) -> PaginatedResponse[BudgetAlertResponse]:
     """
-    Get current budget alerts and trigger alert check.
+    Get current budget alerts with pagination and trigger alert check.
+    
+    Returns alerts sorted by severity and percentage by default.
+    Supports filtering by alert type.
     """
     try:
         # Trigger alert check in background
@@ -235,27 +276,47 @@ async def get_budget_alerts(
 
             # Generate alerts based on thresholds
             if percentage >= 90:
-                alerts.append(
-                    BudgetAlertResponse(
-                        agent_id=agent_id,
-                        alert_type="critical",
-                        percentage=percentage,
-                        message=f"Agent {agent_id} at {percentage:.1f}% of budget",
-                        recommended_action="Consider increasing budget or reducing usage",
+                if not alert_type or alert_type == "critical":
+                    alerts.append(
+                        BudgetAlertResponse(
+                            agent_id=agent_id,
+                            alert_type="critical",
+                            percentage=percentage,
+                            message=f"Agent {agent_id} at {percentage:.1f}% of budget",
+                            recommended_action="Consider increasing budget or reducing usage",
+                            timestamp=datetime.now()
+                        )
                     )
-                )
             elif percentage >= 75:
-                alerts.append(
-                    BudgetAlertResponse(
-                        agent_id=agent_id,
-                        alert_type="warning",
-                        percentage=percentage,
-                        message=f"Agent {agent_id} at {percentage:.1f}% of budget",
-                        recommended_action="Monitor usage closely",
+                if not alert_type or alert_type == "warning":
+                    alerts.append(
+                        BudgetAlertResponse(
+                            agent_id=agent_id,
+                            alert_type="warning",
+                            percentage=percentage,
+                            message=f"Agent {agent_id} at {percentage:.1f}% of budget",
+                            recommended_action="Monitor usage closely",
+                            timestamp=datetime.now()
+                        )
                     )
-                )
 
-        return alerts
+        # Create pagination params
+        pagination_params = PaginationParams(
+            page=page,
+            page_size=page_size,
+            sort_by=sort_by,
+            sort_order=sort_order
+        )
+        
+        # Apply pagination
+        base_url = str(request.url).split('?')[0]
+        paginated_response = paginate_list(
+            items=alerts,
+            params=pagination_params,
+            base_url=base_url
+        )
+        
+        return paginated_response
 
     except Exception as e:
         logger.error(f"Error getting budget alerts: {e}")

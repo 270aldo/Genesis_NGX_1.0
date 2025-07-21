@@ -2,15 +2,45 @@
 import React from 'react';
 import { useAuthStore } from '@/store/authStore';
 import { useChatStore } from '@/store/chatStore';
-import { ProfileSection } from '@/components/dashboard/ProfileSection';
-import { StatsCards } from '@/components/dashboard/StatsCards';
-import { RecentActivity } from '@/components/dashboard/RecentActivity';
-import { QuickActions } from '@/components/dashboard/QuickActions';
-import { TokenBalance } from '@/components/tokens/TokenBalance';
-import { AgentInsights } from '@/components/dashboard/AgentInsights';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Calendar, Download, Share2, Settings, TrendingUp, Activity } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { lazyWithPreload, lazyWithNamedExport } from '@/utils/lazyWithPreload';
+import { LazyLoad, StatsCardSkeleton, CardSkeleton, ListSkeleton, ProfileSkeleton } from '@/components/ui/lazy-loading';
+
+// Lazy load dashboard components with preload support
+const ProfileSection = lazyWithNamedExport(
+  () => import('@/components/dashboard/ProfileSection'),
+  'ProfileSection'
+);
+
+const StatsCards = lazyWithNamedExport(
+  () => import('@/components/dashboard/StatsCards'),
+  'StatsCards'
+);
+
+const RecentActivity = lazyWithNamedExport(
+  () => import('@/components/dashboard/RecentActivity'),
+  'RecentActivity'
+);
+
+const QuickActions = lazyWithNamedExport(
+  () => import('@/components/dashboard/QuickActions'),
+  'QuickActions'
+);
+
+const TokenBalance = lazyWithNamedExport(
+  () => import('@/components/tokens/TokenBalance'),
+  'TokenBalance'
+);
+
+const AgentInsights = lazyWithNamedExport(
+  () => import('@/components/dashboard/AgentInsights'),
+  'AgentInsights'
+);
+
+// Preloadable routes for better performance
+export const DashboardRoute = lazyWithPreload(() => import('./Dashboard'));
 
 const Dashboard: React.FC = () => {
   const { user } = useAuthStore();
@@ -81,7 +111,9 @@ const Dashboard: React.FC = () => {
 
         {/* Stats Overview */}
         <div className="mb-8">
-          <StatsCards stats={stats} />
+          <LazyLoad type="skeleton" fallback={<StatsCardSkeleton />}>
+            <StatsCards stats={stats} />
+          </LazyLoad>
         </div>
 
         {/* Main Content Grid - Enhanced Layout */}
@@ -91,19 +123,29 @@ const Dashboard: React.FC = () => {
             {/* AI Insights - Prominent placement */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
               <div className="lg:col-span-2">
-                <AgentInsights />
+                <LazyLoad type="skeleton" height={300} delay={100}>
+                  <AgentInsights />
+                </LazyLoad>
               </div>
             </div>
 
             {/* Recent Activity */}
-            <RecentActivity conversations={conversations.slice(0, 5)} />
+            <LazyLoad fallback={<ListSkeleton count={5} />} delay={200}>
+              <RecentActivity conversations={conversations.slice(0, 5)} />
+            </LazyLoad>
           </div>
 
           {/* Right Sidebar (1 column) */}
           <div className="xl:col-span-1 space-y-6">
-            <TokenBalance />
-            <ProfileSection user={user} />
-            <QuickActions />
+            <LazyLoad fallback={<CardSkeleton />} delay={300}>
+              <TokenBalance />
+            </LazyLoad>
+            <LazyLoad fallback={<ProfileSkeleton />} delay={400}>
+              <ProfileSection user={user} />
+            </LazyLoad>
+            <LazyLoad fallback={<CardSkeleton />} delay={500}>
+              <QuickActions />
+            </LazyLoad>
           </div>
         </div>
 

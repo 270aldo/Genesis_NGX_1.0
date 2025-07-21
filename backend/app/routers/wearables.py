@@ -43,6 +43,8 @@ from app.schemas.wearables import (
     WearableDeviceType,
     MetricTypeEnum,
 )
+from app.schemas.pagination import PaginationParams, PaginatedResponse
+from core.pagination_helpers import paginate_list
 
 from integrations.wearables.service import WearableIntegrationService
 from integrations.wearables.normalizer import WearableDevice
@@ -306,16 +308,25 @@ async def _background_sync(
 
 
 # Connection Management Endpoints
-@router.get("/connections", response_model=UserConnectionsResponse)
+@router.get("/connections", response_model=PaginatedResponse[Dict[str, Any]])
 async def get_user_connections(
+    request: Request,
+    page: int = Query(default=1, ge=1, description="Page number"),
+    page_size: int = Query(default=20, ge=1, le=100, description="Items per page"),
+    sort_by: str = Query(default="created_at", description="Field to sort by"),
+    sort_order: str = Query(default="desc", regex="^(asc|desc)$", description="Sort order"),
     user_id: str = Depends(get_current_user),
     service: WearableIntegrationService = Depends(get_wearable_service),
 ):
     """
-    Get all connected wearable devices for the current user
+    Get all connected wearable devices for the current user with pagination
+    
+    Returns a paginated list of wearable device connections.
     """
     with create_span(tracer, "get_user_connections") as span:
         span.set_attribute("user_id", user_id)
+        span.set_attribute("page", page)
+        span.set_attribute("page_size", page_size)
 
         try:
             connections = await service.get_user_connections(user_id)
@@ -333,11 +344,23 @@ async def get_user_connections(
                     }
                 )
 
-            return UserConnectionsResponse(
-                success=True,
-                connections=connection_info,
-                total_connections=len(connection_info),
+            # Create pagination params
+            pagination_params = PaginationParams(
+                page=page,
+                page_size=page_size,
+                sort_by=sort_by,
+                sort_order=sort_order
             )
+            
+            # Apply pagination
+            base_url = str(request.url).split('?')[0]
+            paginated_response = paginate_list(
+                items=connection_info,
+                params=pagination_params,
+                base_url=base_url
+            )
+            
+            return paginated_response
 
         except Exception as e:
             logger.error(f"Error getting user connections: {str(e)}")
@@ -382,44 +405,82 @@ async def disconnect_device(
 
 
 # Data Retrieval Endpoints
-@router.post("/metrics", response_model=UserMetricsResponse)
+@router.post("/metrics", response_model=PaginatedResponse[Dict[str, Any]])
 async def get_user_metrics(
-    request: UserMetricsRequest,
+    metrics_request: UserMetricsRequest,
+    request: Request,
+    page: int = Query(default=1, ge=1, description="Page number"),
+    page_size: int = Query(default=50, ge=1, le=200, description="Items per page"),
+    sort_by: str = Query(default="timestamp", description="Field to sort by"),
+    sort_order: str = Query(default="desc", regex="^(asc|desc)$", description="Sort order"),
     user_id: str = Depends(get_current_user),
     service: WearableIntegrationService = Depends(get_wearable_service),
 ):
     """
-    Get normalized metrics for the current user
+    Get normalized metrics for the current user with pagination
 
     Retrieves metrics from all connected devices in a standardized format.
+    Supports filtering by device type, metric types, and date range.
     """
     with create_span(tracer, "get_user_metrics") as span:
         span.set_attribute("user_id", user_id)
-        span.set_attribute("limit", request.limit)
+        span.set_attribute("page", page)
+        span.set_attribute("page_size", page_size)
+        
+        # Log filter attributes
+        if metrics_request.device:
+            span.set_attribute("filter.device", metrics_request.device.value)
+        if metrics_request.start_date:
+            span.set_attribute("filter.start_date", str(metrics_request.start_date))
+        if metrics_request.end_date:
+            span.set_attribute("filter.end_date", str(metrics_request.end_date))
 
         try:
             # TODO: Implement actual metric retrieval from storage
             # This would query the database for stored normalized metrics
+            # For now, simulate with empty data that would come from DB
+            
+            # In production, this would be something like:
+            # metrics = await service.get_user_metrics(
+            #     user_id=user_id,
+            #     device=metrics_request.device,
+            #     metric_types=metrics_request.metric_types,
+            #     start_date=metrics_request.start_date,
+            #     end_date=metrics_request.end_date
+            # )
+            
+            metrics = []  # Placeholder for actual data
 
-            # For now, return mock data
-            metrics = []
-
-            return UserMetricsResponse(
-                success=True,
-                metrics=metrics,
-                total_metrics=len(metrics),
-                filters_applied={
-                    "device": request.device.value if request.device else None,
+            # Create pagination params
+            pagination_params = PaginationParams(
+                page=page,
+                page_size=page_size,
+                sort_by=sort_by,
+                sort_order=sort_order
+            )
+            
+            # Apply pagination
+            base_url = str(request.url).split('?')[0]
+            paginated_response = paginate_list(
+                items=metrics,
+                params=pagination_params,
+                base_url=base_url
+            )
+            
+            # Add filter metadata to response
+            if hasattr(paginated_response, 'metadata') and hasattr(paginated_response.metadata, 'filters'):
+                paginated_response.metadata.filters = {
+                    "device": metrics_request.device.value if metrics_request.device else None,
                     "metric_types": (
-                        [mt.value for mt in request.metric_types]
-                        if request.metric_types
+                        [mt.value for mt in metrics_request.metric_types]
+                        if metrics_request.metric_types
                         else None
                     ),
-                    "start_date": request.start_date,
-                    "end_date": request.end_date,
-                    "limit": request.limit,
-                },
-            )
+                    "start_date": metrics_request.start_date,
+                    "end_date": metrics_request.end_date,
+                }
+            
+            return paginated_response
 
         except Exception as e:
             logger.error(f"Error getting user metrics: {str(e)}")

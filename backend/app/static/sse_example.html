@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GENESIS SSE Streaming Example</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+        
+        .input-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        #messageInput {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        
+        button {
+            padding: 10px 20px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        
+        button:hover {
+            background: #0056b3;
+        }
+        
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        
+        .status {
+            padding: 10px;
+            margin-bottom: 20px;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        
+        .status.connected {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .status.connecting {
+            background: #fff3cd;
+            color: #856404;
+        }
+        
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        .response-container {
+            display: grid;
+            grid-template-columns: 1fr 300px;
+            gap: 20px;
+        }
+        
+        .response {
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 15px;
+            min-height: 200px;
+            max-height: 400px;
+            overflow-y: auto;
+            background: #f8f9fa;
+        }
+        
+        .response h3 {
+            margin-top: 0;
+            color: #495057;
+        }
+        
+        .chunk {
+            display: inline;
+            animation: fadeIn 0.3s ease-in;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        .metrics {
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 15px;
+            background: #f8f9fa;
+        }
+        
+        .metrics h3 {
+            margin-top: 0;
+            color: #495057;
+        }
+        
+        .metric-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 5px 0;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .metric-item:last-child {
+            border-bottom: none;
+        }
+        
+        .intent-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            background: #17a2b8;
+            color: white;
+            border-radius: 4px;
+            font-size: 12px;
+            margin-bottom: 10px;
+        }
+        
+        .agent-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            background: #28a745;
+            color: white;
+            border-radius: 4px;
+            font-size: 12px;
+            margin-right: 5px;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background: #e9ecef;
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: #007bff;
+            transition: width 0.3s ease;
+        }
+        
+        .event-log {
+            max-height: 200px;
+            overflow-y: auto;
+            font-size: 12px;
+            font-family: monospace;
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 4px;
+            margin-top: 20px;
+        }
+        
+        .event-log-item {
+            padding: 2px 0;
+            color: #666;
+        }
+        
+        .event-log-item.error {
+            color: #dc3545;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 GENESIS SSE Streaming Example</h1>
+        
+        <div class="status" id="status">Desconectado</div>
+        
+        <div class="input-group">
+            <input 
+                type="text" 
+                id="messageInput" 
+                placeholder="Escribe tu mensaje aquí..."
+                value="Crea un plan de entrenamiento de fuerza para 3 días"
+            >
+            <button id="sendButton" onclick="sendMessage()">Enviar</button>
+            <button id="stopButton" onclick="stopStream()" disabled>Detener</button>
+        </div>
+        
+        <div class="response-container">
+            <div class="response">
+                <h3>Respuesta</h3>
+                <div id="intent"></div>
+                <div id="agents"></div>
+                <div id="responseContent"></div>
+                <div class="progress-bar" id="progressBar" style="display: none;">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+            </div>
+            
+            <div class="metrics">
+                <h3>Métricas</h3>
+                <div id="metricsContent">
+                    <div class="metric-item">
+                        <span>Estado</span>
+                        <span>-</span>
+                    </div>
+                    <div class="metric-item">
+                        <span>Chunks</span>
+                        <span>0</span>
+                    </div>
+                    <div class="metric-item">
+                        <span>TTFB</span>
+                        <span>-</span>
+                    </div>
+                    <div class="metric-item">
+                        <span>Duración</span>
+                        <span>-</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="event-log" id="eventLog">
+            <strong>Event Log:</strong><br>
+        </div>
+    </div>
+
+    <script src="sse_client.js"></script>
+    <script>
+        // Initialize SSE client
+        const client = new GenesisSSEClient({
+            baseUrl: '/api/v2/stream',
+            debug: true,
+            reconnectInterval: 3000,
+            maxReconnectAttempts: 3
+        });
+
+        // UI elements
+        const statusEl = document.getElementById('status');
+        const messageInput = document.getElementById('messageInput');
+        const sendButton = document.getElementById('sendButton');
+        const stopButton = document.getElementById('stopButton');
+        const responseContent = document.getElementById('responseContent');
+        const intentEl = document.getElementById('intent');
+        const agentsEl = document.getElementById('agents');
+        const progressBar = document.getElementById('progressBar');
+        const progressFill = document.getElementById('progressFill');
+        const eventLog = document.getElementById('eventLog');
+        const metricsContent = document.getElementById('metricsContent');
+
+        // State
+        let isStreaming = false;
+        let startTime = null;
+
+        // Setup event handlers
+        client
+            .on('start', (data) => {
+                logEvent('Stream started', data);
+                updateStatus('connected', 'Streaming...');
+                responseContent.innerHTML = '';
+                intentEl.innerHTML = '';
+                agentsEl.innerHTML = '';
+                startTime = Date.now();
+            })
+            .on('intent', (data) => {
+                logEvent('Intent analyzed', data);
+                intentEl.innerHTML = `<div class="intent-badge">Intent: ${data.intent} (${Math.round(data.confidence * 100)}%)</div>`;
+            })
+            .on('agents', (data) => {
+                logEvent('Agents selected', data);
+                if (data.agents && data.agents.length > 0) {
+                    agentsEl.innerHTML = data.agents.map(agent => 
+                        `<span class="agent-badge">${agent}</span>`
+                    ).join('');
+                }
+            })
+            .on('chunk', (data) => {
+                logEvent('Chunk received', data);
+                const content = data.content || data.data || '';
+                responseContent.innerHTML += `<span class="chunk">${content}</span>`;
+            })
+            .on('progress', (data) => {
+                logEvent('Progress update', data);
+                progressBar.style.display = 'block';
+                progressFill.style.width = `${data.percentage}%`;
+            })
+            .on('error', (data) => {
+                logEvent('Error', data, true);
+                updateStatus('error', `Error: ${data.error}`);
+                isStreaming = false;
+                updateButtons();
+            })
+            .on('end', (data) => {
+                logEvent('Stream ended', data);
+                updateStatus('connected', 'Completado');
+                progressBar.style.display = 'none';
+                isStreaming = false;
+                updateButtons();
+            })
+            .on('metrics', (metrics) => {
+                updateMetrics(metrics);
+            })
+            .on('heartbeat', (data) => {
+                logEvent('Heartbeat', data);
+            })
+            .on('reconnect', (attempts) => {
+                logEvent('Reconnected', { attempts });
+                updateStatus('connecting', `Reconectado (intento ${attempts})`);
+            });
+
+        // Override auth token getter
+        client.getAuthToken = async () => {
+            // For demo purposes, return a mock token
+            // In production, implement proper authentication
+            return 'demo-token-12345';
+        };
+
+        async function sendMessage() {
+            const message = messageInput.value.trim();
+            if (!message) return;
+
+            try {
+                isStreaming = true;
+                updateButtons();
+                updateStatus('connecting', 'Conectando...');
+                
+                const conversationId = await client.startStream(message, {
+                    metadata: {
+                        source: 'demo',
+                        timestamp: new Date().toISOString()
+                    },
+                    preferences: {
+                        language: 'es',
+                        detail_level: 'detailed'
+                    }
+                });
+
+                logEvent('Conversation started', { conversationId });
+
+            } catch (error) {
+                console.error('Error starting stream:', error);
+                updateStatus('error', `Error: ${error.message}`);
+                isStreaming = false;
+                updateButtons();
+            }
+        }
+
+        function stopStream() {
+            client.close();
+            updateStatus('connected', 'Stream detenido');
+            isStreaming = false;
+            updateButtons();
+        }
+
+        function updateStatus(type, message) {
+            statusEl.className = `status ${type}`;
+            statusEl.textContent = message;
+        }
+
+        function updateButtons() {
+            sendButton.disabled = isStreaming;
+            stopButton.disabled = !isStreaming;
+        }
+
+        function logEvent(event, data, isError = false) {
+            const timestamp = new Date().toLocaleTimeString();
+            const logItem = document.createElement('div');
+            logItem.className = `event-log-item ${isError ? 'error' : ''}`;
+            logItem.textContent = `[${timestamp}] ${event}: ${JSON.stringify(data).substring(0, 100)}...`;
+            eventLog.appendChild(logItem);
+            eventLog.scrollTop = eventLog.scrollHeight;
+        }
+
+        function updateMetrics(metrics) {
+            const ttfb = metrics.firstChunkTime ? 
+                `${metrics.firstChunkTime - metrics.startTime}ms` : '-';
+            
+            const duration = metrics.duration ? 
+                `${(metrics.duration / 1000).toFixed(2)}s` : '-';
+            
+            const chunksPerSec = metrics.chunksPerSecond ? 
+                metrics.chunksPerSecond.toFixed(2) : '-';
+
+            metricsContent.innerHTML = `
+                <div class="metric-item">
+                    <span>Estado</span>
+                    <span>${isStreaming ? 'Streaming' : 'Idle'}</span>
+                </div>
+                <div class="metric-item">
+                    <span>Chunks</span>
+                    <span>${metrics.chunkCount || 0}</span>
+                </div>
+                <div class="metric-item">
+                    <span>TTFB</span>
+                    <span>${ttfb}</span>
+                </div>
+                <div class="metric-item">
+                    <span>Duración</span>
+                    <span>${duration}</span>
+                </div>
+                <div class="metric-item">
+                    <span>Chunks/seg</span>
+                    <span>${chunksPerSec}</span>
+                </div>
+                <div class="metric-item">
+                    <span>Errores</span>
+                    <span>${metrics.errorCount || 0}</span>
+                </div>
+                <div class="metric-item">
+                    <span>Reconexiones</span>
+                    <span>${metrics.reconnectCount || 0}</span>
+                </div>
+            `;
+        }
+
+        // Allow Enter key to send message
+        messageInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter' && !isStreaming) {
+                sendMessage();
+            }
+        });
+
+        // Initial status
+        updateStatus('connected', 'Listo');
+    </script>
+</body>
+</html>
