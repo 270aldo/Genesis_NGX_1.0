@@ -27,7 +27,7 @@ from core.logging_config import configure_logging
 logger = configure_logging(__name__)
 
 # Importar configuración
-from core.settings import settings
+from core.settings_lazy import settings
 
 # Variables globales para telemetría
 tracer = None

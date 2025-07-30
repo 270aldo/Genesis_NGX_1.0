@@ -14,7 +14,7 @@ from typing import Dict, Any, Optional
 from datetime import datetime
 
 import httpx
-from core.settings import settings
+from core.settings_lazy import settings
 from core.logging_config import get_logger
 
 logger = get_logger(__name__)

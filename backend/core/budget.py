@@ -15,7 +15,7 @@ import json
 from enum import Enum
 from pydantic import BaseModel, Field
 
-from core.settings import settings
+from core.settings_lazy import settings
 
 # Configurar logger
 logger = logging.getLogger(__name__)

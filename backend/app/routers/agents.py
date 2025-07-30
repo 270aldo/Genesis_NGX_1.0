@@ -27,8 +27,7 @@ from core.pagination_helpers import paginate_list
 from agents.base.base_agent import BaseAgent
 from tools.mcp_toolkit import MCPToolkit
 from agents.orchestrator.agent import NGXNexusOrchestrator
-from core.settings import Settings
-settings = Settings()
+from core.settings_lazy import settings
 
 # Configurar logger
 logger = get_logger(__name__)

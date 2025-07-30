@@ -26,7 +26,7 @@ from fastapi import FastAPI, Request, Response
 from fastapi.responses import PlainTextResponse
 
 from core.logging_config import get_logger
-from core.settings import settings
+from core.settings_lazy import settings
 
 # Logger
 logger = get_logger(__name__)

@@ -21,7 +21,7 @@ from pydantic import BaseModel, Field
 
 from core.auth import get_current_user
 from core.logging_config import get_logger
-from core.settings import settings
+from core.settings_lazy import settings
 from app.schemas.agents import AgentRunRequest, AgentRunResponse
 from app.schemas.pagination import PaginatedResponse, PaginationParams
 from core.pagination_helpers import paginate_list

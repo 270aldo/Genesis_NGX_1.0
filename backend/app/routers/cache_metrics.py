@@ -238,7 +238,7 @@ async def clear_cache(
     """
     try:
         # Solo permitir en desarrollo
-        from core.settings import settings
+        from core.settings_lazy import settings
         if settings.ENVIRONMENT == "production":
             raise HTTPException(
                 status_code=403,

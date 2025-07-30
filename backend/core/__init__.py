@@ -6,7 +6,7 @@ la arquitectura del sistema de agentes NGX, incluyendo la configuración,
 gestión de estado, y utilidades comunes.
 """
 
-from core.settings import settings
+from core.settings_lazy import settings
 from core.logging_config import setup_logging, get_logger
 from core.agent_card import AgentCard
 from core.skill import Skill

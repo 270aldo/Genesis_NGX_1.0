@@ -237,7 +237,10 @@ class RedisPoolManager:
 
 
 # Global instance
-redis_pool_manager = RedisPoolManager()
+# REMOVED: This causes hanging during import
+# Use lazy initialization instead
+from core.lazy_init import LazyInstance
+redis_pool_manager = LazyInstance(RedisPoolManager, "RedisPoolManager")
 
 
 # Convenience functions

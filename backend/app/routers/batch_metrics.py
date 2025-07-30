@@ -128,7 +128,7 @@ async def reset_batch_metrics(
     """
     try:
         # Esta operación solo está disponible en desarrollo
-        from core.settings import settings
+        from core.settings_lazy import settings
         
         if settings.ENVIRONMENT == "production":
             raise HTTPException(

@@ -14,12 +14,15 @@ from contextlib import asynccontextmanager
 from typing import AsyncGenerator
 
 from fastapi import FastAPI
-from core.rate_limit import limiter
+from core.rate_limit import limiter, rate_limit_exceeded_handler
+from core.advanced_rate_limit import advanced_limiter, ip_blocker, check_ip_block
+from core.security_middleware import SecurityValidationMiddleware, APIKeyValidationMiddleware
 from app.core.server import create_app, configure_middleware, configure_security_headers
 from app.core.startup import startup_event
 from app.core.shutdown import shutdown_event
 from app.core.routes import register_routes, register_api_routes
 from app.core.exceptions import configure_exception_handlers
+from slowapi.errors import RateLimitExceeded
 
 
 @asynccontextmanager
@@ -40,6 +43,7 @@ async def lifespan(app: FastAPI) -> AsyncGenerator:
 # Crear aplicación con el nuevo gestor de ciclo de vida
 app = create_app()
 app.state.limiter = limiter
+app.state.advanced_limiter = advanced_limiter
 
 # Configurar lifespan
 app.router.lifespan_context = lifespan
@@ -48,8 +52,18 @@ app.router.lifespan_context = lifespan
 configure_middleware(app)
 configure_security_headers(app)
 
+# Add security middleware
+app.add_middleware(SecurityValidationMiddleware)
+app.add_middleware(APIKeyValidationMiddleware)
+
+# Add IP blocking middleware
+app.add_middleware("http", middleware_class=check_ip_block)
+
 # Configurar manejadores de excepciones
 configure_exception_handlers(app)
+
+# Add rate limit exception handler
+app.add_exception_handler(RateLimitExceeded, rate_limit_exceeded_handler)
 
 # Registrar rutas
 register_routes(app)
@@ -93,7 +107,7 @@ async def root():
 
 if __name__ == "__main__":
     import uvicorn
-    from core.settings import settings
+    from core.settings_lazy import settings
     
     uvicorn.run(
         "app.main:app",

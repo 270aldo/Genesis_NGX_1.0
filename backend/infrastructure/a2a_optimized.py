@@ -763,4 +763,7 @@ class A2AServer:
 
 
 # Crear instancia global
-a2a_server = A2AServer()
+# REMOVED: This causes hanging during import
+# Use lazy initialization instead
+from core.lazy_init import LazyInstance
+a2a_server = LazyInstance(A2AServer, "A2AServer")

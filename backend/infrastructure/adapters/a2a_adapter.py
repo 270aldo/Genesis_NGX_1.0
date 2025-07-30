@@ -296,7 +296,10 @@ class A2AAdapter:
 
 
 # Instancia global del adaptador
-a2a_adapter = A2AAdapter()
+# REMOVED: This causes hanging during import
+# Use lazy initialization instead
+from core.lazy_init import LazyInstance
+a2a_adapter = LazyInstance(A2AAdapter, "A2AAdapter")
 
 # Funciones de compatibilidad para reemplazar las del antiguo servidor
 

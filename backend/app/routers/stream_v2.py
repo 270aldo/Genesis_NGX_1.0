@@ -36,10 +36,9 @@ from adk.toolkit.monitoring import track_performance, MetricsCollector
 # Import orchestrator
 from agents.orchestrator.streaming_orchestrator import StreamingNGXNexusOrchestrator
 from infrastructure.adapters.state_manager_adapter import state_manager_adapter
-from core.settings import Settings
+from core.settings_lazy import settings
 
 logger = get_logger(__name__)
-settings = Settings()
 
 # Create router
 router = APIRouter(

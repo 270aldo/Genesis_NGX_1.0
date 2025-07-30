@@ -23,7 +23,7 @@ except ImportError:
         JsonFormatter = _JsonFormatterFallback
 
 
-from core.settings import settings
+from core.settings_lazy import settings
 
 
 def setup_logging() -> None:

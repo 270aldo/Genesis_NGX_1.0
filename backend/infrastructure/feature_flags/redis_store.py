@@ -10,7 +10,7 @@ import time
 from typing import Dict, Any, Optional, List, Tuple
 
 import redis.asyncio as redis
-from core.settings import settings
+from core.settings_lazy import settings
 from core.redis_pool import redis_pool_manager
 from infrastructure.adapters import get_telemetry_adapter
 

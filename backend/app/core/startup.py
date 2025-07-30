@@ -13,7 +13,7 @@ from fastapi import FastAPI
 from core.logging_config import configure_logging, get_logger
 from core.google_credentials import init_google_credentials
 from core.telemetry import initialize_telemetry
-from core.settings import settings
+from core.settings_lazy import settings
 from core.metrics import metrics_collector
 from core.circuit_breaker import CircuitBreakerManager
 from core.budget import budget_manager

@@ -16,8 +16,7 @@ from core.logging_config import get_logger
 from infrastructure.adapters.state_manager_adapter import state_manager_adapter
 from app.schemas.chat import ChatRequest, ChatResponse, AgentResponse
 from agents.orchestrator.agent import NGXNexusOrchestrator
-from core.settings import Settings
-settings = Settings()
+from core.settings_lazy import settings
 
 # Configurar logger
 logger = get_logger(__name__)

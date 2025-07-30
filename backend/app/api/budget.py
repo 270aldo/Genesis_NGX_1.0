@@ -10,7 +10,7 @@ from fastapi import APIRouter, HTTPException, Path
 from pydantic import BaseModel
 
 from core.budget import budget_manager, AgentBudget
-from core.settings import settings
+from core.settings_lazy import settings
 
 # Crear router
 router = APIRouter(

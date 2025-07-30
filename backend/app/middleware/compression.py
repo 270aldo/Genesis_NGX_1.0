@@ -20,7 +20,7 @@ from core.response_compression import (
     compress_api_response
 )
 from core.logging_config import get_logger
-from core.settings import settings
+from core.settings_lazy import settings
 
 logger = get_logger(__name__)
 

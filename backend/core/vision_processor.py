@@ -10,8 +10,7 @@ import os
 from typing import Dict, Any, Union
 import aiohttp
 from google.cloud import aiplatform
-
-# # from google.cloud.aiplatform import VertexAI  # Comentado: import no necesario  # Comentado: import no necesario
+from vertexai.generative_models import GenerativeModel, Image
 from core.logging_config import get_logger
 
 # Configurar logger
@@ -84,41 +83,22 @@ class VisionProcessor:
 
             # Llamar a Vertex AI para el análisis
             if self.vertex_ai_initialized:
-                # Usar el cliente de Vertex AI
-                vertex_ai = VertexAI(
-                    project=os.getenv("GCP_PROJECT_ID", "your-gcp-project-id")
-                )
-
-                # Configurar el modelo
-                generation_config = {
-                    "max_output_tokens": 1024,
-                    "temperature": 0.2,
-                    "top_p": 0.95,
-                    "top_k": 40,
-                }
-
-                # Crear la solicitud
-                request = {
-                    "contents": [
-                        {
-                            "role": "user",
-                            "parts": [
-                                {"text": prompt},
-                                {
-                                    "inline_data": {
-                                        "mime_type": "image/jpeg",
-                                        "data": processed_image,
-                                    }
-                                },
-                            ],
-                        }
-                    ],
-                    "generation_config": generation_config,
-                }
-
-                # Enviar la solicitud
-                response = await vertex_ai.generate_content_async(
-                    model=self.model, **request
+                # Usar el modelo generativo
+                model = GenerativeModel(self.model)
+                
+                # Decodificar la imagen desde base64
+                image_bytes = base64.b64decode(processed_image)
+                image = Image.from_bytes(image_bytes)
+                
+                # Generar contenido
+                response = model.generate_content(
+                    [prompt, image],
+                    generation_config={
+                        "max_output_tokens": 1024,
+                        "temperature": 0.2,
+                        "top_p": 0.95,
+                        "top_k": 40,
+                    }
                 )
 
                 # Procesar la respuesta
@@ -172,10 +152,8 @@ class VisionProcessor:
 
             # Llamar a Vertex AI para la extracción de texto
             if self.vertex_ai_initialized:
-                # Usar el cliente de Vertex AI
-                vertex_ai = VertexAI(
-                    project=os.getenv("GCP_PROJECT_ID", "your-gcp-project-id")
-                )
+                # Usar el modelo generativo
+                model = GenerativeModel(self.model)
 
                 # Configurar el modelo
                 generation_config = {
@@ -185,28 +163,19 @@ class VisionProcessor:
                     "top_k": 40,
                 }
 
-                # Crear la solicitud
-                request = {
-                    "contents": [
-                        {
-                            "role": "user",
-                            "parts": [
-                                {"text": prompt},
-                                {
-                                    "inline_data": {
-                                        "mime_type": "image/jpeg",
-                                        "data": processed_image,
-                                    }
-                                },
-                            ],
-                        }
-                    ],
-                    "generation_config": generation_config,
-                }
-
-                # Enviar la solicitud
-                response = await vertex_ai.generate_content_async(
-                    model=self.model, **request
+                # Decodificar la imagen desde base64
+                image_bytes = base64.b64decode(processed_image)
+                image = Image.from_bytes(image_bytes)
+                
+                # Generar contenido
+                response = model.generate_content(
+                    [prompt, image],
+                    generation_config={
+                        "max_output_tokens": 1024,
+                        "temperature": 0.2,
+                        "top_p": 0.95,
+                        "top_k": 40,
+                    }
                 )
 
                 # Procesar la respuesta
@@ -315,4 +284,6 @@ class VisionProcessor:
 
 
 # Instancia global del procesador de visión
-vision_processor = VisionProcessor()
+# Use lazy initialization to prevent hanging during import
+from core.lazy_init import LazyInstance
+vision_processor = LazyInstance(VisionProcessor, "VisionProcessor")

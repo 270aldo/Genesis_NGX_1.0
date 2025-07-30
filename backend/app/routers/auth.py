@@ -12,9 +12,10 @@ from fastapi.security import OAuth2PasswordRequestForm
 from gotrue.errors import AuthApiError as AuthException
 
 from core.logging_config import get_logger
+from core.security_logger import log_login_attempt
 from app.schemas.auth import Token, UserCreate, User
 from clients.supabase_client import SupabaseClient
-from core.rate_limit import auth_limiter
+from core.advanced_rate_limit import auth_rate_limit
 
 # Configurar logger
 logger = get_logger(__name__)
@@ -28,7 +29,7 @@ router = APIRouter(
 
 
 @router.post("/token", response_model=Token)
-@auth_limiter
+@auth_rate_limit
 async def login_for_access_token(
     request: Request,
     form_data: OAuth2PasswordRequestForm = Depends(),
@@ -52,11 +53,18 @@ async def login_for_access_token(
             )
 
         logger.info(f"Login exitoso para usuario: {form_data.username}")
+        
+        # Log security event
+        await log_login_attempt(request, form_data.username, success=True)
 
         return {"access_token": session.session.access_token, "token_type": "bearer"}
 
     except AuthException as e:
         logger.warning(f"Fallo de autenticación para {form_data.username}: {e.message}")
+        
+        # Log security event
+        await log_login_attempt(request, form_data.username, success=False, error=e.message)
+        
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail=e.message or "Credenciales incorrectas",
@@ -72,7 +80,9 @@ async def login_for_access_token(
 
 
 @router.post("/register", response_model=User, status_code=status.HTTP_201_CREATED)
+@auth_rate_limit
 async def register_user(
+    request: Request,
     user_data: UserCreate,
     supabase_client: SupabaseClient = Depends(lambda: SupabaseClient()),
 ) -> User:

@@ -171,4 +171,7 @@ class Settings(BaseSettings):
 
 
 # Instancia global de la configuración
-settings = Settings()
+# REMOVED: This causes hanging during import
+# settings = Settings()
+# 
+# Use lazy initialization instead - import from core.settings_lazy

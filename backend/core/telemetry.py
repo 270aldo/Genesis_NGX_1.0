@@ -33,7 +33,7 @@ except ImportError:
     CloudMonitoringMetricExporter = None
 
 # Local imports
-from core.settings import settings
+from core.settings_lazy import settings
 from core.logging_config import configure_logging
 
 # Configurar logger
