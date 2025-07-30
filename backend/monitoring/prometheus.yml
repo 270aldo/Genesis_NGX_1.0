@@ -26,7 +26,7 @@ scrape_configs:
         labels:
           service: 'ngx-agents-api'
           team: 'backend'
-    scrape_path: '/metrics'
+    metrics_path: '/metrics'
     scrape_interval: 10s
   
   # Job para el servidor A2A
@@ -36,7 +36,7 @@ scrape_configs:
         labels:
           service: 'ngx-agents-a2a'
           team: 'backend'
-    scrape_path: '/metrics'
+    metrics_path: '/metrics'
     scrape_interval: 10s
   
   # Job para Redis (si está expuesto)

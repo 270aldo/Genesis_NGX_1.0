@@ -1,0 +1,51 @@
+global:
+  resolve_timeout: 5m
+  slack_api_url: ''  # Configure if using Slack
+
+route:
+  group_by: ['alertname', 'cluster', 'service']
+  group_wait: 10s
+  group_interval: 10s
+  repeat_interval: 12h
+  receiver: 'default-receiver'
+  
+  routes:
+  # Critical alerts
+  - match:
+      severity: critical
+    receiver: critical-receiver
+    continue: true
+    
+  # Warning alerts
+  - match:
+      severity: warning
+    receiver: warning-receiver
+    
+  # Agent-specific alerts
+  - match:
+      agent: nexus
+    receiver: agent-receiver
+
+receivers:
+- name: 'default-receiver'
+  # Configure your notification channels here
+  # webhook_configs:
+  # - url: 'http://localhost:8000/alerts/webhook'
+  
+- name: 'critical-receiver'
+  # Critical alerts configuration
+  # pagerduty_configs:
+  # - service_key: YOUR_SERVICE_KEY
+  
+- name: 'warning-receiver'
+  # Warning alerts configuration
+  
+- name: 'agent-receiver'
+  # Agent-specific alerts
+
+inhibit_rules:
+  - source_match:
+      severity: 'critical'
+    target_match:
+      severity: 'warning'
+    equal: ['alertname', 'dev', 'instance']
