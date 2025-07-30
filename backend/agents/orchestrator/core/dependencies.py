@@ -110,8 +110,7 @@ class NexusDependencies:
                 logger.warning(f"Adaptador conversacional no disponible: {e}")
 
             # Configuration
-            from core.settings import Settings
-settings = Settings()
+            from core.settings_lazy import settings
 
             a2a_server_url = f"http://{settings.A2A_HOST}:{settings.A2A_PORT}"
             orchestrator_model_id = settings.ORCHESTRATOR_DEFAULT_MODEL_ID

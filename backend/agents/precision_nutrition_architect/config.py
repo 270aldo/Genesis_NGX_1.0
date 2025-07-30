@@ -7,9 +7,7 @@ Centralized configuration for the SAGE Precision Nutrition Architect agent.
 
 from typing import Optional, Dict, Any, List
 from pydantic import BaseModel, Field
-from core.settings import Settings
-
-settings = Settings()
+from core.settings_lazy import settings
 
 
 class SageConfig(BaseModel):

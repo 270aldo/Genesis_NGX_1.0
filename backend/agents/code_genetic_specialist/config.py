@@ -7,9 +7,7 @@ Centralized configuration for the CODE Genetic Specialist agent.
 
 from typing import Optional, Dict, Any
 from pydantic import BaseModel, Field
-from core.settings import Settings
-
-settings = Settings()
+from core.settings_lazy import settings
 
 
 class CodeConfig(BaseModel):

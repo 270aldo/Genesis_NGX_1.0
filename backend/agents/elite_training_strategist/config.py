@@ -7,9 +7,7 @@ Centralized configuration for the BLAZE Elite Training Strategist agent.
 
 from typing import Optional, Dict, Any
 from pydantic import BaseModel, Field
-from core.settings import Settings
-
-settings = Settings()
+from core.settings_lazy import settings
 
 
 class BlazeConfig(BaseModel):

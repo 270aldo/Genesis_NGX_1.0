@@ -7,9 +7,13 @@ Central configuration for the NEXUS orchestrator agent.
 
 from typing import Dict, List, Optional
 from pydantic import BaseModel, Field
-from core.settings import Settings
 
-settings = Settings()
+# Use lazy-initialized settings to prevent hanging
+try:
+    from core.settings_lazy import settings
+except ImportError:
+    from core.settings import Settings
+    settings = Settings()
 
 
 class OrchestratorConfig(BaseModel):

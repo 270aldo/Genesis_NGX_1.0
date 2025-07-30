@@ -17,10 +17,9 @@ from typing import Dict, Any, List, Optional
 import random
 import time
 
-from core.settings import Settings
-settings = Settings()
-A2A_SERVER_URL = settings.a2a_server_url
-A2A_WEBSOCKET_URL = settings.a2a_websocket_url
+from core.settings_lazy import settings
+A2A_SERVER_URL = None  # Will be initialized lazily
+A2A_WEBSOCKET_URL = None  # Will be initialized lazily
 from core.skill import Skill, SkillStatus
 from core.agent_card import AgentCard
 from agents.base.base_agent import BaseAgent
@@ -256,9 +255,14 @@ class A2AAgent(BaseAgent):
                 )
 
                 # Registrar el agente mediante HTTP
+                # Lazy initialize A2A URLs
+                global A2A_SERVER_URL
+                if A2A_SERVER_URL is None:
+                    A2A_SERVER_URL = str(settings.a2a_server_url)
+                    
                 async with httpx.AsyncClient(
-                    base_url=A2A_SERVER_URL, timeout=10.0
-                ) as client:
+                        base_url=A2A_SERVER_URL, timeout=10.0
+                    ) as client:
                     response = await client.post("/agents/register", json=agent_info)
                     response.raise_for_status()
                     data = await response.json()
@@ -333,6 +337,11 @@ class A2AAgent(BaseAgent):
                 logger.error(f"Fallo al registrar {self.agent_id} antes de conectar.")
                 return False
 
+        # Lazy initialize A2A URLs
+        global A2A_WEBSOCKET_URL
+        if A2A_WEBSOCKET_URL is None:
+            A2A_WEBSOCKET_URL = settings.a2a_websocket_url
+            
         websocket_url = f"{A2A_WEBSOCKET_URL}/agents/connect/{self.agent_id}"
 
         # Implementar reintentos con backoff exponencial
@@ -826,7 +835,7 @@ class A2AAgent(BaseAgent):
 
         try:
             async with httpx.AsyncClient(
-                base_url=A2A_SERVER_URL, timeout=30.0
+                base_url=A2A_SERVER_URL or str(settings.a2a_server_url), timeout=30.0
             ) as client:
                 response = await client.post("/agents/request", json=task_request)
                 response.raise_for_status()
