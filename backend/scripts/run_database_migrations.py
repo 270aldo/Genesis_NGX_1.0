@@ -39,7 +39,7 @@ load_dotenv(env_path)
 try:
     from clients.supabase_client import get_supabase_client
     from core.logging_config import get_logger
-    from core.settings import settings
+    from core.settings_lazy import settings
 except ImportError as e:
     print(f"Error importing NGX modules: {e}")
     print("Please ensure you're running from the project root directory")

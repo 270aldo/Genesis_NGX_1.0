@@ -11,7 +11,7 @@ from celery import shared_task
 from celery.exceptions import MaxRetriesExceededError
 
 from core.budget import budget_manager, BudgetPeriod
-from core.settings import settings
+from core.settings_lazy import settings
 
 logger = logging.getLogger(__name__)
 

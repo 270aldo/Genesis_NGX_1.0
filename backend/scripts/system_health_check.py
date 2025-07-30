@@ -185,7 +185,7 @@ class SystemHealthChecker:
         print("\n⚙️ Checking Configuration...")
 
         try:
-            from core.settings import settings
+            from core.settings_lazy import settings
 
             # Check critical settings
             critical_settings = {
