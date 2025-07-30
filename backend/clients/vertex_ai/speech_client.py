@@ -662,4 +662,6 @@ class VertexAISpeechClient:
 
 
 # Instancia global del cliente
-speech_client = VertexAISpeechClient()
+# Use lazy initialization to prevent hanging during import
+from core.lazy_init import LazyInstance
+speech_client = LazyInstance(VertexAISpeechClient, "VertexAISpeechClient")

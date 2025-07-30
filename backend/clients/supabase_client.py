@@ -20,7 +20,7 @@ except ImportError:
     SUPABASE_AVAILABLE = False
     logging.warning("Supabase no está disponible. Se usará un cliente mock.")
 
-from core.settings import settings
+from core.settings_lazy import settings
 from core.logging_config import get_logger
 from core.circuit_breaker import circuit_breaker, CircuitBreakerOpenError
 

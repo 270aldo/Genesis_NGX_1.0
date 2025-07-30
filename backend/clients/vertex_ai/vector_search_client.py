@@ -181,4 +181,6 @@ class VectorSearchClient:
 
 
 # Instancia global
-vector_search_client = VectorSearchClient()
+# Use lazy initialization to prevent hanging during import
+from core.lazy_init import LazyInstance
+vector_search_client = LazyInstance(VectorSearchClient, "VectorSearchClient")

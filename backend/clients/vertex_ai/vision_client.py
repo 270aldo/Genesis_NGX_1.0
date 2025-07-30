@@ -561,4 +561,6 @@ class VertexAIVisionClient:
 
 
 # Instancia global del cliente de visión
-vision_client = VertexAIVisionClient()
+# Use lazy initialization to prevent hanging during import
+from core.lazy_init import LazyInstance
+vision_client = LazyInstance(VertexAIVisionClient, "VertexAIVisionClient")
