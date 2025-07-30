@@ -75,13 +75,19 @@ google-cloud-logging = "^3.12.1"
 google-cloud-monitoring = "^2.27.1"
 google-cloud-error-reporting = "^1.11.1"
 google-cloud-pubsub = "^2.29.0"
-# opentelemetry-instrumentation = "0.48b0"  # Movido a grupo telemetry
-# opentelemetry-instrumentation-fastapi = "0.48b0"  # Movido a grupo telemetry
-# opentelemetry-instrumentation-httpx = "0.48b0"  # Movido a grupo telemetry
-# opentelemetry-instrumentation-logging = "0.48b0"  # Movido a grupo telemetry
-# opentelemetry-instrumentation-aiohttp-client = "0.48b0"  # Movido a grupo telemetry
+opentelemetry-api = "1.27.0"
+opentelemetry-sdk = "1.27.0"
+opentelemetry-instrumentation = "0.48b0"
+opentelemetry-instrumentation-fastapi = "0.48b0"
+opentelemetry-instrumentation-httpx = "0.48b0"
+opentelemetry-instrumentation-logging = "0.48b0"
+opentelemetry-instrumentation-aiohttp-client = "0.48b0"
+opentelemetry-semantic-conventions = "0.48b0"
+opentelemetry-exporter-gcp-trace = "^1.9.0"
+google-cloud-trace = "^1.16.1"
 slowapi = "^0.1.9"
 itsdangerous = "^2.2.0"
+google-cloud-aiplatform = "^1.106.0"
 [tool.poetry.group.agents]
 optional = true
 
@@ -134,21 +140,7 @@ responses = "^0.25.7"
 factory-boy = "^3.3.3"
 faker = "^37.3.0"
 
-[tool.poetry.group.telemetry]
-optional = true
-
-[tool.poetry.group.telemetry.dependencies]
-opentelemetry-api = "1.27.0"
-opentelemetry-sdk = "1.27.0"
-opentelemetry-instrumentation = "0.48b0"
-opentelemetry-instrumentation-fastapi = "0.48b0"
-opentelemetry-instrumentation-httpx = "0.48b0"
-opentelemetry-instrumentation-logging = "0.48b0"
-opentelemetry-instrumentation-aiohttp-client = "0.48b0"
-opentelemetry-semantic-conventions = "0.48b0"
-opentelemetry-exporter-gcp-trace = "^1.9.0"
-google-cloud-trace = "^1.16.1"
-protobuf = "^5.26.1"
+# Telemetry dependencies moved to main dependencies section
 
 [tool.poetry.group.app]
 optional = true
