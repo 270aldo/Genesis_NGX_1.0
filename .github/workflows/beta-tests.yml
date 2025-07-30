@@ -1,0 +1,109 @@
+name: Beta Validation Tests
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+env:
+  PYTHON_VERSION: '3.11'
+  POETRY_VERSION: '1.8.4'
+
+jobs:
+  beta-validation:
+    name: Beta Validation Tests
+    runs-on: ubuntu-latest
+    
+    services:
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+    
+    - name: Install Poetry
+      uses: snok/install-poetry@v1
+      with:
+        version: ${{ env.POETRY_VERSION }}
+        virtualenvs-create: true
+        virtualenvs-in-project: true
+    
+    - name: Cache Poetry dependencies
+      uses: actions/cache@v4
+      with:
+        path: |
+          backend/.venv
+          ~/.cache/pypoetry
+        key: ${{ runner.os }}-poetry-${{ hashFiles('backend/poetry.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-poetry-
+    
+    - name: Install dependencies
+      working-directory: ./backend
+      run: |
+        poetry install --with dev
+    
+    - name: Create .env file
+      working-directory: ./backend
+      run: |
+        cat > .env << EOF
+        ENVIRONMENT=test
+        REDIS_URL=redis://localhost:6379
+        SUPABASE_URL=${{ secrets.SUPABASE_URL || 'https://test.supabase.co' }}
+        SUPABASE_KEY=${{ secrets.SUPABASE_KEY || 'test-key' }}
+        VERTEX_AI_PROJECT_ID=${{ secrets.VERTEX_AI_PROJECT_ID || 'test-project' }}
+        VERTEX_AI_LOCATION=${{ secrets.VERTEX_AI_LOCATION || 'us-central1' }}
+        JWT_SECRET_KEY=${{ secrets.JWT_SECRET_KEY || 'test-secret-key' }}
+        ELEVENLABS_API_KEY=${{ secrets.ELEVENLABS_API_KEY || 'test-elevenlabs-key' }}
+        EOF
+    
+    - name: Run Beta Validation Tests
+      working-directory: ./backend
+      env:
+        PYTHONPATH: .
+        REDIS_URL: redis://localhost:6379
+        ENVIRONMENT: test
+      run: |
+        poetry run python -m tests.beta_validation.run_beta_validation --quick --verbose
+    
+    - name: Upload test results
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: beta-validation-results
+        path: backend/reports/beta_validation_*.json
+        retention-days: 30
+    
+    - name: Check test results
+      working-directory: ./backend
+      run: |
+        # Extract pass rate from the latest summary file
+        SUMMARY_FILE=$(ls -t reports/beta_validation_summary_*.txt | head -1)
+        if [ -f "$SUMMARY_FILE" ]; then
+          PASS_RATE=$(grep "Overall Pass Rate:" "$SUMMARY_FILE" | awk '{print $4}' | sed 's/%//')
+          echo "Beta validation pass rate: ${PASS_RATE}%"
+          
+          # Fail if pass rate is below 70% (relaxed for now)
+          if (( $(echo "$PASS_RATE < 70" | bc -l) )); then
+            echo "❌ Beta validation pass rate is below 70%"
+            exit 1
+          else
+            echo "✅ Beta validation pass rate is acceptable"
+          fi
+        else
+          echo "❌ No summary file found"
+          exit 1
+        fi
