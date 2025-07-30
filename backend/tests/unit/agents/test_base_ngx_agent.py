@@ -11,7 +11,7 @@ from datetime import datetime
 import json
 
 from agents.base.base_ngx_agent import BaseNGXAgent
-from core.settings import settings
+from core.settings_lazy import settings
 
 
 @pytest.fixture

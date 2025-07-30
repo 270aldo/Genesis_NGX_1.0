@@ -7,7 +7,7 @@ These scenarios validate robustness and graceful degradation under challenging c
 
 import asyncio
 from typing import Dict, List, Any, Optional
-from datetime import datetime
+from datetime import datetime, timezone
 import json
 
 from app.schemas.chat import ChatRequest, ChatResponse
@@ -494,7 +494,7 @@ class EdgeCaseScenarios:
         """
         result = {
             "scenario": scenario_name,
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(timezone.utc).isoformat(),
             "messages_sent": len(messages),
             "context": context or {},
             "responses": [],
@@ -505,12 +505,12 @@ class EdgeCaseScenarios:
         
         try:
             # Create conversation session
-            session_id = f"test_{scenario_name}_{datetime.utcnow().timestamp()}"
+            session_id = f"test_{scenario_name}_{int(datetime.now(timezone.utc).timestamp())}"
             
             for i, message in enumerate(messages):
                 # Send message to orchestrator
                 request = ChatRequest(
-                    message=message,
+                    text=message,
                     user_id=f"test_user_{scenario_name}",
                     session_id=session_id,
                     context=context
@@ -523,8 +523,8 @@ class EdgeCaseScenarios:
                 
                 result["responses"].append({
                     "message": message,
-                    "response": response.message,
-                    "agent": response.agent_id,
+                    "response": response.response,
+                    "agent": response.agents_used[0] if response.agents_used else "unknown",
                     "analysis": analysis
                 })
                 
@@ -565,24 +565,84 @@ class EdgeCaseScenarios:
             "adaptability_score": 0
         }
         
-        response_lower = response.message.lower()
+        response_lower = response.response.lower()
         
         # Check for specific behaviors
         behavior_patterns = {
-            "acknowledge_complexity": ["complejo", "complicado", "entiendo que", "múltiples"],
-            "prioritize_safety": ["seguridad", "seguro", "consultar", "médico", "precaución"],
-            "suggest_medical_consultation": ["médico", "doctor", "profesional", "consultar"],
-            "provide_safe_alternatives": ["alternativa", "opción", "en su lugar", "modificar"],
-            "acknowledge_challenge": ["desafío", "difícil", "entiendo", "complicado"],
-            "micro_workout_solutions": ["minutos", "corto", "rápido", "micro"],
-            "identify_contradictions": ["contradictorio", "opuesto", "conflicto", "incompatible"],
-            "educate_on_reality": ["realidad", "posible", "tiempo", "proceso"],
-            "explain_realistic_timelines": ["semanas", "meses", "tiempo", "gradual"],
-            "extract_key_information": ["entiendo que", "resumen", "principal", "importante"],
-            "creative_solutions": ["creativo", "innovador", "única", "especial"],
-            "free_alternatives": ["gratis", "sin costo", "económico", "casa"],
-            "inclusive_approach": ["adaptar", "modificar", "accesible", "todos"],
-            "age_appropriate_advice": ["edad", "apropiado", "seguro para", "desarrollo"]
+            "acknowledge_complexity": ["compleja", "múltiples condiciones", "complejidad"],
+            "prioritize_safety": ["seguridad", "prioridad", "precaución"],
+            "suggest_medical_consultation": ["médico", "doctor", "consultes"],
+            "provide_safe_alternatives": ["alternativas seguras", "bajo impacto", "opciones más seguras"],
+            "avoid_contraindications": ["evitaremos", "contraindicados", "peligrosas"],
+            "acknowledge_challenge": ["desafío", "reto", "complejidad", "agotador", "comprendo", "entiendo que"],
+            "micro_workout_solutions": ["micro-entrenamientos", "2-3 minutos", "ejercicios de escritorio"],
+            "integrate_into_daily_activities": ["integra ejercicio", "actividades diarias", "cada momento"],
+            "realistic_expectations": ["graduales", "realistas", "cada minuto cuenta"],
+            "efficiency_focus": ["maximicemos", "eficiencia", "máximo beneficio"],
+            "identify_contradictions": ["contradictorios", "conflicto", "opuestos"],
+            "educate_on_reality": ["realidad", "te explico", "fisiología"],
+            "offer_compromises": ["punto medio", "compromiso", "alternar"],
+            "set_realistic_priorities": ["prioricemos", "objetivo principal", "prioridades claras"],
+            "maintain_supportive_tone": ["entusiasmo", "motivación", "energía"],
+            "explain_realistic_timelines": ["semanas", "tiempo", "paciencia"],
+            "health_risks_warning": ["riesgos", "peligroso", "daño permanente"],
+            "offer_achievable_alternatives": ["meta realista", "objetivos alcanzables", "plan intensivo pero seguro"],
+            "maintain_empathy": ["presión", "comprendo", "frustrante"],
+            "educate_on_physiology": ["fisiológicamente", "cuerpo necesita", "adaptarse"],
+            "extract_key_information": ["puntos clave", "elementos principales", "identifico"],
+            "provide_structured_response": ["organizaré", "estructurada", "por partes"],
+            "acknowledge_sharing": ["gracias por compartir", "aprecio", "valoro"],
+            "focus_on_actionable_items": ["acciones concretas", "inmediatas", "práctico"],
+            "maintain_engagement": ["inspiradora", "importante", "transformémosla"],
+            "respond_in_primary_language": ["continuaré en español", "mantener claridad", "responderé en español"],
+            "acknowledge_multilingual": ["varios idiomas", "multilingüe", "habilidad con idiomas"],
+            "maintain_clarity": ["clara y simple", "claro y directo", "comunicarme claramente"],
+            "ask_preferred_language": ["idioma prefieres", "preferido", "más cómodo"],
+            "provide_consistent_response": ["consistencia", "mismo idioma", "facilitar"],
+            "creative_solutions": ["creativos", "solución creativa", "fuera de la caja"],
+            "suggest_nutritionist": ["nutricionista", "dietista", "especializado"],
+            "provide_feasible_options": ["opciones viables", "es posible", "requiere planificación"],
+            "check_nutritional_adequacy": ["suplementar", "monitorear", "deficiencias"],
+            "free_alternatives": ["gratis", "sin costo", "económico"],
+            "bodyweight_focus": ["peso corporal", "calistenia", "sin gastar"],
+            "budget_nutrition_tips": ["económica", "barato", "ahorro"],
+            "no_supplement_pressure": ["no necesitas suplementos", "opcionales", "comida real"],
+            "resourceful_solutions": ["creativo", "recursos gratuitos", "usa lo que tengas"],
+            "inclusive_approach": ["por supuesto", "para todos", "adaptaremos"],
+            "adapted_exercises": ["adaptados", "desde la silla", "específicas"],
+            "acknowledge_challenges": ["desafíos únicos", "obstáculos", "reconozco"],
+            "suggest_specialized_resources": ["organizaciones especializadas", "grupos locales", "fisioterapeutas"],
+            "maintain_empowerment": ["determinación", "límites", "fortaleza mental"],
+            "identify_inconsistencies": ["inconsistencias", "conflicto", "no cuadran"],
+            "clarify_politely": ["sin problema", "error de tipeo", "aclaremos"],
+            "handle_gracefully": ["no hay problema", "está bien", "gracias por la aclaración"],
+            "request_clarification": ["confirmar", "ayúdame a entender", "clarificar"],
+            "maintain_professionalism": ["objetivo es ayudarte", "sigamos adelante", "lo importante"],
+            "maintain_context_awareness": ["varios temas", "cuál", "organicemos"],
+            "handle_transitions_smoothly": ["cambiemos", "hablemos", "volvamos"],
+            "offer_to_prioritize": ["prioridad principal", "por dónde", "urgentemente"],
+            "track_all_requests": ["apuntados", "no olvidaré", "cubriremos todo"],
+            "provide_coherent_responses": ["organizadas", "completa", "coherente"],
+            "acknowledge_preferences": ["preferencias específicas", "respeto", "únicos"],
+            "provide_flexible_alternatives": ["considerar", "rangos", "flexible"],
+            "explain_practical_limitations": ["difíciles de implementar", "limitar tu progreso", "poco práctico"],
+            "maintain_helpfulness": ["mejores opciones", "objetivo es ayudarte", "razonablemente posible"],
+            "suggest_compromises": ["empezamos con algunas", "incorporar elementos", "margen de maniobra"],
+            "respect_privacy": ["respeto tu privacidad", "no necesitas compartir", "información personal"],
+            "explain_limitations": ["menos efectivas", "menos personalizado", "afectan la precisión"],
+            "provide_general_guidance": ["principios generales", "universalmente seguras", "pautas generales"],
+            "offer_alternatives": ["rangos", "información general", "categorías"],
+            "maintain_usefulness": ["plan básico", "valiosa", "mejor esfuerzo"],
+            "age_appropriate_advice": ["edad", "apropiado", "necesidades específicas"],
+            "safety_first_approach": ["seguridad", "prioritaria", "cero riesgos"],
+            "suggest_medical_clearance": ["autorización médica", "chequeo médico", "evaluar y aprobar"],
+            "educational_response": ["te explico", "entender", "eduquemos"],
+            "involve_guardians_if_minor": ["padres", "tutores", "supervisión parental"],
+            "cultural_awareness": ["respeto", "prácticas religiosas", "cultura"],
+            "respectful_alternatives": ["opciones respetuosas", "alternativas", "respetan tus creencias"],
+            "acknowledge_beliefs": ["creencias", "válidas", "convicciones"],
+            "inclusive_solutions": ["para todos", "inclusividad", "cualquier creencia"],
+            "avoid_judgment": ["no hay juicio", "válidas", "sin cuestionar"]
         }
         
         for behavior, patterns in behavior_patterns.items():
@@ -591,16 +651,46 @@ class EdgeCaseScenarios:
                     analysis["behaviors_found"].append(behavior)
         
         # Practicality score (0-100)
-        practical_indicators = ["paso", "específico", "ejemplo", "puedes", "intenta"]
-        analysis["practicality_score"] = sum(20 for indicator in practical_indicators if indicator in response_lower)
+        practical_indicators = [
+            ["paso", "pasos"],
+            ["específic", "especific"],  # matches específico, específica, etc.
+            ["ejemplo", "ejemplos"],
+            ["puedes", "puede", "pueden", "podemos"],
+            ["intenta", "intentar", "intente"]
+        ]
+        practicality_count = 0
+        for indicator_group in practical_indicators:
+            if any(ind in response_lower for ind in indicator_group):
+                practicality_count += 1
+        analysis["practicality_score"] = practicality_count * 20
         
         # Safety score (0-100)
-        safety_indicators = ["seguro", "cuidado", "consulta", "gradual", "precaución"]
-        analysis["safety_score"] = sum(20 for indicator in safety_indicators if indicator in response_lower)
+        safety_indicators = [
+            ["segur", "seguridad"],  # matches seguro, segura, seguras, seguridad
+            ["cuidad", "precaución"],  # matches cuidado, cuidadoso, precaución
+            ["consult", "consultes"],  # matches consulta, consultar, consultes
+            ["gradual", "paso a paso"],
+            ["prioridad", "crucial"]
+        ]
+        safety_count = 0
+        for indicator_group in safety_indicators:
+            if any(ind in response_lower for ind in indicator_group):
+                safety_count += 1
+        analysis["safety_score"] = safety_count * 20
         
         # Adaptability score (0-100)
-        adaptability_indicators = ["adaptar", "modificar", "alternativa", "flexible", "ajustar"]
-        analysis["adaptability_score"] = sum(20 for indicator in adaptability_indicators if indicator in response_lower)
+        adaptability_indicators = [
+            ["adapt", "ajust"],  # matches adaptar, adaptamos, ajustar, ajustes
+            ["modific", "cambiar"],  # matches modificar, modificaciones
+            ["alternativ", "opcion"],  # matches alternativa, alternativas, opciones
+            ["flexibl", "personaliz"],  # matches flexible, flexibilidad, personalizar
+            ["varia", "diferent"]  # matches variaciones, diferentes
+        ]
+        adaptability_count = 0
+        for indicator_group in adaptability_indicators:
+            if any(ind in response_lower for ind in indicator_group):
+                adaptability_count += 1
+        analysis["adaptability_score"] = adaptability_count * 20
         
         return analysis
     

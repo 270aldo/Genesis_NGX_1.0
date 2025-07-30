@@ -7,7 +7,7 @@ marathon sessions, resource constraints, and concurrent usage patterns.
 
 import asyncio
 from typing import Dict, List, Any, Optional
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 import json
 import random
 import string
@@ -89,7 +89,7 @@ class StressTestScenarios:
         async def simulate_user(user_id: int):
             """Simulate a single user session"""
             session_results = []
-            session_id = f"stress_user_{user_id}_{datetime.utcnow().timestamp()}"
+            session_id = f"stress_user_{user_id}_{int(datetime.now(timezone.utc).timestamp())}"
             
             messages = [
                 "Hola, necesito un plan de entrenamiento",
@@ -102,19 +102,19 @@ class StressTestScenarios:
             for msg in messages[:messages_per_user]:
                 try:
                     request = ChatRequest(
-                        message=msg,
+                        text=msg,
                         user_id=f"stress_test_user_{user_id}",
                         session_id=session_id
                     )
                     
-                    start_time = datetime.utcnow()
+                    start_time = datetime.now(timezone.utc)
                     response = await self.orchestrator.process_message(request)
-                    end_time = datetime.utcnow()
+                    end_time = datetime.now(timezone.utc)
                     
                     session_results.append({
                         "success": True,
                         "response_time": (end_time - start_time).total_seconds(),
-                        "message_length": len(response.message)
+                        "message_length": len(response.response)
                     })
                     
                     # Small random delay between messages
@@ -129,7 +129,7 @@ class StressTestScenarios:
             return session_results
         
         # Run concurrent user simulations
-        start_time = datetime.utcnow()
+        start_time = datetime.now(timezone.utc)
         
         # Create tasks for all users
         tasks = [simulate_user(i) for i in range(num_users)]
@@ -146,7 +146,7 @@ class StressTestScenarios:
             # Brief pause between batches
             await asyncio.sleep(1)
         
-        end_time = datetime.utcnow()
+        end_time = datetime.now(timezone.utc)
         
         # Analyze results
         total_requests = 0
@@ -174,7 +174,7 @@ class StressTestScenarios:
         
         return {
             "scenario": scenario_name,
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(timezone.utc).isoformat(),
             "metrics": {
                 "num_users": num_users,
                 "total_requests": total_requests,
@@ -193,7 +193,7 @@ class StressTestScenarios:
         """Test: Single user marathon session (2+ hours)"""
         scenario_name = "marathon_session"
         
-        session_id = f"marathon_{datetime.utcnow().timestamp()}"
+        session_id = f"marathon_{int(datetime.now(timezone.utc).timestamp())}"
         user_id = "marathon_test_user"
         
         # Simulate 2-hour conversation with varied topics
@@ -234,7 +234,7 @@ class StressTestScenarios:
         
         results = {
             "scenario": scenario_name,
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(timezone.utc).isoformat(),
             "session_duration": 0,
             "messages_exchanged": 0,
             "context_coherence": True,
@@ -244,7 +244,7 @@ class StressTestScenarios:
             "passed": False
         }
         
-        start_time = datetime.utcnow()
+        start_time = datetime.now(timezone.utc)
         
         try:
             for topic_name, messages in conversation_topics:
@@ -253,7 +253,7 @@ class StressTestScenarios:
                 for message in messages:
                     # Send message
                     request = ChatRequest(
-                        message=message,
+                        text=message,
                         user_id=user_id,
                         session_id=session_id,
                         context={"marathon_test": True, "current_topic": topic_name}
@@ -276,7 +276,7 @@ class StressTestScenarios:
                 # Longer pause between topics
                 await asyncio.sleep(30)
             
-            end_time = datetime.utcnow()
+            end_time = datetime.now(timezone.utc)
             results["session_duration"] = (end_time - start_time).total_seconds()
             
             # Calculate final metrics
@@ -300,7 +300,7 @@ class StressTestScenarios:
         scenario_name = "rapid_fire_messages"
         
         num_messages = 50
-        session_id = f"rapid_fire_{datetime.utcnow().timestamp()}"
+        session_id = f"rapid_fire_{int(datetime.now(timezone.utc).timestamp())}"
         
         # Generate diverse rapid messages
         rapid_messages = [
@@ -324,20 +324,20 @@ class StressTestScenarios:
             "rate_limit_hits": 0
         }
         
-        start_time = datetime.utcnow()
+        start_time = datetime.now(timezone.utc)
         
         # Send messages as fast as possible
         for message in rapid_messages:
             try:
                 request = ChatRequest(
-                    message=message,
+                    text=message,
                     user_id="rapid_test_user",
                     session_id=session_id
                 )
                 
-                msg_start = datetime.utcnow()
+                msg_start = datetime.now(timezone.utc)
                 response = await self.orchestrator.process_message(request)
-                msg_end = datetime.utcnow()
+                msg_end = datetime.now(timezone.utc)
                 
                 results["messages_sent"] += 1
                 results["successful_responses"] += 1
@@ -349,7 +349,7 @@ class StressTestScenarios:
                 if "rate limit" in error_str.lower():
                     results["rate_limit_hits"] += 1
         
-        end_time = datetime.utcnow()
+        end_time = datetime.now(timezone.utc)
         total_duration = (end_time - start_time).total_seconds()
         
         # Calculate metrics
@@ -358,7 +358,7 @@ class StressTestScenarios:
         
         return {
             "scenario": scenario_name,
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(timezone.utc).isoformat(),
             "metrics": {
                 "messages_sent": results["messages_sent"],
                 "successful_responses": results["successful_responses"],
@@ -375,7 +375,7 @@ class StressTestScenarios:
         """Test: Large context accumulation over conversation"""
         scenario_name = "large_context_accumulation"
         
-        session_id = f"large_context_{datetime.utcnow().timestamp()}"
+        session_id = f"large_context_{int(datetime.now(timezone.utc).timestamp())}"
         
         # Build increasingly complex context
         context_building_messages = [
@@ -415,14 +415,14 @@ class StressTestScenarios:
         try:
             for i, message in enumerate(context_building_messages):
                 request = ChatRequest(
-                    message=message,
+                    text=message,
                     user_id="context_test_user",
                     session_id=session_id
                 )
                 
-                start_time = datetime.utcnow()
+                start_time = datetime.now(timezone.utc)
                 response = await self.orchestrator.process_message(request)
-                end_time = datetime.utcnow()
+                end_time = datetime.now(timezone.utc)
                 
                 response_time = (end_time - start_time).total_seconds()
                 results["performance_degradation"].append(response_time)
@@ -432,7 +432,7 @@ class StressTestScenarios:
                 results["response_coherence"].append(coherence_score)
                 
                 # Estimate context size
-                results["context_size"] += len(message) + len(response.message)
+                results["context_size"] += len(message) + len(response.response)
                 
                 await asyncio.sleep(1)
             
@@ -473,7 +473,7 @@ class StressTestScenarios:
             for i in range(messages_per_session):
                 try:
                     request = ChatRequest(
-                        message=f"Mensaje {i}: {large_message}",
+                        text=f"Mensaje {i}: {large_message}",
                         user_id=f"memory_user_{session_num}",
                         session_id=session_id,
                         context={"large_data": "B" * 10000}  # 10KB context
@@ -502,7 +502,7 @@ class StressTestScenarios:
         
         return {
             "scenario": scenario_name,
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(timezone.utc).isoformat(),
             "metrics": {
                 "total_sessions": num_sessions,
                 "total_attempts": total_attempts,
@@ -564,14 +564,14 @@ class StressTestScenarios:
                 results = []
                 for msg in messages:
                     request = ChatRequest(
-                        message=msg,
+                        text=msg,
                         user_id=f"db_test_user_{op_id}",
                         session_id=f"db_test_{op_id}"
                     )
                     
-                    start = datetime.utcnow()
+                    start = datetime.now(timezone.utc)
                     response = await self.orchestrator.process_message(request)
-                    end = datetime.utcnow()
+                    end = datetime.now(timezone.utc)
                     
                     results.append({
                         "success": True,
@@ -605,7 +605,7 @@ class StressTestScenarios:
         
         return {
             "scenario": scenario_name,
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(timezone.utc).isoformat(),
             "metrics": {
                 "concurrent_operations": num_concurrent,
                 "total_operations": total_operations,
@@ -635,14 +635,14 @@ class StressTestScenarios:
         for i in range(num_unique_requests):
             try:
                 request = ChatRequest(
-                    message=f"Pregunta única número {i}: ¿Cuál es el mejor ejercicio para {i}?",
+                    text=f"Pregunta única número {i}: ¿Cuál es el mejor ejercicio para {i}?",
                     user_id=f"cache_test_user_{i % 10}",
                     session_id=f"cache_test_{i % 100}"
                 )
                 
-                start = datetime.utcnow()
+                start = datetime.now(timezone.utc)
                 await self.orchestrator.process_message(request)
-                end = datetime.utcnow()
+                end = datetime.now(timezone.utc)
                 
                 results["response_times"].append((end - start).total_seconds())
                 
@@ -653,14 +653,14 @@ class StressTestScenarios:
         for i in range(min(100, num_unique_requests)):
             try:
                 request = ChatRequest(
-                    message=f"Pregunta única número {i}: ¿Cuál es el mejor ejercicio para {i}?",
+                    text=f"Pregunta única número {i}: ¿Cuál es el mejor ejercicio para {i}?",
                     user_id=f"cache_test_user_{i % 10}",
                     session_id=f"cache_test_{i % 100}"
                 )
                 
-                start = datetime.utcnow()
+                start = datetime.now(timezone.utc)
                 await self.orchestrator.process_message(request)
-                end = datetime.utcnow()
+                end = datetime.now(timezone.utc)
                 
                 response_time = (end - start).total_seconds()
                 
@@ -677,7 +677,7 @@ class StressTestScenarios:
         
         return {
             "scenario": scenario_name,
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(timezone.utc).isoformat(),
             "metrics": {
                 "unique_requests": num_unique_requests,
                 "cache_hits": results["cache_hits"],
@@ -708,7 +708,7 @@ class StressTestScenarios:
             try:
                 # Simulate a streaming request
                 request = ChatRequest(
-                    message="Dame un plan de entrenamiento detallado con explicaciones largas",
+                    text="Dame un plan de entrenamiento detallado con explicaciones largas",
                     user_id=f"ws_test_user_{session_id}",
                     session_id=f"ws_test_{session_id}",
                     context={"streaming": True}
@@ -734,7 +734,7 @@ class StressTestScenarios:
         
         return {
             "scenario": scenario_name,
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(timezone.utc).isoformat(),
             "metrics": {
                 "attempted_connections": results["attempted_connections"],
                 "successful_connections": results["successful_connections"],
@@ -769,12 +769,12 @@ class StressTestScenarios:
             try:
                 # Send error-inducing message
                 request = ChatRequest(
-                    message=scenario["message"],
+                    text=scenario["message"],
                     user_id="error_test_user",
                     session_id=f"error_test_{scenario['type']}"
                 )
                 
-                start = datetime.utcnow()
+                start = datetime.now(timezone.utc)
                 
                 try:
                     await self.orchestrator.process_message(request)
@@ -784,15 +784,15 @@ class StressTestScenarios:
                 
                 # Test recovery with normal message
                 recovery_request = ChatRequest(
-                    message="Hola, necesito ayuda con mi entrenamiento",
+                    text="Hola, necesito ayuda con mi entrenamiento",
                     user_id="error_test_user",
                     session_id=f"error_recovery_{scenario['type']}"
                 )
                 
                 recovery_response = await self.orchestrator.process_message(recovery_request)
-                end = datetime.utcnow()
+                end = datetime.now(timezone.utc)
                 
-                if recovery_response and recovery_response.message:
+                if recovery_response and recovery_response.response:
                     results["recovered"] += 1
                     results["recovery_times"].append((end - start).total_seconds())
                 else:
@@ -806,7 +806,7 @@ class StressTestScenarios:
         
         return {
             "scenario": scenario_name,
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(timezone.utc).isoformat(),
             "metrics": {
                 "scenarios_tested": results["scenarios_tested"],
                 "successful_recoveries": results["recovered"],
@@ -848,7 +848,7 @@ class StressTestScenarios:
             for message in scenario["messages"]:
                 try:
                     request = ChatRequest(
-                        message=message,
+                        text=message,
                         user_id="cascade_test_user",
                         session_id=f"cascade_test_{scenario['component']}",
                         context={"simulate_failure": scenario["component"]}
@@ -856,7 +856,7 @@ class StressTestScenarios:
                     
                     response = await self.orchestrator.process_message(request)
                     
-                    if response and response.message:
+                    if response and response.response:
                         component_result["successful"] += 1
                     else:
                         component_result["failed"] += 1
@@ -866,14 +866,14 @@ class StressTestScenarios:
             
             # Test if other components still work
             test_request = ChatRequest(
-                message="Hola, dame un consejo de motivación",
+                text="Hola, dame un consejo de motivación",
                 user_id="cascade_test_user",
                 session_id="cascade_test_other"
             )
             
             try:
                 other_response = await self.orchestrator.process_message(test_request)
-                if other_response and other_response.message:
+                if other_response and other_response.response:
                     results["cascade_prevented"] += 1
                 else:
                     component_result["other_components_affected"] = True
@@ -887,7 +887,7 @@ class StressTestScenarios:
         
         return {
             "scenario": scenario_name,
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(timezone.utc).isoformat(),
             "metrics": {
                 "components_tested": len(failure_scenarios),
                 "isolated_failures": results["isolated_failures"],
@@ -918,15 +918,15 @@ class StressTestScenarios:
         # CPU exhaustion test
         for message in cpu_intensive_messages:
             try:
-                start = datetime.utcnow()
+                start = datetime.now(timezone.utc)
                 request = ChatRequest(
-                    message=message,
+                    text=message,
                     user_id="resource_test_user",
                     session_id="resource_cpu_test"
                 )
                 
                 response = await self.orchestrator.process_message(request)
-                end = datetime.utcnow()
+                end = datetime.now(timezone.utc)
                 
                 duration = (end - start).total_seconds()
                 
@@ -952,7 +952,7 @@ class StressTestScenarios:
         
         try:
             request = ChatRequest(
-                message=memory_message,
+                text=memory_message,
                 user_id="resource_test_user",
                 session_id="resource_memory_test"
             )
@@ -962,7 +962,7 @@ class StressTestScenarios:
             results["memory_tests"].append({
                 "test": "large_data_processing",
                 "success": True,
-                "handled": len(response.message) < 10000  # Should not echo large data
+                "handled": len(response.response) < 10000  # Should not echo large data
             })
             
         except Exception as e:
@@ -977,7 +977,7 @@ class StressTestScenarios:
         
         return {
             "scenario": scenario_name,
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(timezone.utc).isoformat(),
             "cpu_tests": results["cpu_tests"],
             "memory_tests": results["memory_tests"],
             "passed": results["handled_gracefully"],
@@ -1014,14 +1014,14 @@ class StressTestScenarios:
                     await asyncio.sleep(scenario["delay"])
                     
                     request = ChatRequest(
-                        message=f"Test mensaje con latencia {i}",
+                        text=f"Test mensaje con latencia {i}",
                         user_id="latency_test_user",
                         session_id=f"latency_test_{scenario['name']}"
                     )
                     
-                    start = datetime.utcnow()
+                    start = datetime.now(timezone.utc)
                     response = await self.orchestrator.process_message(request)
-                    end = datetime.utcnow()
+                    end = datetime.now(timezone.utc)
                     
                     response_time = (end - start).total_seconds()
                     test_result["actual_response_times"].append(response_time)
@@ -1043,7 +1043,7 @@ class StressTestScenarios:
         
         return {
             "scenario": scenario_name,
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(timezone.utc).isoformat(),
             "latency_tests": results["latency_tests"],
             "passed": all_successful and no_excessive_timeouts,
             "issues": []
@@ -1057,7 +1057,7 @@ class StressTestScenarios:
         
         # Initial setup
         setup_request = ChatRequest(
-            message="Mi peso inicial es 80kg",
+            text="Mi peso inicial es 80kg",
             user_id=user_id,
             session_id="consistency_setup"
         )
@@ -1067,7 +1067,7 @@ class StressTestScenarios:
         async def update_weight(new_weight: int, session_num: int):
             try:
                 request = ChatRequest(
-                    message=f"Actualiza mi peso a {new_weight}kg",
+                    text=f"Actualiza mi peso a {new_weight}kg",
                     user_id=user_id,
                     session_id=f"consistency_update_{session_num}"
                 )
@@ -1085,7 +1085,7 @@ class StressTestScenarios:
         
         # Verify final state
         verify_request = ChatRequest(
-            message="¿Cuál es mi peso actual?",
+            text="¿Cuál es mi peso actual?",
             user_id=user_id,
             session_id="consistency_verify"
         )
@@ -1094,7 +1094,7 @@ class StressTestScenarios:
         
         # Extract weight from response (simplified)
         import re
-        weight_match = re.search(r'(\d+)\s*kg', verify_response.message.lower())
+        weight_match = re.search(r'(\d+)\s*kg', verify_response.response.lower())
         final_weight = int(weight_match.group(1)) if weight_match else None
         
         # Check if final weight is one of the updates
@@ -1102,7 +1102,7 @@ class StressTestScenarios:
         
         return {
             "scenario": scenario_name,
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(timezone.utc).isoformat(),
             "metrics": {
                 "concurrent_updates": len(weights),
                 "successful_updates": sum(1 for r in update_results if r["success"]),
@@ -1131,7 +1131,7 @@ class StressTestScenarios:
         }
         
         for level in load_levels:
-            level_start = datetime.utcnow()
+            level_start = datetime.now(timezone.utc)
             
             # Run load test for this level
             async def user_session(user_num: int):
@@ -1145,20 +1145,20 @@ class StressTestScenarios:
                 for msg_num in range(level["messages"]):
                     try:
                         request = ChatRequest(
-                            message=f"Usuario {user_num} mensaje {msg_num}",
+                            text=f"Usuario {user_num} mensaje {msg_num}",
                             user_id=f"load_user_{user_num}",
                             session_id=f"load_session_{level['name']}_{user_num}"
                         )
                         
-                        start = datetime.utcnow()
+                        start = datetime.now(timezone.utc)
                         response = await self.orchestrator.process_message(request)
-                        end = datetime.utcnow()
+                        end = datetime.now(timezone.utc)
                         
                         response_time = (end - start).total_seconds()
                         session_results["response_times"].append(response_time)
                         
                         # Check for degraded service
-                        if "sistema ocupado" in response.message.lower() or "intente más tarde" in response.message.lower():
+                        if "sistema ocupado" in response.response.lower() or "intente más tarde" in response.response.lower():
                             session_results["degraded"] += 1
                         else:
                             session_results["successful"] += 1
@@ -1187,7 +1187,7 @@ class StressTestScenarios:
                     total_degraded += result["degraded"]
                     all_response_times.extend(result["response_times"])
             
-            level_end = datetime.utcnow()
+            level_end = datetime.now(timezone.utc)
             
             level_result = {
                 "load_level": level["name"],
@@ -1215,7 +1215,7 @@ class StressTestScenarios:
         
         return {
             "scenario": scenario_name,
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(timezone.utc).isoformat(),
             "load_tests": results["load_tests"],
             "degradation_pattern": results["degradation_pattern"],
             "passed": results["degradation_pattern"] in ["graceful_degradation", "resilient"],
@@ -1229,21 +1229,21 @@ class StressTestScenarios:
         score = 1.0
         
         # Check response length
-        if len(response.message) < 10:
+        if len(response.response) < 10:
             score -= 0.3
-        elif len(response.message) > 2000:
+        elif len(response.response) > 2000:
             score -= 0.1
             
         # Check for error indicators
         error_indicators = ["error", "problema", "no puedo", "intente más tarde"]
         for indicator in error_indicators:
-            if indicator in response.message.lower():
+            if indicator in response.response.lower():
                 score -= 0.2
                 
         # Check for helpful content
         helpful_indicators = ["puedes", "recomiendo", "sugiero", "importante"]
         for indicator in helpful_indicators:
-            if indicator in response.message.lower():
+            if indicator in response.response.lower():
                 score += 0.1
                 
         return max(0, min(1, score))
@@ -1258,7 +1258,7 @@ class StressTestScenarios:
         }
         
         keywords = topic_keywords.get(expected_topic, [])
-        response_lower = response.message.lower()
+        response_lower = response.response.lower()
         
         # Check if at least one keyword is present
         return any(keyword in response_lower for keyword in keywords)
@@ -1270,12 +1270,12 @@ class StressTestScenarios:
         # Later messages should reference earlier context
         if message_index > 5:
             context_indicators = ["como mencionaste", "anteriormente", "basándome en", "tu historial"]
-            if not any(indicator in response.message.lower() for indicator in context_indicators):
+            if not any(indicator in response.response.lower() for indicator in context_indicators):
                 score -= 0.3
                 
         # Check for generic responses (bad for context-heavy conversations)
         generic_phrases = ["en general", "normalmente", "la mayoría de las personas"]
-        generic_count = sum(1 for phrase in generic_phrases if phrase in response.message.lower())
+        generic_count = sum(1 for phrase in generic_phrases if phrase in response.response.lower())
         score -= generic_count * 0.1
         
         return max(0, min(1, score))
@@ -1291,7 +1291,7 @@ class StressTestScenarios:
             "handled_gracefully": True
         }
         
-        start_time = datetime.utcnow()
+        start_time = datetime.now(timezone.utc)
         
         # Calculate request interval
         interval = duration / num_requests if num_requests > 0 else 1
@@ -1299,7 +1299,7 @@ class StressTestScenarios:
         for i in range(num_requests):
             try:
                 request = ChatRequest(
-                    message=f"Rate limit test {i}",
+                    text=f"Rate limit test {i}",
                     user_id="rate_limit_test_user",
                     session_id=f"rate_limit_{case_name}"
                 )
@@ -1320,7 +1320,7 @@ class StressTestScenarios:
             if i < num_requests - 1:
                 await asyncio.sleep(interval)
         
-        end_time = datetime.utcnow()
+        end_time = datetime.now(timezone.utc)
         actual_duration = (end_time - start_time).total_seconds()
         
         results["actual_duration"] = actual_duration

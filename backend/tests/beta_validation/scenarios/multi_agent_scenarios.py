@@ -7,7 +7,7 @@ seamless user experiences across complex multi-agent interactions.
 
 import asyncio
 from typing import Dict, List, Any, Optional
-from datetime import datetime
+from datetime import datetime, timezone
 import json
 
 from app.schemas.chat import ChatRequest, ChatResponse
@@ -515,7 +515,7 @@ class MultiAgentScenarios:
         """
         result = {
             "scenario": scenario_name,
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(timezone.utc).isoformat(),
             "messages_sent": len(messages),
             "expected_agents": expected_agents,
             "context": context or {},
@@ -529,13 +529,13 @@ class MultiAgentScenarios:
         
         try:
             # Create conversation session
-            session_id = f"test_{scenario_name}_{datetime.utcnow().timestamp()}"
+            session_id = f"test_{scenario_name}_{int(datetime.now(timezone.utc).timestamp())}"
             conversation_context = {}
             
             for i, message in enumerate(messages):
                 # Send message to orchestrator
                 request = ChatRequest(
-                    message=message,
+                    text=message,
                     user_id=f"test_user_{scenario_name}",
                     session_id=session_id,
                     context={**context, **conversation_context}
@@ -559,7 +559,7 @@ class MultiAgentScenarios:
                 
                 result["responses"].append({
                     "message": message,
-                    "response": response.message,
+                    "response": response.response,
                     "agents": getattr(response, 'agents_used', []),
                     "analysis": analysis
                 })
@@ -611,7 +611,7 @@ class MultiAgentScenarios:
             "context_updates": {}
         }
         
-        response_lower = response.message.lower()
+        response_lower = response.response.lower()
         
         # Check for specific coordination behaviors
         behavior_patterns = {

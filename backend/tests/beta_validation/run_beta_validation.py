@@ -21,7 +21,7 @@ import argparse
 import json
 import os
 import sys
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Dict, List, Any, Optional
 import traceback
@@ -40,6 +40,9 @@ from tests.beta_validation.scenarios import (
     StressTestScenarios
 )
 from tests.beta_validation.validators import ResponseQualityValidator
+from tests.beta_validation.intelligent_mock_client import IntelligentMockOrchestratorClient
+from tests.beta_validation.real_orchestrator_client import RealOrchestratorClient
+from tests.beta_validation.test_config import TestEnvironment
 
 logger = get_logger(__name__)
 
@@ -70,8 +73,15 @@ class BetaValidationRunner:
             "warnings": []
         }
         
-        # Initialize orchestrator client (mock for now)
-        self.orchestrator_client = self._create_orchestrator_client()
+        # Initialize test environment if using real orchestrator
+        self.test_environment = None
+        if self.config.get("use_real_orchestrator", False):
+            self.test_environment = TestEnvironment(
+                use_real_ai=self.config.get("use_real_ai", False)
+            )
+        
+        # Initialize orchestrator client
+        self.orchestrator_client = None  # Will be created in setup
         
         # Initialize MCP gateway client if available
         self.mcp_gateway_client = self._create_mcp_gateway_client()
@@ -79,17 +89,44 @@ class BetaValidationRunner:
         # Initialize response validator
         self.response_validator = ResponseQualityValidator()
     
-    def _create_orchestrator_client(self):
+    async def _create_orchestrator_client(self):
         """Create orchestrator client for tests"""
-        # In a real implementation, this would create an actual client
-        # For now, we'll create a mock client
+        # Check if we should use real orchestrator
+        use_real_orchestrator = self.config.get("use_real_orchestrator", False)
+        
+        if use_real_orchestrator:
+            logger.info("Using REAL orchestrator for testing")
+            use_real_ai = self.config.get("use_real_ai", False)
+            client = RealOrchestratorClient(
+                test_mode=True,
+                use_real_ai=use_real_ai
+            )
+            await client.initialize()
+            
+            # Perform health check
+            health = await client.health_check()
+            if not health.get("healthy", False):
+                logger.error(f"Orchestrator health check failed: {health}")
+                raise Exception("Real orchestrator is not healthy")
+            
+            logger.info(f"Real orchestrator initialized successfully: {health}")
+            return client
+            
+        # Use intelligent mock for realistic testing
+        use_intelligent_mock = self.config.get("use_intelligent_mock", True)
+        
+        if use_intelligent_mock:
+            logger.info("Using intelligent mock orchestrator")
+            return IntelligentMockOrchestratorClient()
+        
+        # Fallback to simple mock
         class MockOrchestratorClient:
             async def process_message(self, request):
                 """Mock message processing"""
                 from app.schemas.chat import ChatResponse
                 
                 # Simulate different responses based on message content
-                message = request.message.lower()
+                message = request.text.lower()
                 
                 if "error" in message:
                     raise Exception("Simulated error")
@@ -109,7 +146,7 @@ class BetaValidationRunner:
                         break
                 
                 return ChatResponse(
-                    message=response_text,
+                    response=response_text,
                     session_id=request.session_id,
                     agents_used=["NEXUS", "BLAZE"],
                     agent_responses=[],
@@ -138,8 +175,15 @@ class BetaValidationRunner:
             categories: Optional list of categories to run (None = all)
             parallel: Whether to run tests in parallel
         """
-        self.results["start_time"] = datetime.utcnow().isoformat()
+        self.results["start_time"] = datetime.now(timezone.utc).isoformat()
         logger.info("Starting GENESIS Beta Validation Tests")
+        
+        # Set up test environment if needed
+        if self.test_environment:
+            await self.test_environment.setup()
+            
+        # Create orchestrator client
+        self.orchestrator_client = await self._create_orchestrator_client()
         
         # Define test categories
         test_categories = {
@@ -161,7 +205,7 @@ class BetaValidationRunner:
             await self._run_sequential_tests(test_categories)
         
         # Finalize results
-        self.results["end_time"] = datetime.utcnow().isoformat()
+        self.results["end_time"] = datetime.now(timezone.utc).isoformat()
         start = datetime.fromisoformat(self.results["start_time"])
         end = datetime.fromisoformat(self.results["end_time"])
         self.results["duration"] = (end - start).total_seconds()
@@ -171,6 +215,9 @@ class BetaValidationRunner:
         
         # Identify critical issues
         self._identify_critical_issues()
+        
+        # Clean up
+        await self._cleanup()
         
         logger.info(f"Beta Validation Tests completed in {self.results['duration']:.2f} seconds")
         logger.info(f"Overall pass rate: {self.results['summary']['pass_rate']:.1f}%")
@@ -325,7 +372,7 @@ class BetaValidationRunner:
         output_path.mkdir(parents=True, exist_ok=True)
         
         # Generate filename with timestamp
-        timestamp = datetime.utcnow().strftime("%Y%m%d_%H%M%S")
+        timestamp = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
         filename = f"beta_validation_results_{timestamp}.json"
         filepath = output_path / filename
         
@@ -456,6 +503,20 @@ class BetaValidationRunner:
             if "pass_rate" in data:
                 status = "✅" if data["pass_rate"] >= 90 else "⚠️" if data["pass_rate"] >= 70 else "❌"
                 print(f"  {status} {category}: {data['pass_rate']:.1f}%")
+    
+    async def _cleanup(self):
+        """Clean up test resources"""
+        try:
+            # Clean up orchestrator client
+            if hasattr(self.orchestrator_client, 'cleanup'):
+                await self.orchestrator_client.cleanup()
+                
+            # Clean up test environment
+            if self.test_environment:
+                await self.test_environment.teardown()
+                
+        except Exception as e:
+            logger.error(f"Error during cleanup: {e}")
 
 
 async def main():
@@ -502,6 +563,18 @@ async def main():
         help="Directory to save reports (default: reports)"
     )
     
+    parser.add_argument(
+        "--use-real-orchestrator",
+        action="store_true",
+        help="Use real orchestrator instead of mocks (requires full system setup)"
+    )
+    
+    parser.add_argument(
+        "--use-real-ai",
+        action="store_true",
+        help="Use real AI services (costs money! Only for final validation)"
+    )
+    
     args = parser.parse_args()
     
     # Configure logging
@@ -517,8 +590,15 @@ async def main():
         # Quick subset for rapid validation
         categories = ["user_frustration", "edge_cases"]
     
+    # Configure runner
+    config = {
+        "use_intelligent_mock": not args.use_real_orchestrator,
+        "use_real_orchestrator": args.use_real_orchestrator,
+        "use_real_ai": args.use_real_ai
+    }
+    
     # Create and run validator
-    runner = BetaValidationRunner()
+    runner = BetaValidationRunner(config)
     
     try:
         await runner.run_all_tests(categories=categories, parallel=args.parallel)

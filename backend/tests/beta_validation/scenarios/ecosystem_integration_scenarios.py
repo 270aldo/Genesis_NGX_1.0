@@ -8,7 +8,7 @@ seamless user experience across all platforms.
 
 import asyncio
 from typing import Dict, List, Any, Optional
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 import json
 import random
 
@@ -533,7 +533,7 @@ class EcosystemIntegrationScenarios:
         """
         result = {
             "scenario": scenario_name,
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(timezone.utc).isoformat(),
             "messages_sent": len(messages),
             "platform_data": platform_data or {},
             "responses": [],
@@ -546,7 +546,7 @@ class EcosystemIntegrationScenarios:
         
         try:
             # Create conversation session
-            session_id = f"test_{scenario_name}_{datetime.utcnow().timestamp()}"
+            session_id = f"test_{scenario_name}_{int(datetime.now(timezone.utc).timestamp())}"
             
             # Inject platform data into context if MCP gateway available
             context = {
@@ -561,7 +561,7 @@ class EcosystemIntegrationScenarios:
             for i, message in enumerate(messages):
                 # Send message to orchestrator
                 request = ChatRequest(
-                    message=message,
+                    text=message,
                     user_id=f"test_ecosystem_{scenario_name}",
                     session_id=session_id,
                     context=context
@@ -578,7 +578,7 @@ class EcosystemIntegrationScenarios:
                 
                 result["responses"].append({
                     "message": message,
-                    "response": response.message,
+                    "response": response.response,
                     "analysis": analysis
                 })
                 
@@ -630,7 +630,7 @@ class EcosystemIntegrationScenarios:
             "sync_capability": 0
         }
         
-        response_lower = response.message.lower()
+        response_lower = response.response.lower()
         
         # Check for platform mentions
         platforms = {
@@ -689,6 +689,7 @@ class EcosystemIntegrationScenarios:
         score += platform_ratio * 30
         
         # Behavior coverage (40%)
+        expected_behaviors = result.get("expected_behaviors", [])
         behavior_ratio = len(result["behaviors_detected"]) / len(expected_behaviors) if expected_behaviors else 0
         score += behavior_ratio * 40
         
