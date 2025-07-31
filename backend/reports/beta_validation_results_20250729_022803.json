@@ -1,0 +1,400 @@
+{
+  "start_time": "2025-07-29T02:28:03.625543",
+  "end_time": "2025-07-29T02:28:03.627011",
+  "duration": 0.001468,
+  "categories": {
+    "user_frustration": {
+      "category": "user_frustration",
+      "total_scenarios": 10,
+      "passed": 0,
+      "failed": 10,
+      "details": [
+        {
+          "scenario": "angry_wrong_plan",
+          "timestamp": "2025-07-29T02:28:03.625760",
+          "messages_sent": 3,
+          "context": {
+            "user_emotion": "angry",
+            "topic": "workout_plan"
+          },
+          "responses": [],
+          "behaviors_detected": [],
+          "passed": false,
+          "issues": [],
+          "error": "2 validation errors for ChatRequest\ntext\n  Field required [type=missing, input_value={'message': 'Este plan es...topic': 'workout_plan'}}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.9/v/missing\nsession_id\n  String should match pattern '^[a-zA-Z0-9_-]+$' [type=string_pattern_mismatch, input_value='test_angry_wrong_plan_1753781283.625765', input_type=str]\n    For further information visit https://errors.pydantic.dev/2.9/v/string_pattern_mismatch"
+        },
+        {
+          "scenario": "body_image_issues",
+          "timestamp": "2025-07-29T02:28:03.626550",
+          "messages_sent": 3,
+          "context": {
+            "user_emotion": "depressed",
+            "sensitive_topic": true
+          },
+          "responses": [],
+          "behaviors_detected": [],
+          "passed": false,
+          "issues": [],
+          "error": "2 validation errors for ChatRequest\ntext\n  Field required [type=missing, input_value={'message': 'Soy demasiad...sensitive_topic': True}}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.9/v/missing\nsession_id\n  String should match pattern '^[a-zA-Z0-9_-]+$' [type=string_pattern_mismatch, input_value='test_body_image_issues_1753781283.626554', input_type=str]\n    For further information visit https://errors.pydantic.dev/2.9/v/string_pattern_mismatch"
+        },
+        {
+          "scenario": "technology_confusion",
+          "timestamp": "2025-07-29T02:28:03.626592",
+          "messages_sent": 3,
+          "context": {
+            "user_emotion": "frustrated",
+            "tech_savvy": "low"
+          },
+          "responses": [],
+          "behaviors_detected": [],
+          "passed": false,
+          "issues": [],
+          "error": "2 validation errors for ChatRequest\ntext\n  Field required [type=missing, input_value={'message': 'No entiendo ...', 'tech_savvy': 'low'}}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.9/v/missing\nsession_id\n  String should match pattern '^[a-zA-Z0-9_-]+$' [type=string_pattern_mismatch, input_value='test_technology_confusion_1753781283.626594', input_type=str]\n    For further information visit https://errors.pydantic.dev/2.9/v/string_pattern_mismatch"
+        },
+        {
+          "scenario": "plan_not_working",
+          "timestamp": "2025-07-29T02:28:03.626617",
+          "messages_sent": 3,
+          "context": {
+            "weeks_on_plan": 3,
+            "results": "minimal"
+          },
+          "responses": [],
+          "behaviors_detected": [],
+          "passed": false,
+          "issues": [],
+          "error": "2 validation errors for ChatRequest\ntext\n  Field required [type=missing, input_value={'message': 'Llevo 3 sema..., 'results': 'minimal'}}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.9/v/missing\nsession_id\n  String should match pattern '^[a-zA-Z0-9_-]+$' [type=string_pattern_mismatch, input_value='test_plan_not_working_1753781283.626618', input_type=str]\n    For further information visit https://errors.pydantic.dev/2.9/v/string_pattern_mismatch"
+        },
+        {
+          "scenario": "injury_frustration",
+          "timestamp": "2025-07-29T02:28:03.626637",
+          "messages_sent": 3,
+          "context": {
+            "injury_type": "knee",
+            "severity": "moderate"
+          },
+          "responses": [],
+          "behaviors_detected": [],
+          "passed": false,
+          "issues": [],
+          "error": "2 validation errors for ChatRequest\ntext\n  Field required [type=missing, input_value={'message': 'Me lesioné ...'severity': 'moderate'}}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.9/v/missing\nsession_id\n  String should match pattern '^[a-zA-Z0-9_-]+$' [type=string_pattern_mismatch, input_value='test_injury_frustration_1753781283.626639', input_type=str]\n    For further information visit https://errors.pydantic.dev/2.9/v/string_pattern_mismatch"
+        },
+        {
+          "scenario": "financial_concerns",
+          "timestamp": "2025-07-29T02:28:03.626656",
+          "messages_sent": 3,
+          "context": {
+            "subscription": "premium",
+            "price_sensitivity": "high"
+          },
+          "responses": [],
+          "behaviors_detected": [],
+          "passed": false,
+          "issues": [],
+          "error": "2 validation errors for ChatRequest\ntext\n  Field required [type=missing, input_value={'message': 'Es muy caro,...e_sensitivity': 'high'}}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.9/v/missing\nsession_id\n  String should match pattern '^[a-zA-Z0-9_-]+$' [type=string_pattern_mismatch, input_value='test_financial_concerns_1753781283.626658', input_type=str]\n    For further information visit https://errors.pydantic.dev/2.9/v/string_pattern_mismatch"
+        },
+        {
+          "scenario": "time_pressure",
+          "timestamp": "2025-07-29T02:28:03.626673",
+          "messages_sent": 3,
+          "context": {
+            "available_time": "minimal",
+            "stress_level": "high"
+          },
+          "responses": [],
+          "behaviors_detected": [],
+          "passed": false,
+          "issues": [],
+          "error": "2 validation errors for ChatRequest\ntext\n  Field required [type=missing, input_value={'message': 'No tengo tie...'stress_level': 'high'}}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.9/v/missing\nsession_id\n  String should match pattern '^[a-zA-Z0-9_-]+$' [type=string_pattern_mismatch, input_value='test_time_pressure_1753781283.626674', input_type=str]\n    For further information visit https://errors.pydantic.dev/2.9/v/string_pattern_mismatch"
+        },
+        {
+          "scenario": "comparison_depression",
+          "timestamp": "2025-07-29T02:28:03.626689",
+          "messages_sent": 3,
+          "context": {
+            "comparison_tendency": "high",
+            "self_esteem": "low"
+          },
+          "responses": [],
+          "behaviors_detected": [],
+          "passed": false,
+          "issues": [],
+          "error": "2 validation errors for ChatRequest\ntext\n  Field required [type=missing, input_value={'message': 'Veo a otros ..., 'self_esteem': 'low'}}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.9/v/missing\nsession_id\n  String should match pattern '^[a-zA-Z0-9_-]+$' [type=string_pattern_mismatch, input_value='test_comparison_depression_1753781283.626691', input_type=str]\n    For further information visit https://errors.pydantic.dev/2.9/v/string_pattern_mismatch"
+        },
+        {
+          "scenario": "plateau_frustration",
+          "timestamp": "2025-07-29T02:28:03.626706",
+          "messages_sent": 3,
+          "context": {
+            "plateau_duration": "2_months",
+            "previous_progress": "good"
+          },
+          "responses": [],
+          "behaviors_detected": [],
+          "passed": false,
+          "issues": [],
+          "error": "2 validation errors for ChatRequest\ntext\n  Field required [type=missing, input_value={'message': 'Llevo 2 mese...ious_progress': 'good'}}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.9/v/missing\nsession_id\n  String should match pattern '^[a-zA-Z0-9_-]+$' [type=string_pattern_mismatch, input_value='test_plateau_frustration_1753781283.626707', input_type=str]\n    For further information visit https://errors.pydantic.dev/2.9/v/string_pattern_mismatch"
+        },
+        {
+          "scenario": "aggressive_language",
+          "timestamp": "2025-07-29T02:28:03.626721",
+          "messages_sent": 3,
+          "context": {
+            "aggression_level": "high",
+            "threat_level": "legal"
+          },
+          "responses": [],
+          "behaviors_detected": [],
+          "passed": false,
+          "issues": [],
+          "error": "2 validation errors for ChatRequest\ntext\n  Field required [type=missing, input_value={'message': 'Son unos hij...threat_level': 'legal'}}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.9/v/missing\nsession_id\n  String should match pattern '^[a-zA-Z0-9_-]+$' [type=string_pattern_mismatch, input_value='test_aggressive_language_1753781283.626722', input_type=str]\n    For further information visit https://errors.pydantic.dev/2.9/v/string_pattern_mismatch"
+        }
+      ],
+      "pass_rate": 0.0
+    },
+    "edge_cases": {
+      "category": "edge_cases",
+      "total_scenarios": 15,
+      "passed": 0,
+      "failed": 15,
+      "details": [
+        {
+          "scenario": "multiple_health_conditions",
+          "timestamp": "2025-07-29T02:28:03.626743",
+          "messages_sent": 3,
+          "context": {
+            "health_conditions": [
+              "diabetes_t2",
+              "hypertension",
+              "arthritis",
+              "kidney_disease"
+            ],
+            "allergies": [
+              "gluten",
+              "nuts",
+              "lactose"
+            ],
+            "restrictions": [
+              "no_impact_exercise"
+            ],
+            "weight_loss_goal": 30
+          },
+          "responses": [],
+          "behaviors_detected": [],
+          "passed": false,
+          "issues": [],
+          "error": "2 validation errors for ChatRequest\ntext\n  Field required [type=missing, input_value={'message': 'Tengo diabet...'weight_loss_goal': 30}}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.9/v/missing\nsession_id\n  String should match pattern '^[a-zA-Z0-9_-]+$' [type=string_pattern_mismatch, input_value='test_multiple_health_con...tions_1753781283.626744', input_type=str]\n    For further information visit https://errors.pydantic.dev/2.9/v/string_pattern_mismatch"
+        },
+        {
+          "scenario": "extreme_time_constraints",
+          "timestamp": "2025-07-29T02:28:03.626767",
+          "messages_sent": 3,
+          "context": {
+            "available_time_minutes": 5,
+            "lifestyle": "extremely_busy"
+          },
+          "responses": [],
+          "behaviors_detected": [],
+          "passed": false,
+          "issues": [],
+          "error": "2 validation errors for ChatRequest\ntext\n  Field required [type=missing, input_value={'message': 'Solo tengo 5...yle': 'extremely_busy'}}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.9/v/missing\nsession_id\n  String should match pattern '^[a-zA-Z0-9_-]+$' [type=string_pattern_mismatch, input_value='test_extreme_time_constraints_1753781283.626769', input_type=str]\n    For further information visit https://errors.pydantic.dev/2.9/v/string_pattern_mismatch"
+        },
+        {
+          "scenario": "contradictory_requirements",
+          "timestamp": "2025-07-29T02:28:03.626785",
+          "messages_sent": 3,
+          "context": {
+            "expectation_mismatch": "high"
+          },
+          "responses": [],
+          "behaviors_detected": [],
+          "passed": false,
+          "issues": [],
+          "error": "2 validation errors for ChatRequest\ntext\n  Field required [type=missing, input_value={'message': 'Quiero ganar...tion_mismatch': 'high'}}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.9/v/missing\nsession_id\n  String should match pattern '^[a-zA-Z0-9_-]+$' [type=string_pattern_mismatch, input_value='test_contradictory_requi...ments_1753781283.626786', input_type=str]\n    For further information visit https://errors.pydantic.dev/2.9/v/string_pattern_mismatch"
+        },
+        {
+          "scenario": "impossible_goals",
+          "timestamp": "2025-07-29T02:28:03.626800",
+          "messages_sent": 3,
+          "context": {
+            "goal_feasibility": "impossible"
+          },
+          "responses": [],
+          "behaviors_detected": [],
+          "passed": false,
+          "issues": [],
+          "error": "2 validation errors for ChatRequest\ntext\n  Field required [type=missing, input_value={'message': 'Quiero perde...ibility': 'impossible'}}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.9/v/missing\nsession_id\n  String should match pattern '^[a-zA-Z0-9_-]+$' [type=string_pattern_mismatch, input_value='test_impossible_goals_1753781283.626801', input_type=str]\n    For further information visit https://errors.pydantic.dev/2.9/v/string_pattern_mismatch"
+        },
+        {
+          "scenario": "very_long_message",
+          "timestamp": "2025-07-29T02:28:03.626815",
+          "messages_sent": 3,
+          "context": {
+            "message_length": "excessive"
+          },
+          "responses": [],
+          "behaviors_detected": [],
+          "passed": false,
+          "issues": [],
+          "error": "2 validation errors for ChatRequest\ntext\n  Field required [type=missing, input_value={'message': '\\n        Ho...e_length': 'excessive'}}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.9/v/missing\nsession_id\n  String should match pattern '^[a-zA-Z0-9_-]+$' [type=string_pattern_mismatch, input_value='test_very_long_message_1753781283.626817', input_type=str]\n    For further information visit https://errors.pydantic.dev/2.9/v/string_pattern_mismatch"
+        },
+        {
+          "scenario": "multiple_languages_mixed",
+          "timestamp": "2025-07-29T02:28:03.626854",
+          "messages_sent": 3,
+          "context": {
+            "languages": [
+              "english",
+              "spanish",
+              "french"
+            ]
+          },
+          "responses": [],
+          "behaviors_detected": [],
+          "passed": false,
+          "issues": [],
+          "error": "2 validation errors for ChatRequest\ntext\n  Field required [type=missing, input_value={'message': 'Hello, neces..., 'spanish', 'french']}}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.9/v/missing\nsession_id\n  String should match pattern '^[a-zA-Z0-9_-]+$' [type=string_pattern_mismatch, input_value='test_multiple_languages_mixed_1753781283.626855', input_type=str]\n    For further information visit https://errors.pydantic.dev/2.9/v/string_pattern_mismatch"
+        },
+        {
+          "scenario": "severe_dietary_restrictions",
+          "timestamp": "2025-07-29T02:28:03.626870",
+          "messages_sent": 3,
+          "context": {
+            "dietary_restrictions": [
+              "vegan",
+              "gluten_free",
+              "soy_free",
+              "nut_free",
+              "low_fodmap"
+            ],
+            "protein_goal": 200
+          },
+          "responses": [],
+          "behaviors_detected": [],
+          "passed": false,
+          "issues": [],
+          "error": "2 validation errors for ChatRequest\ntext\n  Field required [type=missing, input_value={'message': 'Soy vegano, ...], 'protein_goal': 200}}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.9/v/missing\nsession_id\n  String should match pattern '^[a-zA-Z0-9_-]+$' [type=string_pattern_mismatch, input_value='test_severe_dietary_rest...tions_1753781283.626871', input_type=str]\n    For further information visit https://errors.pydantic.dev/2.9/v/string_pattern_mismatch"
+        },
+        {
+          "scenario": "budget_constraints",
+          "timestamp": "2025-07-29T02:28:03.626886",
+          "messages_sent": 3,
+          "context": {
+            "budget": "minimal",
+            "monthly_budget": 10
+          },
+          "responses": [],
+          "behaviors_detected": [],
+          "passed": false,
+          "issues": [],
+          "error": "2 validation errors for ChatRequest\ntext\n  Field required [type=missing, input_value={'message': 'No tengo din..., 'monthly_budget': 10}}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.9/v/missing\nsession_id\n  String should match pattern '^[a-zA-Z0-9_-]+$' [type=string_pattern_mismatch, input_value='test_budget_constraints_1753781283.626887', input_type=str]\n    For further information visit https://errors.pydantic.dev/2.9/v/string_pattern_mismatch"
+        },
+        {
+          "scenario": "accessibility_needs",
+          "timestamp": "2025-07-29T02:28:03.626900",
+          "messages_sent": 3,
+          "context": {
+            "accessibility_needs": "wheelchair",
+            "mobility": "limited"
+          },
+          "responses": [],
+          "behaviors_detected": [],
+          "passed": false,
+          "issues": [],
+          "error": "2 validation errors for ChatRequest\ntext\n  Field required [type=missing, input_value={'message': 'Estoy en sil... 'mobility': 'limited'}}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.9/v/missing\nsession_id\n  String should match pattern '^[a-zA-Z0-9_-]+$' [type=string_pattern_mismatch, input_value='test_accessibility_needs_1753781283.626901', input_type=str]\n    For further information visit https://errors.pydantic.dev/2.9/v/string_pattern_mismatch"
+        },
+        {
+          "scenario": "data_conflicts",
+          "timestamp": "2025-07-29T02:28:03.626915",
+          "messages_sent": 3,
+          "context": {
+            "data_quality": "conflicting"
+          },
+          "responses": [],
+          "behaviors_detected": [],
+          "passed": false,
+          "issues": [],
+          "error": "2 validation errors for ChatRequest\ntext\n  Field required [type=missing, input_value={'message': 'Tengo 25 añ...uality': 'conflicting'}}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.9/v/missing\nsession_id\n  String should match pattern '^[a-zA-Z0-9_-]+$' [type=string_pattern_mismatch, input_value='test_data_conflicts_1753781283.626916', input_type=str]\n    For further information visit https://errors.pydantic.dev/2.9/v/string_pattern_mismatch"
+        },
+        {
+          "scenario": "rapid_context_switching",
+          "timestamp": "2025-07-29T02:28:03.626930",
+          "messages_sent": 4,
+          "context": {
+            "conversation_style": "erratic"
+          },
+          "responses": [],
+          "behaviors_detected": [],
+          "passed": false,
+          "issues": [],
+          "error": "2 validation errors for ChatRequest\ntext\n  Field required [type=missing, input_value={'message': 'Quiero un pl...tion_style': 'erratic'}}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.9/v/missing\nsession_id\n  String should match pattern '^[a-zA-Z0-9_-]+$' [type=string_pattern_mismatch, input_value='test_rapid_context_switching_1753781283.626932', input_type=str]\n    For further information visit https://errors.pydantic.dev/2.9/v/string_pattern_mismatch"
+        },
+        {
+          "scenario": "excessive_personalization",
+          "timestamp": "2025-07-29T02:28:03.626945",
+          "messages_sent": 3,
+          "context": {
+            "personalization_level": "excessive"
+          },
+          "responses": [],
+          "behaviors_detected": [],
+          "passed": false,
+          "issues": [],
+          "error": "2 validation errors for ChatRequest\ntext\n  Field required [type=missing, input_value={'message': 'Quiero entre...on_level': 'excessive'}}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.9/v/missing\nsession_id\n  String should match pattern '^[a-zA-Z0-9_-]+$' [type=string_pattern_mismatch, input_value='test_excessive_personalization_1753781283.626946', input_type=str]\n    For further information visit https://errors.pydantic.dev/2.9/v/string_pattern_mismatch"
+        },
+        {
+          "scenario": "missing_critical_data",
+          "timestamp": "2025-07-29T02:28:03.626959",
+          "messages_sent": 3,
+          "context": {
+            "data_availability": "minimal"
+          },
+          "responses": [],
+          "behaviors_detected": [],
+          "passed": false,
+          "issues": [],
+          "error": "2 validation errors for ChatRequest\ntext\n  Field required [type=missing, input_value={'message': 'No te voy a ...ailability': 'minimal'}}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.9/v/missing\nsession_id\n  String should match pattern '^[a-zA-Z0-9_-]+$' [type=string_pattern_mismatch, input_value='test_missing_critical_data_1753781283.62696', input_type=str]\n    For further information visit https://errors.pydantic.dev/2.9/v/string_pattern_mismatch"
+        },
+        {
+          "scenario": "extreme_age_cases",
+          "timestamp": "2025-07-29T02:28:03.626973",
+          "messages_sent": 3,
+          "context": {
+            "age_concerns": true,
+            "ages": [
+              95,
+              8
+            ]
+          },
+          "responses": [],
+          "behaviors_detected": [],
+          "passed": false,
+          "issues": [],
+          "error": "2 validation errors for ChatRequest\ntext\n  Field required [type=missing, input_value={'message': 'Mi abuela de... True, 'ages': [95, 8]}}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.9/v/missing\nsession_id\n  String should match pattern '^[a-zA-Z0-9_-]+$' [type=string_pattern_mismatch, input_value='test_extreme_age_cases_1753781283.626974', input_type=str]\n    For further information visit https://errors.pydantic.dev/2.9/v/string_pattern_mismatch"
+        },
+        {
+          "scenario": "cultural_sensitivity",
+          "timestamp": "2025-07-29T02:28:03.626988",
+          "messages_sent": 3,
+          "context": {
+            "cultural_considerations": true
+          },
+          "responses": [],
+          "behaviors_detected": [],
+          "passed": false,
+          "issues": [],
+          "error": "2 validation errors for ChatRequest\ntext\n  Field required [type=missing, input_value={'message': 'No puedo ent..._considerations': True}}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.9/v/missing\nsession_id\n  String should match pattern '^[a-zA-Z0-9_-]+$' [type=string_pattern_mismatch, input_value='test_cultural_sensitivity_1753781283.626989', input_type=str]\n    For further information visit https://errors.pydantic.dev/2.9/v/string_pattern_mismatch"
+        }
+      ],
+      "pass_rate": 0.0
+    }
+  },
+  "summary": {
+    "total_scenarios": 25,
+    "passed": 0,
+    "failed": 25,
+    "pass_rate": 0.0
+  },
+  "critical_issues": [],
+  "warnings": []
+}

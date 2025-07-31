@@ -1,0 +1,400 @@
+{
+  "start_time": "2025-07-29T02:44:26.016666",
+  "end_time": "2025-07-29T02:44:26.017369",
+  "duration": 0.000703,
+  "categories": {
+    "user_frustration": {
+      "category": "user_frustration",
+      "total_scenarios": 10,
+      "passed": 0,
+      "failed": 10,
+      "details": [
+        {
+          "scenario": "angry_wrong_plan",
+          "timestamp": "2025-07-29T02:44:26.016828",
+          "messages_sent": 3,
+          "context": {
+            "user_emotion": "angry",
+            "topic": "workout_plan"
+          },
+          "responses": [],
+          "behaviors_detected": [],
+          "passed": false,
+          "issues": [],
+          "error": "'ChatRequest' object has no attribute 'message'"
+        },
+        {
+          "scenario": "body_image_issues",
+          "timestamp": "2025-07-29T02:44:26.016972",
+          "messages_sent": 3,
+          "context": {
+            "user_emotion": "depressed",
+            "sensitive_topic": true
+          },
+          "responses": [],
+          "behaviors_detected": [],
+          "passed": false,
+          "issues": [],
+          "error": "'ChatRequest' object has no attribute 'message'"
+        },
+        {
+          "scenario": "technology_confusion",
+          "timestamp": "2025-07-29T02:44:26.017009",
+          "messages_sent": 3,
+          "context": {
+            "user_emotion": "frustrated",
+            "tech_savvy": "low"
+          },
+          "responses": [],
+          "behaviors_detected": [],
+          "passed": false,
+          "issues": [],
+          "error": "'ChatRequest' object has no attribute 'message'"
+        },
+        {
+          "scenario": "plan_not_working",
+          "timestamp": "2025-07-29T02:44:26.017033",
+          "messages_sent": 3,
+          "context": {
+            "weeks_on_plan": 3,
+            "results": "minimal"
+          },
+          "responses": [],
+          "behaviors_detected": [],
+          "passed": false,
+          "issues": [],
+          "error": "'ChatRequest' object has no attribute 'message'"
+        },
+        {
+          "scenario": "injury_frustration",
+          "timestamp": "2025-07-29T02:44:26.017051",
+          "messages_sent": 3,
+          "context": {
+            "injury_type": "knee",
+            "severity": "moderate"
+          },
+          "responses": [],
+          "behaviors_detected": [],
+          "passed": false,
+          "issues": [],
+          "error": "'ChatRequest' object has no attribute 'message'"
+        },
+        {
+          "scenario": "financial_concerns",
+          "timestamp": "2025-07-29T02:44:26.017066",
+          "messages_sent": 3,
+          "context": {
+            "subscription": "premium",
+            "price_sensitivity": "high"
+          },
+          "responses": [],
+          "behaviors_detected": [],
+          "passed": false,
+          "issues": [],
+          "error": "'ChatRequest' object has no attribute 'message'"
+        },
+        {
+          "scenario": "time_pressure",
+          "timestamp": "2025-07-29T02:44:26.017080",
+          "messages_sent": 3,
+          "context": {
+            "available_time": "minimal",
+            "stress_level": "high"
+          },
+          "responses": [],
+          "behaviors_detected": [],
+          "passed": false,
+          "issues": [],
+          "error": "'ChatRequest' object has no attribute 'message'"
+        },
+        {
+          "scenario": "comparison_depression",
+          "timestamp": "2025-07-29T02:44:26.017095",
+          "messages_sent": 3,
+          "context": {
+            "comparison_tendency": "high",
+            "self_esteem": "low"
+          },
+          "responses": [],
+          "behaviors_detected": [],
+          "passed": false,
+          "issues": [],
+          "error": "'ChatRequest' object has no attribute 'message'"
+        },
+        {
+          "scenario": "plateau_frustration",
+          "timestamp": "2025-07-29T02:44:26.017108",
+          "messages_sent": 3,
+          "context": {
+            "plateau_duration": "2_months",
+            "previous_progress": "good"
+          },
+          "responses": [],
+          "behaviors_detected": [],
+          "passed": false,
+          "issues": [],
+          "error": "'ChatRequest' object has no attribute 'message'"
+        },
+        {
+          "scenario": "aggressive_language",
+          "timestamp": "2025-07-29T02:44:26.017122",
+          "messages_sent": 3,
+          "context": {
+            "aggression_level": "high",
+            "threat_level": "legal"
+          },
+          "responses": [],
+          "behaviors_detected": [],
+          "passed": false,
+          "issues": [],
+          "error": "'ChatRequest' object has no attribute 'message'"
+        }
+      ],
+      "pass_rate": 0.0
+    },
+    "edge_cases": {
+      "category": "edge_cases",
+      "total_scenarios": 15,
+      "passed": 0,
+      "failed": 15,
+      "details": [
+        {
+          "scenario": "multiple_health_conditions",
+          "timestamp": "2025-07-29T02:44:26.017150",
+          "messages_sent": 3,
+          "context": {
+            "health_conditions": [
+              "diabetes_t2",
+              "hypertension",
+              "arthritis",
+              "kidney_disease"
+            ],
+            "allergies": [
+              "gluten",
+              "nuts",
+              "lactose"
+            ],
+            "restrictions": [
+              "no_impact_exercise"
+            ],
+            "weight_loss_goal": 30
+          },
+          "responses": [],
+          "behaviors_detected": [],
+          "passed": false,
+          "issues": [],
+          "error": "'ChatRequest' object has no attribute 'message'"
+        },
+        {
+          "scenario": "extreme_time_constraints",
+          "timestamp": "2025-07-29T02:44:26.017168",
+          "messages_sent": 3,
+          "context": {
+            "available_time_minutes": 5,
+            "lifestyle": "extremely_busy"
+          },
+          "responses": [],
+          "behaviors_detected": [],
+          "passed": false,
+          "issues": [],
+          "error": "'ChatRequest' object has no attribute 'message'"
+        },
+        {
+          "scenario": "contradictory_requirements",
+          "timestamp": "2025-07-29T02:44:26.017183",
+          "messages_sent": 3,
+          "context": {
+            "expectation_mismatch": "high"
+          },
+          "responses": [],
+          "behaviors_detected": [],
+          "passed": false,
+          "issues": [],
+          "error": "'ChatRequest' object has no attribute 'message'"
+        },
+        {
+          "scenario": "impossible_goals",
+          "timestamp": "2025-07-29T02:44:26.017197",
+          "messages_sent": 3,
+          "context": {
+            "goal_feasibility": "impossible"
+          },
+          "responses": [],
+          "behaviors_detected": [],
+          "passed": false,
+          "issues": [],
+          "error": "'ChatRequest' object has no attribute 'message'"
+        },
+        {
+          "scenario": "very_long_message",
+          "timestamp": "2025-07-29T02:44:26.017210",
+          "messages_sent": 3,
+          "context": {
+            "message_length": "excessive"
+          },
+          "responses": [],
+          "behaviors_detected": [],
+          "passed": false,
+          "issues": [],
+          "error": "'ChatRequest' object has no attribute 'message'"
+        },
+        {
+          "scenario": "multiple_languages_mixed",
+          "timestamp": "2025-07-29T02:44:26.017227",
+          "messages_sent": 3,
+          "context": {
+            "languages": [
+              "english",
+              "spanish",
+              "french"
+            ]
+          },
+          "responses": [],
+          "behaviors_detected": [],
+          "passed": false,
+          "issues": [],
+          "error": "'ChatRequest' object has no attribute 'message'"
+        },
+        {
+          "scenario": "severe_dietary_restrictions",
+          "timestamp": "2025-07-29T02:44:26.017240",
+          "messages_sent": 3,
+          "context": {
+            "dietary_restrictions": [
+              "vegan",
+              "gluten_free",
+              "soy_free",
+              "nut_free",
+              "low_fodmap"
+            ],
+            "protein_goal": 200
+          },
+          "responses": [],
+          "behaviors_detected": [],
+          "passed": false,
+          "issues": [],
+          "error": "'ChatRequest' object has no attribute 'message'"
+        },
+        {
+          "scenario": "budget_constraints",
+          "timestamp": "2025-07-29T02:44:26.017253",
+          "messages_sent": 3,
+          "context": {
+            "budget": "minimal",
+            "monthly_budget": 10
+          },
+          "responses": [],
+          "behaviors_detected": [],
+          "passed": false,
+          "issues": [],
+          "error": "'ChatRequest' object has no attribute 'message'"
+        },
+        {
+          "scenario": "accessibility_needs",
+          "timestamp": "2025-07-29T02:44:26.017266",
+          "messages_sent": 3,
+          "context": {
+            "accessibility_needs": "wheelchair",
+            "mobility": "limited"
+          },
+          "responses": [],
+          "behaviors_detected": [],
+          "passed": false,
+          "issues": [],
+          "error": "'ChatRequest' object has no attribute 'message'"
+        },
+        {
+          "scenario": "data_conflicts",
+          "timestamp": "2025-07-29T02:44:26.017279",
+          "messages_sent": 3,
+          "context": {
+            "data_quality": "conflicting"
+          },
+          "responses": [],
+          "behaviors_detected": [],
+          "passed": false,
+          "issues": [],
+          "error": "'ChatRequest' object has no attribute 'message'"
+        },
+        {
+          "scenario": "rapid_context_switching",
+          "timestamp": "2025-07-29T02:44:26.017292",
+          "messages_sent": 4,
+          "context": {
+            "conversation_style": "erratic"
+          },
+          "responses": [],
+          "behaviors_detected": [],
+          "passed": false,
+          "issues": [],
+          "error": "'ChatRequest' object has no attribute 'message'"
+        },
+        {
+          "scenario": "excessive_personalization",
+          "timestamp": "2025-07-29T02:44:26.017304",
+          "messages_sent": 3,
+          "context": {
+            "personalization_level": "excessive"
+          },
+          "responses": [],
+          "behaviors_detected": [],
+          "passed": false,
+          "issues": [],
+          "error": "'ChatRequest' object has no attribute 'message'"
+        },
+        {
+          "scenario": "missing_critical_data",
+          "timestamp": "2025-07-29T02:44:26.017316",
+          "messages_sent": 3,
+          "context": {
+            "data_availability": "minimal"
+          },
+          "responses": [],
+          "behaviors_detected": [],
+          "passed": false,
+          "issues": [],
+          "error": "'ChatRequest' object has no attribute 'message'"
+        },
+        {
+          "scenario": "extreme_age_cases",
+          "timestamp": "2025-07-29T02:44:26.017329",
+          "messages_sent": 3,
+          "context": {
+            "age_concerns": true,
+            "ages": [
+              95,
+              8
+            ]
+          },
+          "responses": [],
+          "behaviors_detected": [],
+          "passed": false,
+          "issues": [],
+          "error": "'ChatRequest' object has no attribute 'message'"
+        },
+        {
+          "scenario": "cultural_sensitivity",
+          "timestamp": "2025-07-29T02:44:26.017342",
+          "messages_sent": 3,
+          "context": {
+            "cultural_considerations": true
+          },
+          "responses": [],
+          "behaviors_detected": [],
+          "passed": false,
+          "issues": [],
+          "error": "'ChatRequest' object has no attribute 'message'"
+        }
+      ],
+      "pass_rate": 0.0
+    }
+  },
+  "summary": {
+    "total_scenarios": 25,
+    "passed": 0,
+    "failed": 25,
+    "pass_rate": 0.0
+  },
+  "critical_issues": [],
+  "warnings": []
+}

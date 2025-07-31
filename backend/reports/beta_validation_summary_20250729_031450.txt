@@ -1,0 +1,62 @@
+================================================================================
+GENESIS BETA VALIDATION SUMMARY REPORT
+================================================================================
+
+Test Date: 2025-07-29T03:14:35.281512+00:00
+Duration: 15.04 seconds
+Overall Pass Rate: 0.0%
+Total Scenarios: 10
+Passed: 0
+Failed: 10
+
+CATEGORY BREAKDOWN
+--------------------------------------------------------------------------------
+
+USER_FRUSTRATION: 0.0% pass rate
+  Scenarios: 10
+  Passed: 0
+  Failed: 10
+
+================================================================================
+WARNINGS (SHOULD FIX)
+================================================================================
+
+[WARNING] user_frustration - angry_wrong_plan
+  - Missing behaviors: {'escalate_if_needed', 'provide_alternatives'}
+
+[WARNING] user_frustration - body_image_issues
+  - Missing behaviors: {'validate_feelings', 'focus_on_health_not_appearance'}
+
+[WARNING] user_frustration - technology_confusion
+  - Missing behaviors: {'simplify_language', 'offer_visual_help', 'offer_human_support', 'step_by_step_instructions'}
+
+[WARNING] user_frustration - plan_not_working
+  - Missing behaviors: {'explain_realistic_timeline', 'validate_effort', 'suggest_adjustments', 'review_adherence_data', 'identify_potential_issues'}
+
+[WARNING] user_frustration - injury_frustration
+  - Missing behaviors: {'focus_on_recovery', 'express_empathy', 'maintain_motivation', 'suggest_alternative_exercises', 'adapt_plan_for_injury'}
+
+[WARNING] user_frustration - financial_concerns
+  - Missing behaviors: {'highlight_value', 'acknowledge_concern', 'no_pressure_tactics', 'respect_decision', 'offer_alternatives'}
+
+[WARNING] user_frustration - time_pressure
+  - Missing behaviors: {'flexible_scheduling', 'offer_time_efficient_solutions', 'micro_workout_options', 'acknowledge_challenge', 'prioritize_essentials'}
+
+[WARNING] user_frustration - comparison_depression
+  - Missing behaviors: {'address_comparison_trap', 'focus_on_personal_journey', 'celebrate_small_wins', 'provide_perspective', 'suggest_social_media_limits'}
+
+[WARNING] user_frustration - plateau_frustration
+  - Missing behaviors: {'explain_plateau_science', 'maintain_hope', 'strategic_adjustments', 'review_other_progress_markers', 'suggest_plan_variations'}
+
+[WARNING] user_frustration - aggressive_language
+  - Missing behaviors: {'de_escalate_situation', 'remain_professional', 'set_boundaries_respectfully', 'document_interaction', 'offer_human_support'}
+
+================================================================================
+RECOMMENDATIONS
+================================================================================
+
+1. DELAY BETA LAUNCH - Pass rate below 90%
+   Improve failing scenarios before launch
+
+2. Focus areas for improvement:
+   - user_frustration: 0.0% pass rate

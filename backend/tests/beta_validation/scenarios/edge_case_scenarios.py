@@ -505,7 +505,9 @@ class EdgeCaseScenarios:
         
         try:
             # Create conversation session
-            session_id = f"test_{scenario_name}_{int(datetime.now(timezone.utc).timestamp())}"
+            # Use integer timestamp to avoid dots in session_id
+            timestamp = int(datetime.now(timezone.utc).timestamp())
+            session_id = f"test_{scenario_name}_{timestamp}"
             
             for i, message in enumerate(messages):
                 # Send message to orchestrator

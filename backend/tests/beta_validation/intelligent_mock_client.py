@@ -1237,7 +1237,7 @@ class IntelligentMockOrchestratorClient:
             "health_risks_warning": ["riesgos", "peligroso", "daño permanente"],
             "offer_achievable_alternatives": ["meta realista", "objetivos alcanzables", "plan intensivo pero seguro"],
             "maintain_empathy": ["presión", "comprendo", "frustrante"],
-            "educate_on_physiology": ["fisiológicamente", "cuerpo necesita", "adaptarse"],
+            "educate_on_physiology": ["fisiológicamente", "cuerpo necesita", "adaptarse", "cuerpo puede", "músculo se construye", "1% de peso corporal"],
             "extract_key_information": ["puntos clave", "elementos principales", "identifico"],
             "provide_structured_response": ["organizaré", "estructurada", "por partes"],
             "acknowledge_sharing": ["gracias por compartir", "aprecio", "valoro"],
