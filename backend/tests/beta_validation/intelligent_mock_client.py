@@ -268,6 +268,372 @@ class IntelligentMockOrchestratorClient:
                 "Esas transformaciones de '12 semanas' a menudo toman años y tienen equipos detrás.",
                 "Tu progreso es real y valioso, aunque no sea 'digno de Instagram'.",
             ],
+            # Edge case behaviors
+            "acknowledge_complexity": [
+                "Entiendo que tu situación es compleja con múltiples condiciones de salud a considerar.",
+                "Comprendo la complejidad de manejar todas estas condiciones simultáneamente.",
+                "Tu caso requiere un enfoque cuidadoso y personalizado dada la complejidad.",
+            ],
+            "prioritize_safety": [
+                "Tu seguridad es mi prioridad absoluta. Vamos a diseñar un plan que respete todas tus limitaciones.",
+                "La seguridad es lo primero. Trabajaremos dentro de límites seguros para tu condición.",
+                "Priorizaremos tu seguridad ante todo, evitando cualquier riesgo innecesario.",
+            ],
+            "suggest_medical_consultation": [
+                "Te recomiendo consultar con tu médico antes de comenzar cualquier rutina nueva.",
+                "Es importante que un doctor evalúe y apruebe cualquier plan de ejercicios en tu caso.",
+                "Consultes con tu equipo médico para asegurar que el plan sea apropiado para ti.",
+            ],
+            "provide_safe_alternatives": [
+                "Te propongo alternativas seguras: ejercicios de bajo impacto, natación terapéutica, yoga suave.",
+                "Aquí hay opciones más seguras que respetan tus limitaciones: caminar, ejercicios en agua, tai chi.",
+                "Tengo alternativas seguras diseñadas específicamente para personas con múltiples condiciones de salud.",
+            ],
+            "avoid_contraindications": [
+                "Evitaremos completamente ejercicios contraindicados para tus condiciones.",
+                "No incluiremos ningún ejercicio que pueda ser peligroso dadas tus restricciones médicas.",
+                "Excluiremos todas las actividades contraindicadas para garantizar tu seguridad.",
+            ],
+            "micro_workout_solutions": [
+                "Micro-entrenamientos de 2-3 minutos: escaleras mientras esperas café, sentadillas en comerciales.",
+                "Ejercicios de escritorio: flexiones de pared, elevaciones de talones, rotaciones de cuello.",
+                "5 minutos pueden marcar la diferencia: rutinas ultra-cortas pero efectivas para días ocupados.",
+            ],
+            "integrate_into_daily_activities": [
+                "Integra ejercicio en tus actividades: sube escaleras, estaciona lejos, camina en llamadas.",
+                "Cada momento cuenta: ejercicios mientras cocinas, te lavas los dientes, esperas en filas.",
+                "Convierte actividades diarias en oportunidades de ejercicio sin tiempo extra.",
+            ],
+            "realistic_expectations": [
+                "Con 5 minutos al día, los cambios serán graduales pero reales. Cada minuto cuenta.",
+                "Seamos realistas: con tiempo limitado, el progreso será lento pero constante.",
+                "Expectativas honestas: no serán transformaciones rápidas, pero cada pequeño esfuerzo suma.",
+            ],
+            "efficiency_focus": [
+                "Maximicemos cada segundo: ejercicios compuestos que trabajan múltiples músculos.",
+                "Eficiencia total: rutinas HIIT de 4 minutos para máximo beneficio en mínimo tiempo.",
+                "Enfoque en eficiencia: solo los ejercicios que den mayor retorno por minuto invertido.",
+            ],
+            "identify_contradictions": [
+                "Veo que tus objetivos son contradictorios: ganar músculo y correr maratón requieren enfoques opuestos.",
+                "Hay un conflicto entre lo que buscas: abs marcados sin dieta es físicamente imposible.",
+                "Tus metas están en oposición. Hablemos de cómo priorizar lo más importante para ti.",
+            ],
+            "educate_on_reality": [
+                "Te explico la realidad: el músculo y la resistencia extrema requieren adaptaciones fisiológicas opuestas.",
+                "La realidad es que los abs se hacen en la cocina - 80% nutrición, 20% ejercicio.",
+                "Déjame explicarte por qué esos objetivos no son compatibles fisiológicamente.",
+            ],
+            "offer_compromises": [
+                "Propongo un punto medio: 3 meses enfocados en músculo, luego transición gradual a resistencia.",
+                "Un compromiso realista: mejorar composición corporal mientras mantienes condición cardiovascular moderada.",
+                "Podemos alternar ciclos: 8 semanas de fuerza, 4 de resistencia, y evaluar progreso.",
+            ],
+            "set_realistic_priorities": [
+                "Prioricemos: ¿Qué es más importante ahora? ¿Fuerza o resistencia? No podemos optimizar ambas.",
+                "Definamos tu objetivo principal. Los secundarios pueden esperar o abordarse después.",
+                "Necesitas prioridades claras. ¿Cuál es tu meta #1? Enfoquémonos ahí primero.",
+            ],
+            "maintain_supportive_tone": [
+                "Entiendo tu entusiasmo y es genial tener grandes metas. Vamos a canalizarlo productivamente.",
+                "Tu motivación es admirable. Usémosla para lograr objetivos alcanzables y sostenibles.",
+                "Me encanta tu energía. Transformémosla en un plan que realmente puedas mantener.",
+            ],
+            "explain_realistic_timelines": [
+                "Los cambios reales toman tiempo. Perder 20kg saludablemente requiere 20-40 semanas mínimo.",
+                "Fisiológicamente, el cuerpo puede perder 0.5-1kg por semana de forma segura. Más es peligroso.",
+                "Ganar 5kg de músculo toma 5-10 meses con entrenamiento y nutrición perfectos. No hay atajos seguros.",
+            ],
+            "health_risks_warning": [
+                "Perder peso tan rápido es peligroso: pérdida muscular, problemas metabólicos, efecto rebote garantizado.",
+                "Esa velocidad de cambio puede causar daño permanente: cálculos biliares, pérdida de pelo, fatiga extrema.",
+                "Los riesgos incluyen: desequilibrios hormonales, pérdida ósea, y daño al metabolismo a largo plazo.",
+            ],
+            "offer_achievable_alternatives": [
+                "Meta realista: 5kg en 2 meses, llegando a la boda más saludable y con hábitos sostenibles.",
+                "Objetivo alcanzable: ganar 1kg de músculo al mes con un plan progresivo y nutrición adecuada.",
+                "Plan intensivo pero seguro: transformación en 3 meses con resultados visibles y duraderos.",
+            ],
+            "maintain_empathy": [
+                "Entiendo la presión de una fecha límite. Es frustrante cuando el tiempo no alcanza.",
+                "Comprendo completamente la urgencia. Las bodas y eventos crean mucha presión.",
+                "Sé que es frustrante cuando quieres resultados rápidos. Tu deseo es válido y normal.",
+            ],
+            "educate_on_physiology": [
+                "El cuerpo necesita tiempo para adaptarse. Los músculos crecen durante el descanso, no el ejercicio.",
+                "Fisiológicamente, el músculo se construye a ~0.25kg por semana en condiciones óptimas.",
+                "Tu cuerpo puede perder máximo 1% de peso corporal por semana sin perder músculo.",
+            ],
+            "extract_key_information": [
+                "De tu historia identifico los puntos clave: 10 años sedentario, trabajo estresante, motivación para cambiar.",
+                "Los elementos principales que veo: historial de ejercicio, pausa por familia, deseo de retomar.",
+                "Extraigo lo esencial: malos hábitos laborales, necesidad de rutina flexible, apoyo familiar disponible.",
+            ],
+            "provide_structured_response": [
+                "Organizaré mi respuesta en partes: 1) Plan de ejercicio, 2) Estrategia nutricional, 3) Próximos pasos.",
+                "Voy a estructurar esto claramente: primero evaluación, luego plan de acción, finalmente seguimiento.",
+                "Te daré una respuesta organizada por prioridades: salud, tiempo, y objetivos específicos.",
+            ],
+            "acknowledge_sharing": [
+                "Gracias por compartir tu historia completa. Cada detalle me ayuda a personalizar mejor tu plan.",
+                "Aprecio que compartas tanto contexto. Esto me permite diseñar algo verdaderamente adaptado a ti.",
+                "Valoro mucho que te tomes el tiempo de explicar tu situación. Usaré toda esta información.",
+            ],
+            "focus_on_actionable_items": [
+                "Enfoquémonos en acciones concretas: 1) Caminar 20 min diarios, 2) Reducir sodas, 3) Dormir 7 horas.",
+                "Acciones inmediatas: programa 3 alarmas para moverte, prepara snacks saludables, descarga la app.",
+                "Lo práctico primero: elige 3 días para entrenar, compra proteína, establece horario de sueño.",
+            ],
+            "maintain_engagement": [
+                "Tu historia es inspiradora y veo mucho potencial. Transformémosla en acción concreta.",
+                "Es importante todo lo que compartes. Mantengo nota de cada punto para tu plan personalizado.",
+                "Continúa compartiendo tus experiencias. Cada detalle hace el plan más efectivo para ti.",
+            ],
+            "respond_in_primary_language": [
+                "Continuaré en español para mantener claridad, aunque entienda tus mensajes multilingües.",
+                "Responderé en español para facilitar la comunicación, sin importar el idioma que uses.",
+                "Mantendré mis respuestas en español para evitar confusiones, aunque aprecie tu habilidad multilingüe.",
+            ],
+            "acknowledge_multilingual": [
+                "Veo que manejas varios idiomas. Impresionante habilidad, pero mantengamos un idioma para claridad.",
+                "Tu capacidad multilingüe es notable. ¿En qué idioma prefieres que continuemos?",
+                "Detecto varios idiomas en tus mensajes. Es una gran habilidad que tienes.",
+            ],
+            "maintain_clarity": [
+                "Mantendré mi comunicación clara y simple, sin importar la complejidad de tus preguntas.",
+                "Voy a ser claro y directo en todas mis respuestas para evitar malentendidos.",
+                "Mi objetivo es comunicarme claramente. Dime si algo no queda claro.",
+            ],
+            "ask_preferred_language": [
+                "¿En qué idioma prefieres que continuemos? Puedo adaptarme a tu preferencia.",
+                "¿Cuál es tu idioma preferido para nuestras conversaciones? Quiero facilitarte la comunicación.",
+                "¿Te sentirías más cómodo si cambio a otro idioma? Tu comodidad es importante.",
+            ],
+            "provide_consistent_response": [
+                "Mantendré consistencia en el idioma para facilitar tu comprensión y seguimiento.",
+                "Usaré el mismo idioma durante toda nuestra conversación para evitar confusiones.",
+                "La consistencia en el idioma ayudará a que nuestro plan sea más claro y fácil de seguir.",
+            ],
+            "creative_solutions": [
+                "Seamos creativos: batidos de proteína con vegetales, bowls sin granos, proteína de semillas.",
+                "Solución creativa: menú rotativo de 7 días que cumple todas tus restricciones y da variedad.",
+                "Pensemos fuera de la caja: fermentados caseros, germinados, combinaciones inusuales pero nutritivas.",
+            ],
+            "suggest_nutritionist": [
+                "Con tantas restricciones, recomiendo consultar un nutricionista especializado en dietas restrictivas.",
+                "Un dietista registrado puede ayudarte a evitar deficiencias con tantas limitaciones.",
+                "Sugiero apoyo de un profesional en nutrición especializado en casos complejos como el tuyo.",
+            ],
+            "provide_feasible_options": [
+                "Es posible pero requiere planificación: menús semanales, prep de comidas, suplementación estratégica.",
+                "Opciones viables: quinoa, hemp, chía para proteína; vegetales fermentados para B12; sol para vitamina D.",
+                "Sí es factible: combina legumbres permitidas, semillas, y verduras de hoja para completar aminoácidos.",
+            ],
+            "check_nutritional_adequacy": [
+                "Necesitarás suplementar: B12, vitamina D, posiblemente hierro y omega-3. Monitorea con análisis.",
+                "Revisemos deficiencias potenciales: calcio sin lácteos, B12 sin animales, hierro sin fácil absorción.",
+                "Monitoreo esencial: análisis cada 3 meses para ajustar suplementación según necesidades.",
+            ],
+            "free_alternatives": [
+                "Opciones gratis: parques para correr, videos de YouTube, apps gratuitas, ejercicios con peso corporal.",
+                "Sin costo: calistenia en casa, running, rutinas en escaleras, botellas de agua como pesas.",
+                "Alternativas económicas: bandas elásticas ($5), barra de dominadas ($20), colchoneta usada.",
+            ],
+            "bodyweight_focus": [
+                "Calistenia completa: flexiones, sentadillas, dominadas en parques, planchas. Cero equipamiento.",
+                "Tu peso corporal es tu gimnasio: 100+ ejercicios posibles sin gastar un centavo.",
+                "Progresiones de peso corporal: desde principiante hasta avanzado sin necesitar equipo.",
+            ],
+            "budget_nutrition_tips": [
+                "Nutrición económica: huevos, avena, plátanos, arroz integral, pollo entero, vegetales congelados.",
+                "Compra inteligente: mercados locales, productos de temporada, cocina en batch, evita procesados.",
+                "Máximo ahorro: legumbres secas, vísceras nutritivas, aprovecha ofertas, cultiva tus vegetales.",
+            ],
+            "no_supplement_pressure": [
+                "No necesitas suplementos caros. La comida real es suficiente para la mayoría de personas.",
+                "Los suplementos son completamente opcionales. Enfócate en comida nutritiva y variada.",
+                "Olvida los suplementos por ahora. Con buena alimentación cubrirás tus necesidades.",
+            ],
+            "resourceful_solutions": [
+                "Sé creativo: mochilas con libros para peso, escaleras del edificio, garrafas de agua, parque cercano.",
+                "Recursos gratuitos: grupos de running locales, clases en parques, intercambio de conocimientos.",
+                "Usa lo que tengas: sillas para tríceps, toallas para resistencia, pared para flexiones.",
+            ],
+            "inclusive_approach": [
+                "¡Por supuesto que puedes ejercitarte! Hay opciones para absolutamente todos.",
+                "El fitness es para todos, sin excepción. Adaptaremos todo a tus capacidades únicas.",
+                "Tu condición no es una barrera, es simplemente un factor más en tu plan personalizado.",
+            ],
+            "adapted_exercises": [
+                "Ejercicios adaptados: boxeo sentado, pesas para tren superior, ejercicios de core desde la silla.",
+                "Rutinas desde la silla: cardio con brazos, fortalecimiento con bandas, yoga adaptado.",
+                "Movimientos específicos para ti: rotaciones, elevaciones, resistencia isométrica, trabajo unilateral.",
+            ],
+            "acknowledge_challenges": [
+                "Reconozco que enfrentas desafíos únicos que la mayoría no comprende. Tu determinación es admirable.",
+                "Entiendo que los obstáculos son reales y diarios. No minimizo tus dificultades.",
+                "Tus desafíos son válidos y significativos. Trabajaremos con ellos, no contra ellos.",
+            ],
+            "suggest_specialized_resources": [
+                "Conecta con organizaciones especializadas en fitness adaptado en tu área.",
+                "Hay fisioterapeutas especializados en ejercicio adaptado que pueden complementar nuestro trabajo.",
+                "Grupos locales de deporte adaptado pueden ofrecer comunidad y recursos adicionales.",
+            ],
+            "maintain_empowerment": [
+                "Tu determinación es tu mayor fortaleza. Los límites físicos no definen tus posibilidades.",
+                "Eres capaz de lograr cosas increíbles. Tu condición es solo una variable, no un límite.",
+                "Tu fortaleza mental es evidente. Usémosla para superar cualquier barrera física.",
+            ],
+            "identify_inconsistencies": [
+                "Noto algunas inconsistencias en los datos. No hay problema, aclaremos para ayudarte mejor.",
+                "Hay un pequeño conflicto en la información. ¿Podrías ayudarme a entender mejor?",
+                "Detecto información que no cuadra. Sin problema, solo necesito clarificar para personalizar tu plan.",
+            ],
+            "clarify_politely": [
+                "Sin problema, probablemente fue un error de tipeo. ¿Podrías confirmar la información correcta?",
+                "No te preocupes, pasa seguido. Solo aclaremos este punto para seguir adelante.",
+                "Está bien, todos nos confundimos a veces. Ayúdame a entender qué quisiste decir.",
+            ],
+            "handle_gracefully": [
+                "No hay problema en absoluto. Sigamos adelante con la información correcta.",
+                "Está bien, gracias por la aclaración. Continuemos construyendo tu plan.",
+                "Perfecto, ahora todo tiene sentido. Sigamos avanzando juntos.",
+            ],
+            "request_clarification": [
+                "¿Podrías ayudarme a entender mejor este punto? Quiero asegurarme de darte el mejor consejo.",
+                "Solo para confirmar, ¿podrías clarificar esta parte? Es importante para tu plan.",
+                "Ayúdame a entender correctamente para poder personalizar mejor tu programa.",
+            ],
+            "maintain_professionalism": [
+                "Mi objetivo es ayudarte, independientemente de cualquier confusión. Sigamos adelante.",
+                "Lo importante es avanzar hacia tus metas. Los detalles los iremos aclarando.",
+                "Mantengamos el enfoque en lo que realmente importa: tu progreso y bienestar.",
+            ],
+            "maintain_context_awareness": [
+                "Veo que tienes varios temas en mente. ¿Cuál quieres abordar primero?",
+                "Hay múltiples preguntas aquí. Organicemos por prioridad para ser más efectivos.",
+                "Detecté varios puntos importantes. Abordémoslos uno por uno para dar respuestas completas.",
+            ],
+            "handle_transitions_smoothly": [
+                "Entiendo el cambio de tema. Cambiemos el enfoque entonces a lo que necesitas ahora.",
+                "Sin problema, hablemos de eso ahora. Podemos volver al tema anterior cuando quieras.",
+                "Perfecto, ajusto mi respuesta a tu nueva pregunta. Volvamos a lo anterior cuando gustes.",
+            ],
+            "offer_to_prioritize": [
+                "¿Cuál es tu prioridad principal ahora mismo? Empecemos por lo más urgente.",
+                "Tenemos varios temas. ¿Por dónde prefieres que empecemos?",
+                "¿Qué necesitas resolver más urgentemente? Organicemos por importancia.",
+            ],
+            "track_all_requests": [
+                "Tengo apuntados todos tus puntos: ejercicio, nutrición, sueño y piernas. No olvidaré ninguno.",
+                "Registré cada una de tus preguntas. Las abordaremos todas sistemáticamente.",
+                "No te preocupes, cubriremos todo: brazos, desayuno, sueño y piernas. Todo está anotado.",
+            ],
+            "provide_coherent_responses": [
+                "Voy a darte respuestas organizadas y completas para cada uno de tus puntos.",
+                "Estructuraré mis respuestas para que todo quede claro y coherente.",
+                "Te daré información coherente que conecte todos los aspectos de tu plan.",
+            ],
+            "acknowledge_preferences": [
+                "Respeto tus preferencias específicas, aunque sean muy detalladas. Veamos qué podemos hacer.",
+                "Tus preferencias son únicas y las tomaré en cuenta dentro de lo posible.",
+                "Entiendo que tienes requisitos muy específicos. Trabajaré para incorporarlos razonablemente.",
+            ],
+            "provide_flexible_alternatives": [
+                "No puedo cumplir todo al 100%, pero considera estas alternativas flexibles y prácticas.",
+                "Te ofrezco rangos flexibles en lugar de horarios fijos: mañanas entre 6-8 AM.",
+                "Seamos flexibles: en lugar de 23 minutos exactos, trabajemos con rangos de 20-25 minutos.",
+            ],
+            "explain_practical_limitations": [
+                "Algunas preferencias son difíciles de implementar prácticamente y podrían limitar tu progreso.",
+                "Ser tan específico puede hacer el plan poco práctico y difícil de mantener.",
+                "Estos requerimientos ultra-específicos podrían hacer imposible la adherencia a largo plazo.",
+            ],
+            "maintain_helpfulness": [
+                "Aunque no pueda cumplir cada detalle, te daré las mejores opciones posibles.",
+                "Mi objetivo es ayudarte de la forma más práctica y sostenible posible.",
+                "Buscaré el balance entre tus preferencias y lo que es razonablemente posible.",
+            ],
+            "suggest_compromises": [
+                "¿Qué tal si empezamos con algunas de tus preferencias y gradualmente agregamos más?",
+                "Podemos incorporar elementos de tus requisitos sin ser tan estrictos con los detalles.",
+                "Sugiero un compromiso: respetamos el espíritu de tus preferencias con más margen de maniobra.",
+            ],
+            "respect_privacy": [
+                "Respeto totalmente tu privacidad. No necesitas compartir nada que no quieras.",
+                "Tu información personal es tuya. Trabajaré con lo que decidas compartir.",
+                "Entiendo perfectamente. Tu privacidad es sagrada y no presionaré por información.",
+            ],
+            "explain_limitations": [
+                "Sin datos específicos, mis recomendaciones serán menos efectivas pero aún útiles.",
+                "La falta de información hace el plan menos personalizado, pero puedo dar pautas generales.",
+                "Sin estos datos, las sugerencias serán más genéricas pero igualmente valiosas.",
+            ],
+            "provide_general_guidance": [
+                "Puedo darte principios generales de fitness que son universalmente seguros y efectivos.",
+                "Te daré pautas generales basadas en mejores prácticas sin necesitar datos personales.",
+                "Aquí van recomendaciones generales aplicables a la mayoría de personas.",
+            ],
+            "offer_alternatives": [
+                "En lugar de edad exacta, ¿puedes decirme un rango? 20-30, 30-40, etc.",
+                "Sin peso específico, trabajemos con categorías: sobrepeso leve, moderado, o severo.",
+                "Podemos usar información general como 'adulto activo' o 'persona sedentaria'.",
+            ],
+            "maintain_usefulness": [
+                "Aunque sin datos específicos, puedo darte un plan básico pero valioso.",
+                "Haré mi mejor esfuerzo para ayudarte con la información disponible.",
+                "El plan será menos preciso pero igualmente puedo ofrecer valor significativo.",
+            ],
+            "age_appropriate_advice": [
+                "A los 95 años, el enfoque debe ser movilidad, equilibrio y fuerza funcional, no CrossFit.",
+                "Para un niño de 8 años, el ejercicio debe ser juego, diversión y desarrollo motor, no culturismo.",
+                "Cada edad tiene necesidades específicas. Adaptaré completamente a la etapa de vida.",
+            ],
+            "safety_first_approach": [
+                "La seguridad es absolutamente prioritaria a estas edades. Cero riesgos innecesarios.",
+                "Mi enfoque será ultra-conservador. Mejor pecar de precavidos con edades extremas.",
+                "Seguridad ante todo. Cada ejercicio será evaluado por su relación riesgo-beneficio.",
+            ],
+            "suggest_medical_clearance": [
+                "Es esencial obtener autorización médica completa antes de cualquier programa de ejercicio.",
+                "Un chequeo médico completo es obligatorio antes de comenzar a estas edades.",
+                "El doctor debe evaluar y aprobar específicamente cada tipo de actividad propuesta.",
+            ],
+            "educational_response": [
+                "Te explico por qué ciertas actividades no son apropiadas para estas edades.",
+                "Es importante entender el desarrollo físico y las limitaciones en cada etapa de vida.",
+                "Eduquemos sobre qué es apropiado y por qué, para tomar decisiones informadas.",
+            ],
+            "involve_guardians_if_minor": [
+                "Para menores, los padres deben estar involucrados en todas las decisiones.",
+                "La supervisión parental es esencial para garantizar seguridad y apoyo.",
+                "Los tutores deben aprobar y supervisar cualquier programa de ejercicio para menores.",
+            ],
+            "cultural_awareness": [
+                "Respeto profundamente tus prácticas religiosas y las incorporaré en el plan.",
+                "Tu cultura y creencias son parte integral de quien eres. El plan las honrará.",
+                "Entiendo y respeto completamente tus consideraciones culturales y religiosas.",
+            ],
+            "respectful_alternatives": [
+                "Tengo opciones respetuosas: gimnasios solo para mujeres, ejercicio en casa, horarios especiales.",
+                "Alternativas que respetan tus creencias: natación en horarios exclusivos, clases segregadas.",
+                "Puedo sugerir opciones que se alineen perfectamente con tus valores y creencias.",
+            ],
+            "acknowledge_beliefs": [
+                "Tus creencias son completamente válidas y merecen total respeto.",
+                "Reconozco y valido tus convicciones. Son tan importantes como cualquier aspecto del fitness.",
+                "Tus valores religiosos/culturales son sagrados. No hay compromiso en eso.",
+            ],
+            "inclusive_solutions": [
+                "El fitness es para todos, respetando cualquier creencia o práctica cultural.",
+                "La inclusividad significa adaptar todo a tus necesidades culturales específicas.",
+                "Hay soluciones para cada persona, sin importar sus restricciones culturales o religiosas.",
+            ],
+            "avoid_judgment": [
+                "No hay juicio alguno. Cada persona tiene sus propias necesidades y creencias.",
+                "Todas las perspectivas son válidas y respetadas aquí.",
+                "Mi rol es apoyarte dentro de tu marco de valores, sin cuestionar.",
+            ],
         }
 
         # Context analyzers
