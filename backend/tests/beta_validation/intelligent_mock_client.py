@@ -285,9 +285,9 @@ class IntelligentMockOrchestratorClient:
                 "Consultes con tu equipo médico para asegurar que el plan sea apropiado para ti.",
             ],
             "provide_safe_alternatives": [
-                "Te propongo alternativas seguras: ejercicios de bajo impacto, natación terapéutica, yoga suave.",
-                "Aquí hay opciones más seguras que respetan tus limitaciones: caminar, ejercicios en agua, tai chi.",
-                "Tengo alternativas seguras diseñadas específicamente para personas con múltiples condiciones de salud.",
+                "Te propongo alternativas seguras que puedes hacer: ejercicios de bajo impacto paso a paso, natación terapéutica, yoga suave. Por ejemplo, puedes empezar con 10 minutos de caminata.",
+                "Aquí hay opciones específicas más seguras: puedes caminar 15 minutos, hacer ejercicios en agua 3 veces por semana, o intentar tai chi los martes y jueves.",
+                "Tengo alternativas seguras específicas para ti. Podemos empezar con estos pasos: 1) Caminata de 10 min, 2) Ejercicios de silla, 3) Estiramientos suaves.",
             ],
             "avoid_contraindications": [
                 "Evitaremos completamente ejercicios contraindicados para tus condiciones.",
@@ -295,9 +295,9 @@ class IntelligentMockOrchestratorClient:
                 "Excluiremos todas las actividades contraindicadas para garantizar tu seguridad.",
             ],
             "micro_workout_solutions": [
-                "Micro-entrenamientos de 2-3 minutos: escaleras mientras esperas café, sentadillas en comerciales.",
-                "Ejercicios de escritorio: flexiones de pared, elevaciones de talones, rotaciones de cuello.",
-                "5 minutos pueden marcar la diferencia: rutinas ultra-cortas pero efectivas para días ocupados.",
+                "Micro-entrenamientos específicos de 2-3 minutos que puedes hacer: sube 10 escalones mientras esperas el café, haz 15 sentadillas en comerciales. Intenta hacerlo 3 veces al día.",
+                "Ejercicios de escritorio paso a paso: 1) 20 flexiones de pared, 2) 30 elevaciones de talones, 3) 10 rotaciones de cuello. Puedes hacerlos cada 2 horas.",
+                "5 minutos pueden marcar la diferencia. Por ejemplo: 30 segundos de marcha en sitio, 10 sentadillas, 10 flexiones de pared. Intenta completar 3 rondas.",
             ],
             "integrate_into_daily_activities": [
                 "Integra ejercicio en tus actividades: sube escaleras, estaciona lejos, camina en llamadas.",
@@ -305,9 +305,9 @@ class IntelligentMockOrchestratorClient:
                 "Convierte actividades diarias en oportunidades de ejercicio sin tiempo extra.",
             ],
             "realistic_expectations": [
-                "Con 5 minutos al día, los cambios serán graduales pero reales. Cada minuto cuenta.",
-                "Seamos realistas: con tiempo limitado, el progreso será lento pero constante.",
-                "Expectativas honestas: no serán transformaciones rápidas, pero cada pequeño esfuerzo suma.",
+                "Con 5 minutos al día, puedes esperar cambios graduales pero reales. Por ejemplo, en 4 semanas podrás subir escaleras sin cansarte. Cada minuto cuenta.",
+                "Seamos realistas y específicos: con tiempo limitado, puedes perder 0.5kg por semana. El progreso será lento pero constante si sigues estos pasos.",
+                "Expectativas honestas con ejemplos: no serán transformaciones rápidas, pero en 30 días puedes ganar resistencia y energía. Intenta ser consistente.",
             ],
             "efficiency_focus": [
                 "Maximicemos cada segundo: ejercicios compuestos que trabajan múltiples músculos.",
@@ -350,9 +350,9 @@ class IntelligentMockOrchestratorClient:
                 "Los riesgos incluyen: desequilibrios hormonales, pérdida ósea, y daño al metabolismo a largo plazo.",
             ],
             "offer_achievable_alternatives": [
-                "Meta realista: 5kg en 2 meses, llegando a la boda más saludable y con hábitos sostenibles.",
-                "Objetivo alcanzable: ganar 1kg de músculo al mes con un plan progresivo y nutrición adecuada.",
-                "Plan intensivo pero seguro: transformación en 3 meses con resultados visibles y duraderos.",
+                "Meta realista y específica: puedes perder 5kg en 2 meses siguiendo estos pasos: 1) Déficit de 500 cal/día, 2) Caminar 30 min diarios, 3) Dormir 7 horas.",
+                "Objetivo alcanzable con pasos claros: puedes ganar 1kg de músculo al mes. Intenta: 1) Entrenar fuerza 3x/semana, 2) Comer 1.8g proteína/kg, 3) Descansar 48h entre sesiones.",
+                "Plan intensivo pero seguro paso a paso: en 3 meses puedes lograr cambios visibles. Por ejemplo: Mes 1 - hábitos, Mes 2 - intensidad, Mes 3 - refinamiento.",
             ],
             "maintain_empathy": [
                 "Entiendo la presión de una fecha límite. Es frustrante cuando el tiempo no alcanza.",
@@ -380,9 +380,9 @@ class IntelligentMockOrchestratorClient:
                 "Valoro mucho que te tomes el tiempo de explicar tu situación. Usaré toda esta información.",
             ],
             "focus_on_actionable_items": [
-                "Enfoquémonos en acciones concretas: 1) Caminar 20 min diarios, 2) Reducir sodas, 3) Dormir 7 horas.",
-                "Acciones inmediatas: programa 3 alarmas para moverte, prepara snacks saludables, descarga la app.",
-                "Lo práctico primero: elige 3 días para entrenar, compra proteína, establece horario de sueño.",
+                "Enfoquémonos en acciones concretas que puedes hacer hoy: 1) Camina 20 minutos después del almuerzo, 2) Reemplaza una soda con agua, 3) Acustate a las 22:00.",
+                "Acciones inmediatas y específicas: programa 3 alarmas (9am, 1pm, 5pm) para moverte 5 minutos, prepara 5 snacks saludables el domingo, descarga la app NGX ahora.",
+                "Pasos prácticos que puedes implementar: elige lunes/miércoles/viernes para entrenar 30 min, compra 2kg de pollo y 1kg de arroz integral, duerme de 22:30 a 6:30.",
             ],
             "maintain_engagement": [
                 "Tu historia es inspiradora y veo mucho potencial. Transformémosla en acción concreta.",
