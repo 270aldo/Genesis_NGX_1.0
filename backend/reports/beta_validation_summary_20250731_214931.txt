@@ -1,0 +1,79 @@
+================================================================================
+GENESIS BETA VALIDATION SUMMARY REPORT
+================================================================================
+
+Test Date: 2025-07-31T21:49:31.067826+00:00
+Duration: 0.41 seconds
+Overall Pass Rate: 40.0%
+Total Scenarios: 25
+Passed: 10
+Failed: 15
+
+CATEGORY BREAKDOWN
+--------------------------------------------------------------------------------
+
+USER_FRUSTRATION: 100.0% pass rate
+  Scenarios: 10
+  Passed: 10
+  Failed: 0
+
+EDGE_CASES: 0.0% pass rate
+  Scenarios: 15
+  Passed: 0
+  Failed: 15
+
+================================================================================
+WARNINGS (SHOULD FIX)
+================================================================================
+
+[WARNING] edge_cases - multiple_health_conditions
+  - Missing behaviors: {'avoid_contraindications', 'provide_safe_alternatives', 'prioritize_safety', 'suggest_medical_consultation', 'acknowledge_complexity'}
+  - Edge case not handled properly
+
+[WARNING] edge_cases - extreme_time_constraints
+  - Missing behaviors: {'realistic_expectations', 'integrate_into_daily_activities', 'efficiency_focus'}
+  - Edge case not handled properly
+
+[WARNING] edge_cases - contradictory_requirements
+  - Missing behaviors: {'maintain_supportive_tone', 'identify_contradictions', 'educate_on_reality', 'offer_compromises', 'set_realistic_priorities'}
+  - Edge case not handled properly
+
+[WARNING] edge_cases - impossible_goals
+  - Missing behaviors: {'maintain_empathy', 'explain_realistic_timelines', 'offer_achievable_alternatives', 'health_risks_warning', 'educate_on_physiology'}
+  - Edge case not handled properly
+
+[WARNING] edge_cases - very_long_message
+  - Missing behaviors: {'acknowledge_sharing', 'maintain_engagement', 'focus_on_actionable_items', 'provide_structured_response', 'extract_key_information'}
+  - Edge case not handled properly
+
+[WARNING] edge_cases - multiple_languages_mixed
+  - Missing behaviors: {'maintain_clarity', 'acknowledge_multilingual', 'respond_in_primary_language', 'provide_consistent_response', 'ask_preferred_language'}
+  - Edge case not handled properly
+
+[WARNING] edge_cases - severe_dietary_restrictions
+  - Missing behaviors: {'creative_solutions', 'provide_feasible_options', 'suggest_nutritionist', 'check_nutritional_adequacy'}
+  - Edge case not handled properly
+
+[WARNING] edge_cases - budget_constraints
+  - Missing behaviors: {'free_alternatives', 'no_supplement_pressure', 'budget_nutrition_tips', 'resourceful_solutions', 'bodyweight_focus'}
+  - Edge case not handled properly
+
+[WARNING] edge_cases - accessibility_needs
+  - Missing behaviors: {'suggest_specialized_resources', 'adapted_exercises', 'acknowledge_challenges', 'maintain_empowerment', 'inclusive_approach'}
+  - Edge case not handled properly
+
+[WARNING] edge_cases - data_conflicts
+  - Missing behaviors: {'handle_gracefully', 'maintain_professionalism', 'identify_inconsistencies', 'clarify_politely', 'request_clarification'}
+  - Edge case not handled properly
+
+... and 5 more warnings
+
+================================================================================
+RECOMMENDATIONS
+================================================================================
+
+1. DELAY BETA LAUNCH - Pass rate below 90%
+   Improve failing scenarios before launch
+
+2. Focus areas for improvement:
+   - edge_cases: 0.0% pass rate
