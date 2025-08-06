@@ -5,9 +5,8 @@ Este módulo centraliza la configuración de credenciales de Google Cloud
 para que estén disponibles en toda la aplicación.
 """
 
-import os
 import logging
-from pathlib import Path
+import os
 from typing import Optional
 
 logger = logging.getLogger(__name__)
@@ -51,10 +50,10 @@ class GoogleCredentialsManager:
         """
         try:
             # Configurar credenciales desde parámetros o variables de entorno
-            self._credentials_path = (
-                credentials_path
-                or os.getenv("GOOGLE_APPLICATION_CREDENTIALS")
-                or "/Users/aldoolivas/ngx-agents01/prototipo/credentials.json"
+            # IMPORTANTE: Las credenciales deben configurarse via variables de entorno
+            # No usar archivos de credenciales locales por seguridad
+            self._credentials_path = credentials_path or os.getenv(
+                "GOOGLE_APPLICATION_CREDENTIALS"
             )
 
             self._project_id = (
@@ -71,14 +70,20 @@ class GoogleCredentialsManager:
                 or "us-central1"
             )
 
-            # Verificar que el archivo de credenciales existe
-            if not Path(self._credentials_path).exists():
-                raise FileNotFoundError(
-                    f"Credentials file not found: {self._credentials_path}"
+            # Verificar que se haya configurado algún método de autenticación
+            if not self._credentials_path and not os.getenv(
+                "GOOGLE_APPLICATION_CREDENTIALS"
+            ):
+                logger.warning(
+                    "No Google Cloud credentials configured. "
+                    "Set GOOGLE_APPLICATION_CREDENTIALS environment variable or use ADC (Application Default Credentials)"
                 )
+                # Permitir ADC (Application Default Credentials) si está disponible
+                # Esto es más seguro para producción
 
-            # Configurar variable de entorno global
-            os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = self._credentials_path
+            # Configurar variable de entorno global solo si hay una ruta válida
+            if self._credentials_path:
+                os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = self._credentials_path
             os.environ["GCP_PROJECT_ID"] = self._project_id
             os.environ["VERTEX_PROJECT_ID"] = self._project_id
             os.environ["VERTEX_LOCATION"] = self._location

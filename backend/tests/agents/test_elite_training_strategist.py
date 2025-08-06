@@ -5,10 +5,11 @@ Este módulo contiene pruebas para verificar el funcionamiento
 del agente EliteTrainingStrategist.
 """
 
-import pytest
 from unittest.mock import patch
 
-from agents.blaze_turbo_trainer.agent import BlazeTurboTrainer as EliteTrainingStrategist
+import pytest
+
+from agents.elite_training_strategist.agent import EliteTrainingStrategist
 
 
 # Mock para VertexAIClient

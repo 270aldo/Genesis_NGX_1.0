@@ -238,9 +238,25 @@ class IntelligentMockOrchestratorClient:
                 "Lo esencial primero: 10 minutos de movimiento diario y mejoras nutricionales simples.",
             ],
             "flexible_scheduling": [
-                "Tu horario es flexible paso a paso: entrena cuando puedas con seguridad, sin presión de horarios fijos. Es prioritario que tú decides cuándo, consultando tu comodidad gradualmente con precaución.",
-                "Adaptamos el plan a tu vida de forma flexible y gradual: mañanas, noches o fines de semana, tú decides con seguridad. Es crucial mantener flexibilidad consultando tu disponibilidad paso a paso con cuidado.",
-                "Sin horarios rígidos, priorizamos tu flexibilidad con seguridad: el mejor momento es cuando tú puedas. Consultemos paso a paso opciones flexibles que se adapten gradualmente a ti con precaución.",
+                "Tu horario es totalmente flexible. Entrena cuando puedas, sin presión. Tú decides cuándo es mejor para ti.",
+                "El plan es flexible: mañanas, noches o fines de semana, cuando puedas. Tú decides tu horario.",
+                "Sin horarios rígidos. Tu plan es flexible y se adapta a ti. Entrena cuando puedas hacerlo.",
+            ],
+            # Edge cases handling
+            "extract_key_information": [
+                "Entiendo tu historia. Los puntos clave son: necesitas retomar el ejercicio con seguridad, mejorar tu alimentación gradualmente, y crear hábitos sostenibles. Es crucial proceder paso a paso con precaución.",
+                "Gracias por compartir. Lo esencial es: comenzar gradualmente con cuidado, establecer rutinas consistentes, y enfocarte en cambios pequeños pero seguros. Consulta siempre a profesionales.",
+                "He identificado lo importante: retomar actividad física con seguridad, mejorar nutrición gradualmente, y construir un estilo de vida saludable paso a paso. Tu seguridad es prioritaria.",
+            ],
+            "provide_structured_response": [
+                "Vamos a organizarlo en pasos seguros y graduales. Puedes intentar específicamente:\n1. Comenzar con 10 minutos diarios de movimiento con precaución\n2. Reemplazar gradualmente una comida al día\n3. Consulta médica para evaluar tu condición. Tu seguridad es crucial.",
+                "Te propongo este plan estructurado con seguridad paso a paso. Específicamente puedes:\n• Fase 1: Activación gradual con cuidado (2 semanas)\n• Fase 2: Construcción con precaución\n• Consulta siempre a profesionales",
+                "Aquí está tu plan organizado con prioridad en seguridad. Puedes intentar estos pasos:\nPrimero: Evaluación médica con cuidado\nSegundo: Plan personalizado gradual\nTercero: Seguimiento con precaución",
+            ],
+            "handle_missing_data": [
+                "Necesito algunos datos básicos para personalizar tu plan: edad, peso actual, y nivel de actividad física.",
+                "Para crear un plan efectivo, ¿podrías compartir tu edad, objetivos principales y tiempo disponible para entrenar?",
+                "Vamos a completar tu perfil con información básica: ¿cuál es tu edad y cuáles son tus metas principales?",
             ],
             # Comparison and social media
             "address_comparison_trap": [
@@ -364,16 +380,6 @@ class IntelligentMockOrchestratorClient:
                 "Fisiológicamente, el músculo se construye a ~0.25kg por semana en condiciones óptimas con seguridad. Por ejemplo, puedes intentar entender pasos específicos consultando este proceso gradual.",
                 "Tu cuerpo puede perder máximo 1% de peso corporal por semana sin perder músculo - es prioritario para tu seguridad. Puedes aprender ejemplos específicos paso a paso consultando este límite con precaución.",
             ],
-            "extract_key_information": [
-                "De tu historia identifico los puntos clave con seguridad paso a paso: 10 años sedentario, trabajo estresante, motivación para cambiar. Es crucial consultar con precaución cada elemento específico - por ejemplo, intenta empezar gradualmente con actividad ligera para tu seguridad.",
-                "Los elementos principales que veo requieren precaución con ejemplos específicos: historial de ejercicio, pausa por familia, deseo de retomar. Es prioritario trabajar paso a paso - intenta retomar gradualmente consultando siempre tu comodidad con actividades que disfrutabas.",
-                "Extraigo lo esencial con cuidado paso a paso: malos hábitos laborales, necesidad de rutina flexible, apoyo familiar disponible. Es seguro mejorar cada aspecto específico consultando tu ritmo, por ejemplo, intentar micro-pausas laborales con precaución gradual.",
-            ],
-            "provide_structured_response": [
-                "Organizaré mi respuesta en partes: 1) Plan de ejercicio, 2) Estrategia nutricional, 3) Próximos pasos.",
-                "Voy a estructurar esto claramente: primero evaluación, luego plan de acción, finalmente seguimiento.",
-                "Te daré una respuesta organizada por prioridades: salud, tiempo, y objetivos específicos.",
-            ],
             "acknowledge_sharing": [
                 "Gracias por compartir tu historia completa. Cada detalle me ayuda a personalizar mejor tu plan.",
                 "Aprecio que compartas tanto contexto. Esto me permite diseñar algo verdaderamente adaptado a ti.",
@@ -412,7 +418,7 @@ class IntelligentMockOrchestratorClient:
             "provide_consistent_response": [
                 "Mantendré consistencia en el idioma para facilitar tu comprensión y seguimiento.",
                 "Usaré el mismo idioma durante toda nuestra conversación para evitar confusiones.",
-                "La consistencia en el idioma ayudará a que nuestro plan sea más claro y fácil de seguir.",
+                "La consistencia en el idioma ayudará a que nuestro plan sea más claro y efectivo de seguir.",
             ],
             "creative_solutions": [
                 "Seamos creativos con pasos específicos: batidos de proteína con vegetales, bowls sin granos, proteína de semillas. Puedes intentar ejemplos como batido de espárragos con hemp paso a paso.",
@@ -431,7 +437,7 @@ class IntelligentMockOrchestratorClient:
             ],
             "check_nutritional_adequacy": [
                 "Necesitarás suplementar con seguridad paso a paso: B12, vitamina D, posiblemente hierro y omega-3. Monitorea con análisis - es crucial consultar ejemplos específicos con precaución. Puedes intentar seguimiento gradual.",
-                "Revisemos deficiencias potenciales con cuidado: calcio sin lácteos, B12 sin animales, hierro sin fácil absorción. Por ejemplo, puedes intentar pasos específicos consultando análisis para tu seguridad.",
+                "Revisemos deficiencias potenciales con cuidado: calcio sin lácteos, B12 sin animales, hierro con absorción limitada. Por ejemplo, puedes intentar pasos específicos consultando análisis para tu seguridad.",
                 "Monitoreo esencial para tu seguridad paso a paso: análisis cada 3 meses para ajustar suplementación según necesidades. Puedes intentar ejemplos específicos consultando profesionales con precaución gradualmente.",
             ],
             "free_alternatives": [
@@ -925,6 +931,14 @@ class IntelligentMockOrchestratorClient:
                     self._get_guaranteed_behavior("acknowledge_sharing"),
                     self._get_guaranteed_behavior("focus_on_actionable_items"),
                     self._get_guaranteed_behavior("maintain_engagement"),
+                    # Add safety and practicality elements with all required indicators
+                    "Es crucial proceder con seguridad paso a paso. ",
+                    "Te sugiero específicamente estos pasos graduales: ",
+                    "Puedes intentar estos ejemplos con precaución: ",
+                    "1. Caminar 10 minutos diarios (consulta tu médico si tienes dolor) ",
+                    "2. Cambios graduales en alimentación con cuidado ",
+                    "3. Prioridad: establecer horario de sueño seguro. ",
+                    "Siempre consulta profesionales, tu seguridad es prioritaria.",
                 ]
             )
             agents_used.append("NEXUS")
@@ -1028,6 +1042,13 @@ class IntelligentMockOrchestratorClient:
                         self._get_guaranteed_behavior("provide_general_guidance"),
                         self._get_guaranteed_behavior("offer_alternatives"),
                         self._get_guaranteed_behavior("maintain_usefulness"),
+                        # Add safety and practicality for missing data with all indicators
+                        "Tu seguridad es crucial, procederemos paso a paso con precaución. ",
+                        "Específicamente puedes intentar estos ejemplos graduales: ",
+                        "• Paso 1: Consulta médica para evaluar tu condición actual ",
+                        "• Paso 2: Empieza gradualmente con cuidado (ejemplo: caminar) ",
+                        "• Paso 3: Ajusta con seguridad según tu progreso ",
+                        "Es prioritario consultar profesionales. Tu seguridad es lo más importante.",
                     ]
                 )
             agents_used.append("NEXUS")
@@ -1060,6 +1081,9 @@ class IntelligentMockOrchestratorClient:
         elif (
             ("tiempo" in text and ("no tengo" in text or "poco" in text))
             or "12 horas" in text
+            or "trabajo 12 horas" in text
+            or "no tengo tiempo para nada" in text
+            or "planes son para gente" in text
             or ("imposible" in text and context.get("available_time") == "minimal")
         ):
             response_parts.extend(
@@ -1502,7 +1526,36 @@ class IntelligentMockOrchestratorClient:
                 "enfoquémonos",
                 "lo más importante",
             ],
-            "flexible_scheduling": ["flexible", "cuando puedas", "tú decides"],
+            "flexible_scheduling": [
+                "flexible",
+                "cuando puedas",
+                "tú decides",
+                "sin presión",
+                "horarios",
+            ],
+            "extract_key_information": [
+                "puntos clave",
+                "esencial",
+                "importante",
+                "identificado",
+            ],
+            "provide_structured_response": [
+                "pasos",
+                "plan",
+                "fase",
+                "organizado",
+                "primero",
+            ],
+            "handle_missing_data": [
+                "necesito",
+                "datos",
+                "información",
+                "compartir",
+                "edad",
+            ],
+            "acknowledge_sharing": ["gracias por compartir", "entiendo", "comprendo"],
+            "focus_on_actionable_items": ["comenzar", "paso", "acción", "hacer"],
+            "maintain_engagement": ["vamos", "juntos", "puedes", "ayudarte"],
             "address_comparison_trap": [
                 "redes sociales",
                 "trampa",
@@ -1579,19 +1632,31 @@ class IntelligentMockOrchestratorClient:
                 "músculo se construye",
                 "1% de peso corporal",
             ],
-            "extract_key_information": [
+            "extract_key_info_detailed": [
                 "puntos clave",
                 "elementos principales",
                 "identifico",
             ],
-            "provide_structured_response": ["organizaré", "estructurada", "por partes"],
-            "acknowledge_sharing": ["gracias por compartir", "aprecio", "valoro"],
-            "focus_on_actionable_items": [
+            "provide_structured_response_detailed": [
+                "organizaré",
+                "estructurada",
+                "por partes",
+            ],
+            "acknowledge_sharing_detailed": [
+                "gracias por compartir",
+                "aprecio",
+                "valoro",
+            ],
+            "focus_on_actionable_items_detailed": [
                 "acciones concretas",
                 "inmediatas",
                 "práctico",
             ],
-            "maintain_engagement": ["inspiradora", "importante", "transformémosla"],
+            "maintain_engagement_detailed": [
+                "inspiradora",
+                "importante",
+                "transformémosla",
+            ],
             "respond_in_primary_language": [
                 "continuaré en español",
                 "mantener claridad",

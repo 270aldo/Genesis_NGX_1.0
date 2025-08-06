@@ -49,9 +49,12 @@ MANIFEST
 
 # Environment variables
 .env
-.env.local
-.env.*.local
+.env.*
+!.env.example
+!.env.test
 .envrc
+*.env.backup*
+backups/secrets/
 
 # IDEs
 .idea/
@@ -178,7 +181,15 @@ CONTEXTO_SESION_*.md
 SESION_*.md
 PROJECT_STATUS_*.md
 RESUMEN_*.md
+
+# Google Cloud credentials - NEVER commit these
 credentials.json
+*credentials*.json
+service-account*.json
+gcp-key*.json
+vertex-ai*.json
+
+# Images (if needed, commit explicitly)
 *.png
 *.jpg
 *.jpeg

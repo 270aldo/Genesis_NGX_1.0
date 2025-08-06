@@ -6,9 +6,10 @@ del StateManagerAdapter.
 """
 
 import uuid
-import pytest
-from typing import Dict, Any
+from typing import Any, Dict
 from unittest.mock import patch
+
+import pytest
 
 # Aplicar patches antes de importar el adaptador
 with patch("core.telemetry_loader.telemetry") as mock_telemetry:
@@ -29,16 +30,12 @@ with patch("core.telemetry_loader.telemetry") as mock_telemetry:
         async def mock_set_conversation_state(conversation_id, state):
             return True
 
-        mock_state_manager.set_conversation_state.side_effect = (
-            mock_set_conversation_state
-        )
+        mock_state_manager.save_conversation = mock_set_conversation_state
 
         async def mock_delete_conversation_state(conversation_id):
             return True
 
-        mock_state_manager.delete_conversation_state.side_effect = (
-            mock_delete_conversation_state
-        )
+        mock_state_manager.delete_conversation = mock_delete_conversation_state
 
         async def mock_initialize():
             return None

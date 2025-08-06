@@ -5,19 +5,20 @@ Este módulo contiene pruebas para verificar el funcionamiento
 del conector A2A que permite la comunicación con el servidor A2A.
 """
 
+from unittest.mock import AsyncMock, MagicMock, patch
+
 import pytest
 import pytest_asyncio
-from unittest.mock import AsyncMock, patch, MagicMock
-from httpx import Response, HTTPStatusError, RequestError, Request
-
-from agents.orchestrator.a2a_connector import A2AConnector
 from a2a import (
     AgentNotFoundError,
     AgentOfflineError,
-    TaskNotFoundError,
-    ConnectionError,
     AgentStatus,
+    ConnectionError,
+    TaskNotFoundError,
 )
+from httpx import HTTPStatusError, Request, RequestError, Response
+
+from infrastructure.a2a_connector import A2AConnector
 
 
 # Función auxiliar para crear objetos Response correctamente configurados

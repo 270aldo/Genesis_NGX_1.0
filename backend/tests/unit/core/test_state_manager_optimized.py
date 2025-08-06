@@ -188,7 +188,11 @@ class TestStateManager:
             "agent_context": {"key": "value"},
         }
 
-        updated = await manager.update_conversation_state("conv1", updates)
+        # Use save_conversation since update_conversation_state doesn't exist
+        current_state = await manager.get_conversation_state("conv1")
+        current_state.update(updates)
+        await manager.save_conversation("conv1", current_state)
+        updated = await manager.get_conversation_state("conv1")
 
         # Verify updates
         assert updated["messages"] == updates["messages"]
@@ -321,7 +325,9 @@ class TestStateManager:
         async def update_conversation(conv_id, message):
             state = await manager.get_conversation_state(conv_id)
             messages = state["messages"] + [message]
-            await manager.update_conversation_state(conv_id, {"messages": messages})
+            state = await manager.get_conversation_state(conv_id)
+            state["messages"] = messages
+            await manager.save_conversation(conv_id, state)
 
         # Run concurrent updates
         tasks = []
