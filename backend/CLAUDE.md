@@ -330,13 +330,70 @@ backend/
 4. Resiliencia del sistema
 5. Activación del Guardian
 
-## Próximos Pasos
+## 📋 Plan de Implementación - Próximos Pasos
 
-1. **Implementar TLS/mTLS**: Seguridad en comunicación A2A
-2. **Migrar a Google Secret Manager**: Gestión segura de secretos
-3. **Terraform para GCP**: Infraestructura como código
-4. **Security Audit Final**: Revisión completa pre-producción
-5. **Launch Readiness**: Preparar infraestructura para BETA oficial
+### Tareas Inmediatas (Prioridad Alta) 🔴
+
+#### 1. Tests Unitarios - Alcanzar 85% Pass Rate
+**Estado Actual**: 66.8% passing (94/141 tests)
+- [ ] Arreglar tests de `jwt_auth_service.py`
+- [ ] Corregir tests de `persistence_client.py`
+- [ ] Resolver tests de `state_manager.py`
+- [ ] Actualizar mocks en `budget_manager.py`
+- [ ] Verificar tests de `telemetry.py`
+- [ ] Optimizar tests de `redis_pool.py`
+
+#### 2. Tests de Integración A2A Restantes
+- [ ] Completar test de `test_a2a_connector.py`
+- [ ] Verificar test de `test_elite_training_strategist.py`
+- [ ] Asegurar todos los fixtures funcionan correctamente
+- [ ] Validar timeouts y configuraciones async
+
+### Tareas de Desarrollo (Prioridad Media) 🟡
+
+#### 3. CI/CD Pipeline con GitHub Actions
+```yaml
+# .github/workflows/test.yml pendiente
+- [ ] Configurar workflow para tests automáticos
+- [ ] Integrar coverage reports con Codecov
+- [ ] Setup de ambientes (dev/staging/prod)
+- [ ] Automatizar deployments
+```
+
+#### 4. Optimizaciones de Performance
+- [ ] Implementar caching más agresivo en Redis
+- [ ] Optimizar queries de Supabase con índices
+- [ ] Reducir latencia en A2A communication
+- [ ] Implementar connection pooling mejorado
+
+#### 5. Completar Documentación API
+- [ ] Generar OpenAPI/Swagger completo
+- [ ] Documentar todos los endpoints
+- [ ] Crear guías de integración
+- [ ] Ejemplos de código para cada agente
+
+### Tareas de Infraestructura (Prioridad Baja) 🟢
+
+#### 6. Seguridad y Compliance
+- [ ] Implementar TLS/mTLS para A2A
+- [ ] Migrar a Google Secret Manager
+- [ ] Configurar Terraform para GCP
+- [ ] Security audit con herramientas automatizadas
+- [ ] GDPR/HIPAA compliance review
+
+#### 7. Monitoring y Observabilidad
+- [ ] Configurar Prometheus metrics
+- [ ] Implementar Grafana dashboards
+- [ ] Setup de alertas críticas
+- [ ] Logging centralizado con ELK stack
+
+### Orden de Ejecución Recomendado
+
+1. **Sesión Actual**: Tests Unitarios (1-2 días)
+2. **Siguiente**: Tests A2A restantes (1 día)
+3. **Después**: CI/CD Pipeline (2-3 días)
+4. **Luego**: Documentación API (2 días)
+5. **Final**: Optimizaciones y Security (1 semana)
 
 ---
 
