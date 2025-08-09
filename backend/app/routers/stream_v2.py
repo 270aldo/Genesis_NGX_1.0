@@ -31,7 +31,7 @@ from core.metrics import (
 from adk.patterns import StreamingMixin, StreamEvent, StreamEventType
 from adk.patterns.circuit_breaker import CircuitBreaker
 from adk.patterns.retry import retry, CommonRetryPolicies
-from adk.toolkit.monitoring import track_performance, MetricsCollector
+# from adk.toolkit.monitoring import track_performance, MetricsCollector  # TODO: Fix import
 
 # Import orchestrator
 from agents.orchestrator.streaming_orchestrator import StreamingNGXNexusOrchestrator
@@ -91,7 +91,7 @@ class StreamingService(StreamingMixin):
         super().__init__()
         self.orchestrator = None
         self._init_lock = asyncio.Lock()
-        self.metrics = MetricsCollector("streaming_service")
+        # self.metrics = MetricsCollector("streaming_service")  # TODO: Fix import
         
         # Circuit breakers for different components
         self.orchestrator_cb = CircuitBreaker(
@@ -125,7 +125,7 @@ class StreamingService(StreamingMixin):
             
             return self.orchestrator
     
-    @track_performance(operation_name="stream_chat_response")
+    # @track_performance(operation_name="stream_chat_response")  # TODO: Fix import
     async def stream_chat_response(
         self,
         request: StreamChatRequest,

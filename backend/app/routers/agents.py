@@ -174,7 +174,7 @@ async def list_agents(
     page: int = Query(default=1, ge=1, description="Número de página"),
     page_size: int = Query(default=20, ge=1, le=100, description="Items por página"),
     sort_by: str = Query(default="name", description="Campo para ordenar"),
-    sort_order: str = Query(default="asc", regex="^(asc|desc)$", description="Orden"),
+    sort_order: str = Query(default="asc", pattern="^(asc|desc)$", description="Orden"),
     user_id: str = Depends(get_current_user),
 ) -> PaginatedResponse[AgentInfo]:
     """

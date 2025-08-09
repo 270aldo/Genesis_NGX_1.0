@@ -331,19 +331,19 @@ class StreamTransformer:
     """Transforms stream data between different formats."""
     
     @staticmethod
-    def to_sse(stream: AsyncGenerator[StreamEvent, None]) -> AsyncGenerator[str, None]:
+    async def to_sse(stream: AsyncGenerator[StreamEvent, None]) -> AsyncGenerator[str, None]:
         """Convert stream events to SSE format."""
         async for event in stream:
             yield event.to_sse()
     
     @staticmethod
-    def to_json_lines(stream: AsyncGenerator[StreamEvent, None]) -> AsyncGenerator[str, None]:
+    async def to_json_lines(stream: AsyncGenerator[StreamEvent, None]) -> AsyncGenerator[str, None]:
         """Convert stream events to JSON lines format."""
         async for event in stream:
             yield event.to_json() + "\n"
     
     @staticmethod
-    def filter_by_type(
+    async def filter_by_type(
         stream: AsyncGenerator[StreamEvent, None],
         event_types: List[StreamEventType]
     ) -> AsyncGenerator[StreamEvent, None]:

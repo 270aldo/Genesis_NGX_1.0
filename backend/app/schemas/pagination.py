@@ -29,7 +29,7 @@ class PaginationParams(BaseModel):
     )
     sort_order: Optional[str] = Field(
         default="asc", 
-        regex="^(asc|desc)$",
+        pattern="^(asc|desc)$",
         description="Orden de clasificación: 'asc' o 'desc'"
     )
     
@@ -207,7 +207,7 @@ class CursorPaginationParams(BaseModel):
     )
     direction: Optional[str] = Field(
         default="next",
-        regex="^(next|previous)$",
+        pattern="^(next|previous)$",
         description="Dirección de paginación"
     )
 

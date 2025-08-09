@@ -299,7 +299,7 @@ def paginate_params(
     page: Optional[int] = Query(None, ge=1, description="Page number (alternative to offset)"),
     cursor: Optional[str] = Query(None, description="Pagination cursor"),
     order_by: str = Query("created_at", description="Field to order by"),
-    order_dir: str = Query("desc", regex="^(asc|desc)$", description="Order direction"),
+    order_dir: str = Query("desc", pattern="^(asc|desc)$", description="Order direction"),
     include_total: bool = Query(True, description="Include total count in response")
 ) -> PaginationParams:
     """

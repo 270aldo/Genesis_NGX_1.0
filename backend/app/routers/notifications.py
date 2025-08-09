@@ -500,7 +500,7 @@ async def get_notification_history(
     page: int = Query(default=1, ge=1, description="Número de página"),
     page_size: int = Query(default=20, ge=1, le=100, description="Items por página"),
     sort_by: str = Query(default="sent_at", description="Campo para ordenar"),
-    sort_order: str = Query(default="desc", regex="^(asc|desc)$", description="Orden"),
+    sort_order: str = Query(default="desc", pattern="^(asc|desc)$", description="Orden"),
     notification_type: Optional[NotificationType] = None,
     start_date: Optional[datetime] = None,
     end_date: Optional[datetime] = None,

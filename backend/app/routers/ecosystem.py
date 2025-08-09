@@ -476,7 +476,7 @@ async def get_ecosystem_usage(
     page: int = Query(default=1, ge=1, description="Page number"),
     page_size: int = Query(default=20, ge=1, le=100, description="Items per page"),
     sort_by: str = Query(default="app_id", description="Field to sort by"),
-    sort_order: str = Query(default="asc", regex="^(asc|desc)$", description="Sort order"),
+    sort_order: str = Query(default="asc", pattern="^(asc|desc)$", description="Sort order"),
     date_from: Optional[datetime] = Query(None, description="Start date for usage data"),
     date_to: Optional[datetime] = Query(None, description="End date for usage data"),
     user_id: str = Depends(get_current_user)

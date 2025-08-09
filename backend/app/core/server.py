@@ -17,9 +17,12 @@ from core.rate_limit import limiter
 from core.telemetry import instrument_fastapi
 
 
-def create_app() -> FastAPI:
+def create_app(lifespan=None) -> FastAPI:
     """
     Crea y configura la aplicación FastAPI.
+    
+    Args:
+        lifespan: Gestor de ciclo de vida opcional
     
     Returns:
         FastAPI: Aplicación configurada
@@ -32,6 +35,7 @@ def create_app() -> FastAPI:
         docs_url=None,  # Deshabilitamos la documentación por defecto
         redoc_url=None,  # Deshabilitamos redoc por defecto
         openapi_url=None,  # Controlamos el acceso a openapi.json
+        lifespan=lifespan,  # Gestor de ciclo de vida
     )
     
     # Agregar state a la aplicación

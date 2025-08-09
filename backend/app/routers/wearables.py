@@ -314,7 +314,7 @@ async def get_user_connections(
     page: int = Query(default=1, ge=1, description="Page number"),
     page_size: int = Query(default=20, ge=1, le=100, description="Items per page"),
     sort_by: str = Query(default="created_at", description="Field to sort by"),
-    sort_order: str = Query(default="desc", regex="^(asc|desc)$", description="Sort order"),
+    sort_order: str = Query(default="desc", pattern="^(asc|desc)$", description="Sort order"),
     user_id: str = Depends(get_current_user),
     service: WearableIntegrationService = Depends(get_wearable_service),
 ):
@@ -412,7 +412,7 @@ async def get_user_metrics(
     page: int = Query(default=1, ge=1, description="Page number"),
     page_size: int = Query(default=50, ge=1, le=200, description="Items per page"),
     sort_by: str = Query(default="timestamp", description="Field to sort by"),
-    sort_order: str = Query(default="desc", regex="^(asc|desc)$", description="Sort order"),
+    sort_order: str = Query(default="desc", pattern="^(asc|desc)$", description="Sort order"),
     user_id: str = Depends(get_current_user),
     service: WearableIntegrationService = Depends(get_wearable_service),
 ):

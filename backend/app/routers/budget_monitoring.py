@@ -32,7 +32,7 @@ async def get_all_budget_status(
     page: int = Query(default=1, ge=1, description="Page number"),
     page_size: int = Query(default=20, ge=1, le=100, description="Items per page"),
     sort_by: str = Query(default="agent_id", description="Field to sort by"),
-    sort_order: str = Query(default="asc", regex="^(asc|desc)$", description="Sort order"),
+    sort_order: str = Query(default="asc", pattern="^(asc|desc)$", description="Sort order"),
     health_filter: Optional[str] = Query(None, description="Filter by health status (healthy, moderate, warning, critical)"),
     current_user: Dict = Depends(get_current_user),
 ) -> PaginatedResponse[BudgetStatusResponse]:
@@ -244,7 +244,7 @@ async def get_budget_alerts(
     page: int = Query(default=1, ge=1, description="Page number"),
     page_size: int = Query(default=20, ge=1, le=100, description="Items per page"),
     sort_by: str = Query(default="percentage", description="Field to sort by"),
-    sort_order: str = Query(default="desc", regex="^(asc|desc)$", description="Sort order"),
+    sort_order: str = Query(default="desc", pattern="^(asc|desc)$", description="Sort order"),
     alert_type: Optional[str] = Query(None, description="Filter by alert type (warning, critical)"),
     current_user: Dict = Depends(get_current_user)
 ) -> PaginatedResponse[BudgetAlertResponse]:

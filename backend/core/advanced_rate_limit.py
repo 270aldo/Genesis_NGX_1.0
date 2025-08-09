@@ -24,7 +24,7 @@ from pydantic import BaseModel
 
 from core.settings_lazy import settings
 from core.logging_config import get_logger
-from core.auth import get_current_user_optional
+# from core.auth import get_current_user_optional  # TODO: Implement when auth module is ready
 
 logger = get_logger(__name__)
 
@@ -144,7 +144,8 @@ class AdvancedRateLimiter:
             @wraps(func)
             async def wrapper(request: Request, *args, **kwargs):
                 # Check if user is authenticated
-                user = await get_current_user_optional(request)
+                # user = await get_current_user_optional(request)  # TODO: Implement when auth module is ready
+                user = None
                 user_authenticated = user is not None
                 
                 # Get appropriate limit

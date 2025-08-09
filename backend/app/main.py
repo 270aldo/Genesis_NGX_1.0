@@ -1,113 +1,106 @@
 """
-API principal de NGX Agents (Refactorizado).
+API principal de NGX Agents (Completamente Refactorizado).
 
-Este módulo es el punto de entrada principal de la aplicación FastAPI.
-La lógica ha sido modularizada en los siguientes componentes:
+Este es el punto de entrada principal de la aplicación FastAPI.
+Toda la lógica ha sido modularizada para mantener este archivo limpio y simple.
+
+Módulos:
+- core/lifespan.py: Gestión del ciclo de vida
+- core/middleware.py: Configuración de middlewares
+- core/dependencies.py: Dependencias compartidas
 - core/server.py: Configuración del servidor
-- core/startup.py: Lógica de inicialización
-- core/shutdown.py: Lógica de apagado
 - core/routes.py: Registro de rutas
 - core/exceptions.py: Manejadores de excepciones
 """
 
-from contextlib import asynccontextmanager
-from typing import AsyncGenerator
-
 from fastapi import FastAPI
-from core.rate_limit import limiter, rate_limit_exceeded_handler
-from core.advanced_rate_limit import advanced_limiter, ip_blocker, check_ip_block
-from core.security_middleware import SecurityValidationMiddleware, APIKeyValidationMiddleware
-from app.core.server import create_app, configure_middleware, configure_security_headers
-from app.core.startup import startup_event
-from app.core.shutdown import shutdown_event
+from fastapi.responses import JSONResponse
+
+from app.core.server import create_app
+from app.core.lifespan import lifespan
+from app.core.middleware import configure_all_middleware
 from app.core.routes import register_routes, register_api_routes
 from app.core.exceptions import configure_exception_handlers
-from slowapi.errors import RateLimitExceeded
+from core.logging_config import get_logger
 
+# Configurar logger
+logger = get_logger(__name__)
 
-@asynccontextmanager
-async def lifespan(app: FastAPI) -> AsyncGenerator:
-    """
-    Gestor de contexto para el ciclo de vida de la aplicación.
-    Reemplaza los eventos on_event("startup") y on_event("shutdown").
-    """
-    # Startup
-    await startup_event(app)
-    
-    yield
-    
-    # Shutdown
-    await shutdown_event(app)
+# =============================================================================
+# CREAR Y CONFIGURAR APLICACIÓN
+# =============================================================================
 
+# Crear aplicación con configuración base
+app = create_app(lifespan=lifespan)
 
-# Crear aplicación con el nuevo gestor de ciclo de vida
-app = create_app()
-app.state.limiter = limiter
-app.state.advanced_limiter = advanced_limiter
-
-# Configurar lifespan
-app.router.lifespan_context = lifespan
-
-# Configurar middleware
-configure_middleware(app)
-configure_security_headers(app)
-
-# Add security middleware
-app.add_middleware(SecurityValidationMiddleware)
-app.add_middleware(APIKeyValidationMiddleware)
-
-# Add IP blocking middleware
-app.add_middleware("http", middleware_class=check_ip_block)
+# Configurar todos los middlewares
+configure_all_middleware(app)
 
 # Configurar manejadores de excepciones
 configure_exception_handlers(app)
 
-# Add rate limit exception handler
-app.add_exception_handler(RateLimitExceeded, rate_limit_exceeded_handler)
-
-# Registrar rutas
+# Registrar todas las rutas
 register_routes(app)
 register_api_routes(app)
 
-
-# Middleware para tracking de requests
-@app.middleware("http")
-async def add_request_tracking(request, call_next):
-    """Agrega tracking básico a cada request."""
-    import time
-    import uuid
-    
-    # Generar request ID
-    request.state.request_id = str(uuid.uuid4())
-    request.state.start_time = time.time()
-    
-    # Procesar request
-    response = await call_next(request)
-    
-    # Agregar headers de respuesta
-    process_time = time.time() - request.state.start_time
-    response.headers["X-Request-ID"] = request.state.request_id
-    response.headers["X-Process-Time"] = str(process_time)
-    
-    return response
+# =============================================================================
+# ENDPOINTS BÁSICOS
+# =============================================================================
 
 
-# Ruta raíz
-@app.get("/", tags=["root"])
+@app.get("/", tags=["Root"])
 async def root():
-    """Endpoint raíz de la API."""
-    return {
-        "message": "NGX Agents API v2.0.0",
-        "status": "operational",
-        "docs": "/docs",
-        "health": "/health",
-        "metrics": "/metrics",
-    }
+    """
+    Endpoint raíz de la API.
+    
+    Proporciona información básica sobre la API y enlaces útiles.
+    """
+    return JSONResponse(
+        content={
+            "name": "NGX Agents API",
+            "version": "2.0.0",
+            "status": "operational",
+            "description": "AI-powered fitness and nutrition coaching system",
+            "links": {
+                "documentation": "/docs",
+                "openapi": "/openapi.json",
+                "health": "/health",
+                "metrics": "/metrics",
+                "agents": "/api/v1/agents"
+            },
+            "features": [
+                "11 specialized AI agents",
+                "Voice conversations with ElevenLabs",
+                "Real-time coaching",
+                "Personalized training plans",
+                "Nutrition guidance",
+                "Progress tracking",
+                "Wearables integration"
+            ]
+        }
+    )
 
+
+@app.get("/ping", tags=["Health"])
+async def ping():
+    """
+    Simple ping endpoint para verificación rápida.
+    
+    Returns:
+        Mensaje pong
+    """
+    return {"ping": "pong"}
+
+
+# =============================================================================
+# PUNTO DE ENTRADA PARA DESARROLLO
+# =============================================================================
 
 if __name__ == "__main__":
     import uvicorn
     from core.settings_lazy import settings
+    
+    logger.info("Starting NGX Agents API in development mode...")
     
     uvicorn.run(
         "app.main:app",
@@ -117,4 +110,7 @@ if __name__ == "__main__":
         log_level="info" if not settings.debug else "debug",
         access_log=True,
         use_colors=True,
+        # Configuración adicional para desarrollo
+        reload_dirs=["app", "agents", "core", "clients"] if settings.debug else None,
+        reload_excludes=["*.pyc", "__pycache__", ".pytest_cache"] if settings.debug else None
     )

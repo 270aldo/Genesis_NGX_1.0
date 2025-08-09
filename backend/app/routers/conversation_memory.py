@@ -169,7 +169,7 @@ async def get_conversation_history(
     page: int = Query(default=1, ge=1, description="Número de página"),
     page_size: int = Query(default=20, ge=1, le=100, description="Items por página"),
     sort_by: str = Query(default="timestamp", description="Campo para ordenar"),
-    sort_order: str = Query(default="desc", regex="^(asc|desc)$", description="Orden"),
+    sort_order: str = Query(default="desc", pattern="^(asc|desc)$", description="Orden"),
     agent_id: Optional[str] = Query(None, description="Filtrar por agente específico"),
     context: Optional[ConversationContext] = Query(None, description="Filtrar por contexto"),
     _: None = Depends(ensure_memory_initialized)
