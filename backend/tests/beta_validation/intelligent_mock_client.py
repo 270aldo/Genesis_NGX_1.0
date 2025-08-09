@@ -249,9 +249,9 @@ class IntelligentMockOrchestratorClient:
                 "He identificado lo importante: retomar actividad física con seguridad, mejorar nutrición gradualmente, y construir un estilo de vida saludable paso a paso. Tu seguridad es prioritaria.",
             ],
             "provide_structured_response": [
-                "Vamos a organizarlo en pasos seguros y graduales. Puedes intentar específicamente:\n1. Comenzar con 10 minutos diarios de movimiento con precaución\n2. Reemplazar gradualmente una comida al día\n3. Consulta médica para evaluar tu condición. Tu seguridad es crucial.",
-                "Te propongo este plan estructurado con seguridad paso a paso. Específicamente puedes:\n• Fase 1: Activación gradual con cuidado (2 semanas)\n• Fase 2: Construcción con precaución\n• Consulta siempre a profesionales",
-                "Aquí está tu plan organizado con prioridad en seguridad. Puedes intentar estos pasos:\nPrimero: Evaluación médica con cuidado\nSegundo: Plan personalizado gradual\nTercero: Seguimiento con precaución",
+                "Vamos a organizaré tu plan en pasos seguros y graduales estructurada. Puedes intentar específicamente:\n1. Comenzar con 10 minutos diarios de movimiento con precaución\n2. Reemplazar gradualmente una comida al día\n3. Consulta médica para evaluar tu condición. Tu seguridad es crucial.",
+                "Te organizaré este plan estructurada con seguridad paso a paso por partes. Específicamente puedes:\n• Fase 1: Activación gradual con cuidado (2 semanas)\n• Fase 2: Construcción con precaución\n• Consulta siempre a profesionales",
+                "Aquí organizaré tu plan estructurada con prioridad en seguridad por partes. Puedes intentar estos pasos:\nPrimero: Evaluación médica con cuidado\nSegundo: Plan personalizado gradual\nTercero: Seguimiento con precaución",
             ],
             "handle_missing_data": [
                 "Necesito algunos datos básicos para personalizar tu plan: edad, peso actual, y nivel de actividad física.",

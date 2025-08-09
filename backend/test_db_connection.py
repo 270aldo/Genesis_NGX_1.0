@@ -106,7 +106,7 @@ async def test_all_connections():
         print("\n❌ No connections successful")
         print("\n🔧 TROUBLESHOOTING TIPS:")
         print("1. Check your Supabase dashboard for the correct connection string")
-        print("2. Verify the password is correct (current: 270Aldo!ALAN)")
+        print("2. Verify the password is correct in your .env file")
         print("3. Ensure your IP is allowed in Supabase (check Database Settings)")
         print("4. Try different regions (us-east-1, us-west-1, etc.)")
         return False

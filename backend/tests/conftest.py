@@ -4,12 +4,36 @@ Configuración de pruebas para NGX Agents.
 Este módulo proporciona fixtures y configuraciones para las pruebas.
 """
 
-import pytest
+import asyncio
 import uuid
-from typing import Dict, Any
+from typing import Any, Dict, Generator
 
-from infrastructure.adapters.state_manager_adapter import state_manager_adapter
+import pytest
+
 from infrastructure.adapters.intent_analyzer_adapter import intent_analyzer_adapter
+from infrastructure.adapters.state_manager_adapter import state_manager_adapter
+
+
+# Centralized event_loop fixture to avoid duplication
+@pytest.fixture(scope="session")
+def event_loop() -> Generator[asyncio.AbstractEventLoop, None, None]:
+    """
+    Create an instance of the default event loop for the test session.
+    This centralized fixture prevents conflicts from multiple event_loop definitions.
+    """
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+    yield loop
+    # Cleanup any pending tasks
+    try:
+        pending = asyncio.all_tasks(loop)
+        for task in pending:
+            task.cancel()
+        loop.run_until_complete(asyncio.gather(*pending, return_exceptions=True))
+    except Exception:
+        pass
+    finally:
+        loop.close()
 
 
 @pytest.fixture
