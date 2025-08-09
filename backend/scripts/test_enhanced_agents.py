@@ -32,9 +32,7 @@ except Exception as e:
 
 # Importar el template de seguridad
 try:
-    from agents.shared.security_prompt_template import (
-        validate_response_safety,
-    )
+    from agents.shared.security_prompt_template import validate_response_safety
 
     print("✅ Template de seguridad importado correctamente")
 except Exception as e:

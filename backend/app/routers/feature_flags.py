@@ -12,12 +12,7 @@ from fastapi import APIRouter, Body, Depends, HTTPException, Query, status
 from pydantic import BaseModel, Field
 
 from core.auth import get_current_user, require_admin
-from core.feature_flags import (
-    FeatureFlag,
-    FlagStatus,
-    FlagType,
-    get_feature_flags,
-)
+from core.feature_flags import FeatureFlag, FlagStatus, FlagType, get_feature_flags
 from core.logging_config import get_logger
 from core.ngx_feature_flags import get_ngx_client_flags
 

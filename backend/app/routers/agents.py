@@ -14,11 +14,7 @@ from fastapi import APIRouter, Depends, HTTPException, Path, Query, Request, sta
 
 from agents.base.base_agent import BaseAgent
 from agents.orchestrator.agent import NGXNexusOrchestrator
-from app.schemas.agent import (
-    AgentInfo,
-    AgentRunRequest,
-    AgentRunResponse,
-)
+from app.schemas.agent import AgentInfo, AgentRunRequest, AgentRunResponse
 from app.schemas.pagination import PaginatedResponse, PaginationParams
 from core.auth import get_current_user
 from core.logging_config import get_logger
