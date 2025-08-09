@@ -3,17 +3,12 @@ Security tests for WAVE Performance Analytics Agent.
 A+ testing framework with comprehensive security validation.
 """
 
-import pytest
-import json
 from datetime import datetime, timedelta
-from unittest.mock import Mock, AsyncMock, patch
+from unittest.mock import AsyncMock
 
-from agents.wave_performance_analytics.agent_optimized import (
-    WavePerformanceAnalyticsAgent,
-)
+import pytest
+
 from agents.wave_performance_analytics.core.exceptions import (
-    HealthDataPrivacyError,
-    ConsentRequiredError,
     DataRetentionViolationError,
     RecoveryValidationError,
 )

@@ -1,0 +1,58 @@
+# CODEOWNERS file for GENESIS project
+# This file defines who owns what parts of the codebase and who should review changes
+
+# Global owners - require review for any file not covered by specific rules
+* @ngx-team
+
+# Backend code ownership
+/backend/ @ngx-backend-team @ngx-team
+/backend/agents/ @ngx-agents-team @ngx-backend-team
+/backend/core/ @ngx-core-team @ngx-backend-team
+/backend/clients/ @ngx-integrations-team @ngx-backend-team
+/backend/app/ @ngx-api-team @ngx-backend-team
+
+# Frontend code ownership
+/frontend/ @ngx-frontend-team @ngx-team
+/frontend/src/components/ @ngx-ui-team @ngx-frontend-team
+/frontend/src/store/ @ngx-state-team @ngx-frontend-team
+/frontend/src/services/ @ngx-api-team @ngx-frontend-team
+
+# Infrastructure and deployment
+/k8s/ @ngx-devops-team @ngx-team
+/terraform/ @ngx-devops-team @ngx-team
+/docker-compose*.yml @ngx-devops-team @ngx-team
+Dockerfile* @ngx-devops-team @ngx-team
+
+# CI/CD and GitHub configuration
+/.github/ @ngx-devops-team @ngx-team
+/.github/workflows/ @ngx-devops-team @ngx-core-team
+
+# Documentation
+*.md @ngx-docs-team @ngx-team
+/docs/ @ngx-docs-team @ngx-team
+
+# Configuration files
+pyproject.toml @ngx-backend-team @ngx-team
+package.json @ngx-frontend-team @ngx-team
+/backend/core/settings.py @ngx-core-team @ngx-security-team
+codecov.yml @ngx-devops-team @ngx-team
+sonar-project.properties @ngx-quality-team @ngx-team
+
+# Security-sensitive files
+/backend/core/security/ @ngx-security-team @ngx-core-team
+/backend/core/auth.py @ngx-security-team @ngx-core-team
+.env* @ngx-security-team @ngx-devops-team
+
+# Database and migrations
+/backend/sql/ @ngx-data-team @ngx-backend-team
+/backend/migrations/ @ngx-data-team @ngx-backend-team
+
+# Monitoring and observability
+/monitoring/ @ngx-sre-team @ngx-devops-team
+/backend/core/telemetry* @ngx-sre-team @ngx-backend-team
+
+# Testing
+/backend/tests/ @ngx-qa-team @ngx-backend-team
+/frontend/src/**/*.test.* @ngx-qa-team @ngx-frontend-team
+pytest.ini @ngx-qa-team @ngx-backend-team
+jest.config.js @ngx-qa-team @ngx-frontend-team

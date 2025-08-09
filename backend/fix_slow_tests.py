@@ -28,7 +28,7 @@ class TestAgentPerformance:
             PrecisionNutritionArchitect,
             EliteTrainingStrategist,
             FemaleWellnessCoach,
-            ProgressTrackerAgent,
+            ProgressTracker,
             MotivationBehaviorCoach
         ]
         

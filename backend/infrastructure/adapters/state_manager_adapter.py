@@ -858,6 +858,86 @@ class StateManagerAdapter:
             "errors": 0,
         }
 
+    async def save_state(
+        self, state_data: Dict[str, Any], user_id: str, session_id: str
+    ) -> Dict[str, Any]:
+        """
+        Guarda estado general para compatibilidad con tests.
+
+        Args:
+            state_data: Datos de estado a guardar
+            user_id: ID del usuario
+            session_id: ID de la sesión
+
+        Returns:
+            Dict con información sobre el estado guardado
+        """
+        try:
+            # Usar conversación como mecanismo de persistencia
+            context = ConversationContext(
+                conversation_id=session_id, user_id=user_id, metadata=state_data
+            )
+
+            result = await self.save_conversation(context)
+            if result:
+                return {
+                    "session_id": session_id,
+                    "user_id": user_id,
+                    "state_data": state_data,
+                    "saved": True,
+                }
+            else:
+                return {"error": "Failed to save state"}
+
+        except Exception as e:
+            logger.error(f"Error saving state: {e}")
+            return {"error": str(e)}
+
+    async def load_state(
+        self, user_id: str, session_id: str
+    ) -> Optional[Dict[str, Any]]:
+        """
+        Carga estado general para compatibilidad con tests.
+
+        Args:
+            user_id: ID del usuario
+            session_id: ID de la sesión
+
+        Returns:
+            Diccionario con el estado o None si no existe
+        """
+        try:
+            context = await self.get_conversation(session_id)
+            if context and context.user_id == user_id:
+                return context.metadata
+            return None
+
+        except Exception as e:
+            logger.error(f"Error loading state: {e}")
+            return None
+
+    async def delete_state(self, user_id: str, session_id: str) -> bool:
+        """
+        Elimina estado general para compatibilidad con tests.
+
+        Args:
+            user_id: ID del usuario
+            session_id: ID de la sesión
+
+        Returns:
+            True si se eliminó correctamente
+        """
+        try:
+            # Verificar que la conversación pertenece al usuario
+            context = await self.get_conversation(session_id)
+            if context and context.user_id == user_id:
+                return await self.delete_conversation(session_id)
+            return False
+
+        except Exception as e:
+            logger.error(f"Error deleting state: {e}")
+            return False
+
 
 # Crear instancia global del adaptador
 state_manager_adapter = StateManagerAdapter()

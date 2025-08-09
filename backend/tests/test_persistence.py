@@ -5,11 +5,12 @@ Este módulo contiene pruebas para verificar el funcionamiento
 de la persistencia de usuarios y conversaciones en Supabase.
 """
 
-import pytest
 import uuid
-from unittest.mock import patch, MagicMock
+from unittest.mock import MagicMock, patch
 
-from clients.supabase_client import SupabaseClient
+import pytest
+
+from clients.persistence import PersistenceClient
 
 # Constantes para pruebas
 TEST_API_KEY = "test_api_key_123"
@@ -19,8 +20,8 @@ TEST_MESSAGE = "Mensaje de prueba"
 
 @pytest.fixture
 def supabase_client():
-    """Fixture que proporciona un cliente Supabase simulado."""
-    client = SupabaseClient()
+    """Fixture que proporciona un cliente de persistencia simulado (modo mock)."""
+    client = PersistenceClient(mock_supabase_client := object())
     # Forzar modo simulado
     client.is_mock = True
     client._mock_users = {}

@@ -3,34 +3,32 @@ Comprehensive test fixtures for WAVE Performance Analytics Agent.
 A+ testing framework with 90%+ coverage targeting.
 """
 
-import pytest
 import asyncio
-import json
 from datetime import datetime, timedelta
-from typing import Dict, Any, List
-from unittest.mock import Mock, AsyncMock, MagicMock
+from typing import Any, Dict
+from unittest.mock import AsyncMock, Mock
+
+import pytest
+
+from clients.vertex_ai.vertex_ai_client import VertexAIClient
+from core.cache import CacheManager
+from core.personality.personality_adapter import PersonalityAdapter
 
 # Core framework imports
 from core.telemetry import TelemetryService
-from core.cache import CacheManager
-from clients.vertex_ai.vertex_ai_client import VertexAIClient
-from core.personality.personality_adapter import PersonalityAdapter
+
+from ..agent import WavePerformanceAnalytics
+from ..core.config import WaveAnalyticsConfig
 
 # Agent-specific imports
 from ..core.dependencies import WaveAnalyticsAgentDependencies
-from ..core.config import WaveAnalyticsConfig
 from ..core.exceptions import (
-    WaveAnalyticsError,
-    RecoveryError,
     AnalyticsError,
     FusionError,
-    RecoveryValidationError,
     InjuryPreventionError,
-    RehabilitationError,
+    RecoveryValidationError,
 )
 from ..services.recovery_service import RecoveryService
-from ..skills_manager import WaveAnalyticsSkillsManager
-from ..agent_optimized import WavePerformanceAnalyticsAgent
 
 
 @pytest.fixture(scope="session")
@@ -84,15 +82,15 @@ def mock_gemini_client():
     client.generate_content_async = AsyncMock(
         return_value="""
     Based on the user's recovery and analytics data, here's my analysis:
-    
+
     Recovery Status: Good (85/100)
     Risk Assessment: Low (0.15)
-    
+
     Recommendations:
     1. Continue current recovery protocol
     2. Monitor HRV trends daily
     3. Maintain sleep quality above 80%
-    
+
     Fusion Analysis:
     - Holistic insight: Body is responding well to current program
     - Analytical insight: Biometric trends show consistent improvement
@@ -491,9 +489,7 @@ def mock_recovery_service(mock_config, mock_cache):
 @pytest.fixture
 def wave_agent(mock_dependencies, mock_config):
     """Create WAVE Performance Analytics agent instance for testing."""
-    agent = WavePerformanceAnalyticsAgent(
-        dependencies=mock_dependencies, config=mock_config
-    )
+    agent = WavePerformanceAnalytics(dependencies=mock_dependencies, config=mock_config)
     return agent
 
 

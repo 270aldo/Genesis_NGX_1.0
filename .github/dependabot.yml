@@ -1,0 +1,180 @@
+version: 2
+
+updates:
+  # Backend Python dependencies
+  - package-ecosystem: "pip"
+    directory: "/backend"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "06:00"
+      timezone: "UTC"
+    open-pull-requests-limit: 10
+    reviewers:
+      - "ngx-team"
+    assignees:
+      - "ngx-team"
+    labels:
+      - "dependencies"
+      - "backend"
+      - "python"
+    commit-message:
+      prefix: "deps"
+      prefix-development: "deps-dev"
+      include: "scope"
+    # Group related updates
+    groups:
+      fastapi-group:
+        patterns:
+          - "fastapi*"
+          - "uvicorn*"
+          - "starlette*"
+          - "pydantic*"
+      google-cloud-group:
+        patterns:
+          - "google-cloud-*"
+          - "google-generativeai*"
+          - "google-auth*"
+      testing-group:
+        patterns:
+          - "pytest*"
+          - "pytest-*"
+      linting-group:
+        patterns:
+          - "black"
+          - "isort"
+          - "ruff"
+          - "mypy"
+    # Security updates
+    allow:
+      - dependency-type: "direct"
+      - dependency-type: "indirect"
+        update-type: "security"
+
+  # Frontend Node.js dependencies
+  - package-ecosystem: "npm"
+    directory: "/frontend"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "06:30"
+      timezone: "UTC"
+    open-pull-requests-limit: 10
+    reviewers:
+      - "ngx-team"
+    assignees:
+      - "ngx-team"
+    labels:
+      - "dependencies"
+      - "frontend"
+      - "javascript"
+    commit-message:
+      prefix: "deps"
+      prefix-development: "deps-dev"
+      include: "scope"
+    # Group related updates
+    groups:
+      react-group:
+        patterns:
+          - "react*"
+          - "@types/react*"
+      radix-group:
+        patterns:
+          - "@radix-ui/*"
+      vite-group:
+        patterns:
+          - "vite*"
+          - "@vitejs/*"
+      testing-group:
+        patterns:
+          - "jest*"
+          - "@testing-library/*"
+          - "@types/jest"
+      eslint-group:
+        patterns:
+          - "eslint*"
+          - "@eslint/*"
+      tailwind-group:
+        patterns:
+          - "tailwind*"
+          - "@tailwindcss/*"
+    # Security updates
+    allow:
+      - dependency-type: "direct"
+      - dependency-type: "indirect"
+        update-type: "security"
+
+  # Docker dependencies
+  - package-ecosystem: "docker"
+    directory: "/backend"
+    schedule:
+      interval: "weekly"
+      day: "tuesday"
+      time: "06:00"
+      timezone: "UTC"
+    open-pull-requests-limit: 5
+    reviewers:
+      - "ngx-team"
+    labels:
+      - "dependencies"
+      - "docker"
+      - "backend"
+    commit-message:
+      prefix: "deps"
+      include: "scope"
+
+  - package-ecosystem: "docker"
+    directory: "/frontend"
+    schedule:
+      interval: "weekly"
+      day: "tuesday"
+      time: "06:30"
+      timezone: "UTC"
+    open-pull-requests-limit: 5
+    reviewers:
+      - "ngx-team"
+    labels:
+      - "dependencies"
+      - "docker"
+      - "frontend"
+    commit-message:
+      prefix: "deps"
+      include: "scope"
+
+  # GitHub Actions dependencies
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "wednesday"
+      time: "06:00"
+      timezone: "UTC"
+    open-pull-requests-limit: 5
+    reviewers:
+      - "ngx-team"
+    labels:
+      - "dependencies"
+      - "github-actions"
+      - "ci-cd"
+    commit-message:
+      prefix: "ci"
+      include: "scope"
+
+  # Terraform dependencies (if using Terraform)
+  - package-ecosystem: "terraform"
+    directory: "/terraform"
+    schedule:
+      interval: "weekly"
+      day: "thursday"
+      time: "06:00"
+      timezone: "UTC"
+    open-pull-requests-limit: 5
+    reviewers:
+      - "ngx-team"
+    labels:
+      - "dependencies"
+      - "terraform"
+      - "infrastructure"
+    commit-message:
+      prefix: "infra"
+      include: "scope"

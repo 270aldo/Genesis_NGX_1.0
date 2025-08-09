@@ -3,18 +3,15 @@ Performance tests for WAVE Performance Analytics Agent.
 A+ testing framework with load testing and performance benchmarks.
 """
 
-import pytest
 import asyncio
 import time
-import statistics
-from datetime import datetime, timedelta
-from unittest.mock import Mock, AsyncMock
-import concurrent.futures
-from typing import List, Dict, Any
+from datetime import datetime
+from typing import Any, Dict, List
+from unittest.mock import AsyncMock
 
-from agents.wave_performance_analytics.agent_optimized import (
-    WavePerformanceAnalyticsAgent,
-)
+import pytest
+
+from agents.wave_performance_analytics.agent import WavePerformanceAnalytics
 
 
 class TestResponseTimePerformance:
@@ -343,14 +340,15 @@ class TestMemoryPerformance:
         self, mock_dependencies, mock_config, performance_benchmarks
     ):
         """Test memory usage during agent initialization."""
-        import psutil
         import os
+
+        import psutil
 
         process = psutil.Process(os.getpid())
         initial_memory = process.memory_info().rss / 1024 / 1024  # MB
 
         # Initialize agent
-        agent = WavePerformanceAnalyticsAgent(mock_dependencies, mock_config)
+        agent = WavePerformanceAnalytics(mock_dependencies, mock_config)
 
         final_memory = process.memory_info().rss / 1024 / 1024  # MB
         memory_increase = final_memory - initial_memory
@@ -369,8 +367,9 @@ class TestMemoryPerformance:
         self, wave_agent, sample_context, performance_benchmarks
     ):
         """Test memory usage during message processing."""
-        import psutil
         import os
+
+        import psutil
 
         process = psutil.Process(os.getpid())
 
@@ -403,9 +402,10 @@ class TestMemoryPerformance:
     @pytest.mark.asyncio
     async def test_memory_cleanup_after_processing(self, wave_agent, sample_context):
         """Test memory cleanup after processing."""
-        import psutil
-        import os
         import gc
+        import os
+
+        import psutil
 
         process = psutil.Process(os.getpid())
 
@@ -786,7 +786,7 @@ class TestHealthCheckPerformance:
     async def test_shutdown_performance(self, mock_dependencies, mock_config):
         """Test shutdown performance."""
         # Create new agent for shutdown test
-        agent = WavePerformanceAnalyticsAgent(mock_dependencies, mock_config)
+        agent = WavePerformanceAnalytics(mock_dependencies, mock_config)
 
         start_time = time.time()
         await agent.shutdown()

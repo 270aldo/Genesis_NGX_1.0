@@ -3,32 +3,25 @@ Unit tests for WAVE Performance Analytics Agent core functionality.
 A+ testing framework targeting 90%+ coverage.
 """
 
-import pytest
-import asyncio
 from datetime import datetime, timedelta
-from unittest.mock import Mock, AsyncMock, patch
+from unittest.mock import AsyncMock, Mock, patch
 
+import pytest
+
+from agents.wave_performance_analytics.agent import WavePerformanceAnalytics
 from agents.wave_performance_analytics.core.config import WaveAnalyticsConfig
 from agents.wave_performance_analytics.core.dependencies import (
     WaveAnalyticsAgentDependencies,
 )
 from agents.wave_performance_analytics.core.exceptions import (
-    WaveAnalyticsError,
-    RecoveryError,
-    AnalyticsError,
-    FusionError,
-    RecoveryValidationError,
-    InjuryPreventionError,
-    RehabilitationError,
-    SleepOptimizationError,
-    MobilityAssessmentError,
     BiometricAnalysisError,
-)
-from agents.wave_performance_analytics.agent_optimized import (
-    WavePerformanceAnalyticsAgent,
+    InjuryPreventionError,
+    RecoveryError,
+    RecoveryValidationError,
+    RehabilitationError,
+    WaveAnalyticsError,
 )
 from agents.wave_performance_analytics.skills_manager import WaveAnalyticsSkillsManager
-from agents.wave_performance_analytics.services.recovery_service import RecoveryService
 
 
 class TestWaveAnalyticsConfig:
@@ -250,12 +243,12 @@ class TestWaveAnalyticsExceptions:
         assert error.details["expected_range"]["min"] == 30
 
 
-class TestWavePerformanceAnalyticsAgent:
+class TestWavePerformanceAnalytics:
     """Test main agent functionality."""
 
     def test_agent_initialization(self, mock_dependencies, mock_config):
         """Test agent initialization."""
-        agent = WavePerformanceAnalyticsAgent(mock_dependencies, mock_config)
+        agent = WavePerformanceAnalytics(mock_dependencies, mock_config)
 
         assert agent.agent_id == "wave_performance_analytics"
         assert agent.name == "Recovery & Performance Analytics Specialist"
@@ -279,7 +272,7 @@ class TestWavePerformanceAnalyticsAgent:
             mock_config_class.from_environment.return_value = Mock()
             mock_deps_class.create_default.return_value = Mock()
 
-            agent = WavePerformanceAnalyticsAgent()
+            agent = WavePerformanceAnalytics()
             assert agent is not None
 
     def test_configuration_validation(self, mock_dependencies):
@@ -289,7 +282,7 @@ class TestWavePerformanceAnalyticsAgent:
         invalid_config.max_response_time = -1.0
 
         with pytest.raises(RecoveryValidationError) as exc_info:
-            WavePerformanceAnalyticsAgent(mock_dependencies, invalid_config)
+            WavePerformanceAnalytics(mock_dependencies, invalid_config)
 
         assert "Configuration validation failed" in str(exc_info.value)
 
@@ -300,7 +293,7 @@ class TestWavePerformanceAnalyticsAgent:
         invalid_deps.validate_dependencies.return_value = False
 
         with pytest.raises(RecoveryValidationError) as exc_info:
-            WavePerformanceAnalyticsAgent(invalid_deps, mock_config)
+            WavePerformanceAnalytics(invalid_deps, mock_config)
 
         assert "Critical dependencies validation failed" in str(exc_info.value)
 
@@ -483,7 +476,7 @@ class TestWavePerformanceAnalyticsAgent:
         """Test string representation."""
         repr_str = repr(wave_agent)
 
-        assert "WavePerformanceAnalyticsAgent" in repr_str
+        assert "WavePerformanceAnalytics" in repr_str
         assert "agent_id='wave_performance_analytics'" in repr_str
         assert "initialized=True" in repr_str
 
@@ -852,7 +845,7 @@ class TestIntegrationPoints:
         deps = WaveAnalyticsAgentDependencies.create_default()
 
         # Verify dependencies can be created with config
-        agent = WavePerformanceAnalyticsAgent(deps, mock_config)
+        agent = WavePerformanceAnalytics(deps, mock_config)
 
         assert agent.config == mock_config
         assert agent.deps == deps

@@ -9,7 +9,7 @@ Tests the Orchestrator's ability to:
 
 import pytest
 
-from agents.orchestrator.agent import OrchestratorAgent
+from agents.orchestrator.agent import NGXNexusOrchestrator
 from tests.staging.base_agent_test import BaseAgentStagingTest
 
 
@@ -27,7 +27,7 @@ class TestOrchestratorStaging(BaseAgentStagingTest):
 
     @property
     def agent_class(self):
-        return OrchestratorAgent
+        return NGXNexusOrchestrator
 
     def validate_complex_response(self, content: str, prompt: str):
         """Validate Orchestrator's complex response quality."""

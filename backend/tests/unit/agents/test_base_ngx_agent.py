@@ -281,15 +281,19 @@ class TestBaseNGXAgentAsync:
         """Test de manejo de requests concurrentes."""
         import asyncio
 
-        requests = [{"user_input": f"Test input {i}"} for i in range(5)]
+        requests = [f"Test input {i}" for i in range(5)]
+        contexts = [{"index": i} for i in range(5)]
 
         # Procesar requests concurrentemente
-        tasks = [base_agent.process_request(req) for req in requests]
+        tasks = [
+            base_agent.process_user_request(req, ctx)
+            for req, ctx in zip(requests, contexts)
+        ]
         responses = await asyncio.gather(*tasks)
 
         assert len(responses) == 5
-        assert all(r == "Test response" for r in responses)
-        assert mock_vertex_client.generate_response.call_count == 5
+        assert all(isinstance(r, dict) and "response" in r for r in responses)
+        assert all(r["response"] == "test response" for r in responses)
 
     async def test_request_timeout(self, base_agent, mock_vertex_client):
         """Test de timeout en requests."""

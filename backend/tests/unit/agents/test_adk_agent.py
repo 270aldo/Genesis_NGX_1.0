@@ -29,6 +29,9 @@ class MockSkill:
         self.priority = 1
         self.enabled = True
         self.metadata = {}
+        self.version = "1.0.0"  # Added version attribute
+        self.category = "test"  # Added category attribute
+        self.tags = []  # Added tags attribute
 
     async def execute(self, params: Dict[str, Any]) -> Dict[str, Any]:
         """Ejecuta la skill mock."""

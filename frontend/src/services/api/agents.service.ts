@@ -2,6 +2,7 @@
  * Agents Service for NGX Agents
  * Handles agent operations, capabilities, and execution
  * Migrated from GENESIS backend architecture
+ * NEXUS-ONLY MODE: Routes all agent interactions through NEXUS
  */
 
 import { apiClient, API_ENDPOINTS } from './client';
@@ -38,6 +39,8 @@ export interface AgentExecutionRequest {
     conversationId?: string;
     includeHistory?: boolean;
     personalizedMode?: boolean;
+    nexusCoordination?: boolean;
+    originalAgentId?: string;
   };
 }
 
@@ -57,6 +60,7 @@ export interface AgentExecutionResponse {
     reasoning?: string;
     recommendations?: string[];
     nextSteps?: string[];
+    coordinatedAgents?: string[]; // For NEXUS coordination
   };
 }
 
@@ -91,6 +95,7 @@ export interface AgentQueryResponse {
 /**
  * Agents Service Class
  * Central service for all agent operations
+ * Enhanced for NEXUS-only mode coordination
  */
 export class AgentsService {
   private static instance: AgentsService;
@@ -98,9 +103,11 @@ export class AgentsService {
   private statusCache: Map<string, AgentStatus> = new Map();
   private cacheTimestamp: number = 0;
   private CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
-  
+  private featureFlagsCache: any = null;
+  private featureFlagsCacheTimestamp: number = 0;
+
   private constructor() {}
-  
+
   static getInstance(): AgentsService {
     if (!AgentsService.instance) {
       AgentsService.instance = new AgentsService();
@@ -114,28 +121,28 @@ export class AgentsService {
   async getAgents(forceRefresh: boolean = false): Promise<Agent[]> {
     try {
       const now = Date.now();
-      
+
       // Return cached data if valid and not forcing refresh
       if (!forceRefresh && this.agentsCache.length > 0 && (now - this.cacheTimestamp) < this.CACHE_DURATION) {
         return this.agentsCache;
       }
 
       const response = await apiClient.get<Agent[]>(API_ENDPOINTS.AGENTS.LIST);
-      
+
       // Update cache
       this.agentsCache = response.data;
       this.cacheTimestamp = now;
-      
+
       return response.data;
     } catch (error: any) {
       console.error('Get agents error:', error);
-      
+
       // Return cached data if available on error
       if (this.agentsCache.length > 0) {
         console.warn('Using cached agents data due to API error');
         return this.agentsCache;
       }
-      
+
       throw {
         message: error.response?.data?.message || 'Failed to get agents',
         code: error.response?.status || 500,
@@ -150,11 +157,11 @@ export class AgentsService {
     try {
       const agents = await this.getAgents();
       const agent = agents.find(a => a.id === agentId);
-      
+
       if (!agent) {
         throw { message: 'Agent not found', code: 404 };
       }
-      
+
       return agent;
     } catch (error: any) {
       console.error('Get agent error:', error);
@@ -171,9 +178,9 @@ export class AgentsService {
   async getAgentsBySpecialty(specialty: string): Promise<Agent[]> {
     try {
       const agents = await this.getAgents();
-      return agents.filter(agent => 
+      return agents.filter(agent =>
         agent.specialty.toLowerCase().includes(specialty.toLowerCase()) ||
-        agent.capabilities.some(cap => 
+        agent.capabilities.some(cap =>
           cap.toLowerCase().includes(specialty.toLowerCase())
         )
       );
@@ -193,7 +200,7 @@ export class AgentsService {
     try {
       const now = Date.now();
       const cached = this.statusCache.get(agentId);
-      
+
       // Return cached status if valid and not forcing refresh
       if (!forceRefresh && cached && (now - this.cacheTimestamp) < this.CACHE_DURATION) {
         return cached;
@@ -202,21 +209,21 @@ export class AgentsService {
       const response = await apiClient.get<AgentStatus>(
         `${API_ENDPOINTS.AGENTS.STATUS}/${agentId}`
       );
-      
+
       // Update cache
       this.statusCache.set(agentId, response.data);
-      
+
       return response.data;
     } catch (error: any) {
       console.error('Get agent status error:', error);
-      
+
       // Return cached status if available on error
       const cached = this.statusCache.get(agentId);
       if (cached) {
         console.warn('Using cached agent status due to API error');
         return cached;
       }
-      
+
       throw {
         message: error.response?.data?.message || 'Failed to get agent status',
         code: error.response?.status || 500,
@@ -232,7 +239,7 @@ export class AgentsService {
       const response = await apiClient.get<AgentCapability[]>(
         `${API_ENDPOINTS.AGENTS.CAPABILITIES}/${agentId}`
       );
-      
+
       return response.data;
     } catch (error: any) {
       console.error('Get agent capabilities error:', error);
@@ -245,24 +252,35 @@ export class AgentsService {
 
   /**
    * Execute agent action
+   * In NEXUS-only mode, routes through NEXUS with original agent context
    */
   async executeAgent(request: AgentExecutionRequest): Promise<AgentExecutionResponse> {
     try {
+      // Check if NEXUS-only mode is enabled
+      const nexusOnlyMode = await this.isNexusOnlyModeEnabled();
+
+      const requestPayload = {
+        agent_id: nexusOnlyMode && request.agentId !== 'nexus' ? 'nexus' : request.agentId,
+        action: request.action,
+        parameters: request.parameters,
+        context: {
+          user_id: request.context?.userId,
+          conversation_id: request.context?.conversationId,
+          include_history: request.context?.includeHistory ?? true,
+          personalized_mode: request.context?.personalizedMode ?? true,
+          // Pass original agent context for NEXUS coordination
+          ...(nexusOnlyMode && request.agentId !== 'nexus' && {
+            original_agent_id: request.agentId,
+            nexus_coordination: true
+          })
+        },
+      };
+
       const response = await apiClient.post<AgentExecutionResponse>(
         API_ENDPOINTS.AGENTS.EXECUTE,
-        {
-          agent_id: request.agentId,
-          action: request.action,
-          parameters: request.parameters,
-          context: {
-            user_id: request.context?.userId,
-            conversation_id: request.context?.conversationId,
-            include_history: request.context?.includeHistory ?? true,
-            personalized_mode: request.context?.personalizedMode ?? true,
-          },
-        }
+        requestPayload
       );
-      
+
       return response.data;
     } catch (error: any) {
       console.error('Execute agent error:', error);
@@ -291,7 +309,7 @@ export class AgentsService {
           include_recommendations: request.includeRecommendations ?? true,
         }
       );
-      
+
       return response.data;
     } catch (error: any) {
       console.error('Query agent error:', error);
@@ -322,7 +340,7 @@ export class AgentsService {
           offset,
         },
       });
-      
+
       return response.data;
     } catch (error: any) {
       console.error('Get agent execution history error:', error);
@@ -359,7 +377,7 @@ export class AgentsService {
       const response = await apiClient.get(`/api/v1/agents/${agentId}/analytics`, {
         params: { timeframe },
       });
-      
+
       return response.data;
     } catch (error: any) {
       console.error('Get agent analytics error:', error);
@@ -421,6 +439,8 @@ export class AgentsService {
     this.agentsCache = [];
     this.statusCache.clear();
     this.cacheTimestamp = 0;
+    this.featureFlagsCache = null;
+    this.featureFlagsCacheTimestamp = 0;
   }
 
   /**
@@ -428,6 +448,114 @@ export class AgentsService {
    */
   getCachedAgents(): Agent[] {
     return this.agentsCache;
+  }
+
+  /**
+   * Check if NEXUS-only mode is enabled
+   */
+  private async isNexusOnlyModeEnabled(): Promise<boolean> {
+    try {
+      const now = Date.now();
+
+      // Use cached feature flags if available and fresh
+      if (this.featureFlagsCache && (now - this.featureFlagsCacheTimestamp) < this.CACHE_DURATION) {
+        return this.featureFlagsCache.nexusOnlyMode ?? true;
+      }
+
+      const response = await apiClient.get('/api/v1/feature-flags/ngx-client');
+
+      // Update cache
+      this.featureFlagsCache = response.data?.data || {};
+      this.featureFlagsCacheTimestamp = now;
+
+      return this.featureFlagsCache.nexusOnlyMode ?? true; // Default to true
+    } catch (error) {
+      console.warn('Failed to check NEXUS-only mode, defaulting to true:', error);
+      return true; // Default to NEXUS-only mode
+    }
+  }
+
+  /**
+   * Execute agent action with NEXUS coordination
+   * Specifically for NEXUS-only mode interactions
+   */
+  async executeAgentWithNexusCoordination(
+    originalAgentId: string,
+    action: string,
+    parameters?: Record<string, any>,
+    context?: AgentExecutionRequest['context']
+  ): Promise<AgentExecutionResponse> {
+    return this.executeAgent({
+      agentId: 'nexus', // Always use NEXUS
+      action,
+      parameters: {
+        ...parameters,
+        original_agent_specialty: originalAgentId,
+        coordination_mode: true
+      },
+      context: {
+        ...context,
+        nexusCoordination: true,
+        originalAgentId
+      }
+    });
+  }
+
+  /**
+   * Get team coordination status
+   * Returns which agents are currently active in collaboration
+   */
+  async getTeamCoordinationStatus(): Promise<{
+    isCoordinating: boolean;
+    activeAgents: Array<{
+      id: string;
+      name: string;
+      status: 'consulting' | 'analyzing' | 'responding' | 'completed';
+      task: string;
+      progress: number;
+    }>;
+    estimatedCompletion: number;
+  }> {
+    try {
+      const response = await apiClient.get('/api/v1/agents/coordination/status');
+      return response.data;
+    } catch (error: any) {
+      console.error('Failed to get team coordination status:', error);
+      return {
+        isCoordinating: false,
+        activeAgents: [],
+        estimatedCompletion: 0
+      };
+    }
+  }
+
+  /**
+   * Get NEXUS orchestration insights
+   * Returns how NEXUS is coordinating the team
+   */
+  async getNexusOrchestrationInsights(): Promise<{
+    totalCoordinations: number;
+    averageResponseTime: number;
+    teamEfficiencyScore: number;
+    mostUsedAgents: Array<{
+      agentId: string;
+      name: string;
+      usageCount: number;
+      successRate: number;
+    }>;
+  }> {
+    try {
+      const response = await apiClient.get('/api/v1/agents/nexus/insights');
+      return response.data;
+    } catch (error: any) {
+      console.error('Failed to get NEXUS orchestration insights:', error);
+      return {
+        totalCoordinations: 0,
+        averageResponseTime: 0,
+        teamEfficiencyScore: 0,
+        mostUsedAgents: []
+      };
+    }
   }
 
   /**

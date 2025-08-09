@@ -6,13 +6,14 @@ por agente, permitiendo establecer límites, rastrear el uso y tomar acciones
 cuando se alcanzan los límites.
 """
 
-import logging
-import os
-from typing import Dict, Optional, Any, Tuple
-from datetime import datetime, timedelta
 import asyncio
 import json
+import logging
+import os
+from datetime import datetime, timedelta
 from enum import Enum
+from typing import Any, Dict, Optional, Tuple
+
 from pydantic import BaseModel, Field
 
 from core.settings_lazy import settings
@@ -477,18 +478,26 @@ class BudgetManager:
         if not usage:
             usage = TokenUsage()
 
-        percentage = (
-            (usage.total_tokens / budget.max_tokens) * 100
-            if budget.max_tokens > 0
-            else 0
+        percentage = round(
+            (
+                (usage.total_tokens / budget.max_tokens) * 100
+                if budget.max_tokens > 0
+                else 0
+            ),
+            1,
         )
+
+        remaining_tokens = budget.max_tokens - usage.total_tokens
+        is_exceeded = usage.total_tokens > budget.max_tokens
 
         return {
             "agent_id": agent_id,
             "budget": budget.dict(),
             "usage": usage.dict(),
-            "percentage": percentage,
-            "remaining": max(0, budget.max_tokens - usage.total_tokens),
+            "usage_percentage": percentage,
+            "remaining_tokens": remaining_tokens,
+            "is_exceeded": is_exceeded,
+            "action": budget.action_on_limit if is_exceeded else None,
             "period": self._get_period_key(agent_id),
             "next_reset": self._get_next_reset_date(agent_id),
         }

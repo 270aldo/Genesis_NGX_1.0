@@ -1,0 +1,186 @@
+codecov:
+  # Require CI to pass before processing coverage results
+  require_ci_to_pass: true
+  # Allow processing coverage reports on CI failures
+  allow_coverage_offsets: true
+  # Disable codecov bot comments on commits
+  disable_default_path_fixes: false
+  # Set the maximum number of builds to store
+  max_report_age: "24h"
+
+coverage:
+  # Set precision for coverage percentages (0-5 decimal places)
+  precision: 2
+  # Round coverage percentages
+  round: down
+  # Coverage range (red to green)
+  range: "70...95"
+
+  # Global coverage status
+  status:
+    # Project coverage must not decrease
+    project:
+      default:
+        target: 85%
+        threshold: 2%
+        base: auto
+        if_no_uploads: error
+        if_not_found: success
+        if_ci_failed: error
+
+      # Backend-specific coverage target
+      backend:
+        target: 85%
+        threshold: 1%
+        paths:
+          - "backend/"
+        flags:
+          - backend
+
+      # Frontend-specific coverage target
+      frontend:
+        target: 80%
+        threshold: 2%
+        paths:
+          - "frontend/"
+        flags:
+          - frontend
+
+    # Patch coverage for new code
+    patch:
+      default:
+        target: 90%
+        threshold: 10%
+        base: auto
+        if_no_uploads: error
+        if_not_found: success
+        if_ci_failed: error
+
+      backend:
+        target: 90%
+        threshold: 5%
+        paths:
+          - "backend/"
+        flags:
+          - backend
+
+      frontend:
+        target: 85%
+        threshold: 10%
+        paths:
+          - "frontend/"
+        flags:
+          - frontend
+
+# Coverage flags for different test types
+flag_management:
+  default_rules:
+    # Rules for backend coverage
+    carryforward: true
+    carryforward_mode: "labels"
+
+  individual_flags:
+    - name: backend
+      paths:
+        - backend/
+      carryforward: true
+
+    - name: frontend
+      paths:
+        - frontend/
+      carryforward: true
+
+    - name: unit
+      paths:
+        - backend/tests/unit/
+        - frontend/src/**/*.test.*
+      carryforward: true
+
+    - name: integration
+      paths:
+        - backend/tests/integration/
+        - frontend/src/**/*.integration.*
+      carryforward: true
+
+    - name: agents
+      paths:
+        - backend/tests/agents/
+        - backend/agents/
+      carryforward: true
+
+# Comment configuration
+comment:
+  layout: "reach,diff,flags,files,footer"
+  behavior: default
+  require_changes: false
+  require_base: no
+  require_head: yes
+  branches:
+    - "main"
+    - "develop"
+    - "feature/*"
+
+# GitHub checks configuration
+github_checks:
+  annotations: true
+
+# Ignore paths that shouldn't be included in coverage
+ignore:
+  - "backend/tests/"
+  - "backend/scripts/"
+  - "backend/docs/"
+  - "backend/examples/"
+  - "backend/migrations/"
+  - "backend/.venv/"
+  - "backend/__pycache__/"
+  - "backend/**/__pycache__/"
+  - "backend/**/migrations/"
+  - "backend/alembic/"
+  - "frontend/node_modules/"
+  - "frontend/dist/"
+  - "frontend/build/"
+  - "frontend/coverage/"
+  - "frontend/public/"
+  - "frontend/docs/"
+  - "frontend/**/*.d.ts"
+  - "frontend/vite.config.*"
+  - "frontend/tailwind.config.*"
+  - "frontend/postcss.config.*"
+  - "frontend/jest.config.*"
+  - "frontend/eslint.config.*"
+  - "**/*.md"
+  - "**/*.yml"
+  - "**/*.yaml"
+  - "**/*.json"
+  - "**/Dockerfile*"
+  - "**/.env*"
+  - "**/docker-compose*"
+  - "k8s/"
+  - "terraform/"
+  - ".github/"
+
+# Parsers configuration
+parsers:
+  gcov:
+    branch_detection:
+      conditional: yes
+      loop: yes
+      method: no
+      macro: no
+
+# Notification settings
+notifications:
+  # Slack notifications (optional)
+  slack:
+    default:
+      url: "secret:CODECOV_SLACK_WEBHOOK"
+      threshold: 1%
+      message: |
+        Coverage {{changed}} for {{owner}}/{{repo}}
+        {{#if coverage}}Coverage: {{coverage}}% ({{coverage_change}}){{/if}}
+        {{#if build}}Build: {{build.url}}{{/if}}
+      attachments:
+        - color: "{{#if coverage_decreasing}}danger{{else}}good{{/if}}"
+          title: "{{repo.name}} - {{commit.message}}"
+          title_link: "{{commit.url}}"
+          text: "Coverage {{changed}} by {{coverage_change}}%"

@@ -5,29 +5,29 @@ Este módulo proporciona endpoints para interactuar con los agentes
 del sistema NGX Agents.
 """
 
-from typing import Dict, List, Any
 import importlib
 import inspect
 import os
+from typing import Any, Dict
 
-from fastapi import APIRouter, Depends, HTTPException, status, Path, Query, Request
+from fastapi import APIRouter, Depends, HTTPException, Path, Query, Request, status
 
-from core.auth import get_current_user
-from core.logging_config import get_logger
-from infrastructure.adapters.state_manager_adapter import state_manager_adapter
-from core.state_manager_optimized import StateManager
+from agents.base.base_agent import BaseAgent
+from agents.orchestrator.agent import NGXNexusOrchestrator
 from app.schemas.agent import (
+    AgentInfo,
     AgentRunRequest,
     AgentRunResponse,
-    AgentInfo,
-    AgentListResponse,
 )
-from app.schemas.pagination import PaginationParams, PaginatedResponse
+from app.schemas.pagination import PaginatedResponse, PaginationParams
+from core.auth import get_current_user
+from core.logging_config import get_logger
+from core.ngx_feature_flags import is_direct_agent_access_enabled, is_nexus_only_mode
 from core.pagination_helpers import paginate_list
-from agents.base.base_agent import BaseAgent
-from tools.mcp_toolkit import MCPToolkit
-from agents.orchestrator.agent import NGXNexusOrchestrator
 from core.settings_lazy import settings
+from core.state_manager_optimized import StateManager
+from infrastructure.adapters.state_manager_adapter import state_manager_adapter
+from tools.mcp_toolkit import MCPToolkit
 
 # Configurar logger
 logger = get_logger(__name__)
@@ -197,12 +197,9 @@ async def list_agents(
     """
     # Crear parámetros de paginación
     pagination_params = PaginationParams(
-        page=page,
-        page_size=page_size,
-        sort_by=sort_by,
-        sort_order=sort_order
+        page=page, page_size=page_size, sort_by=sort_by, sort_order=sort_order
     )
-    
+
     # Obtener todos los agentes
     agents = get_agents()
 
@@ -218,11 +215,9 @@ async def list_agents(
     ]
 
     # Aplicar paginación
-    base_url = str(request.url).split('?')[0]
+    base_url = str(request.url).split("?")[0]
     paginated_response = paginate_list(
-        items=agent_list,
-        params=pagination_params,
-        base_url=base_url
+        items=agent_list, params=pagination_params, base_url=base_url
     )
 
     logger.info(
@@ -243,6 +238,10 @@ async def run_agent(
     """
     Ejecuta un agente con un texto de entrada.
 
+    IMPORTANTE: Con el nuevo modelo estratégico de NGX, los usuarios interactúan
+    únicamente con NEXUS (el orquestador). Este endpoint redirige automáticamente
+    a NEXUS cuando el modo NEXUS-only está activo.
+
     Args:
         agent_id: ID del agente a ejecutar
         request: Datos de la solicitud
@@ -250,8 +249,40 @@ async def run_agent(
         state_manager: Gestor de estados
 
     Returns:
-        Respuesta del agente
+        Respuesta del agente o redirección a NEXUS
     """
+    # Check feature flags for NGX strategic pivot
+    context = {"user_id": user_id}
+
+    # If NEXUS-only mode is enabled and direct access is disabled
+    if await is_nexus_only_mode(context) and not await is_direct_agent_access_enabled(
+        context
+    ):
+        # Only allow direct access to NEXUS/orchestrator
+        if agent_id not in ["nexus", "orchestrator", "ngx-nexus-orchestrator"]:
+            logger.info(
+                f"NEXUS-only mode active. Redirecting agent request from {agent_id} to NEXUS for user {user_id}"
+            )
+
+            # Option 1: Return a response indicating to use NEXUS
+            return AgentRunResponse(
+                agent_id="nexus",
+                response=(
+                    f"Hola, soy NEXUS, tu Director de Orquesta Personal. "
+                    f"Veo que querías hablar con {agent_id}. "
+                    f"Como tu coordinador principal, yo me encargaré de consultar "
+                    f"con {agent_id} y con todo tu equipo de especialistas para darte "
+                    f"la mejor respuesta. ¿En qué puedo ayudarte hoy?"
+                ),
+                session_id=request.session_id,
+                metadata={
+                    "redirected_from": agent_id,
+                    "nexus_only_mode": True,
+                    "message": "All interactions go through NEXUS in the new NGX model",
+                },
+            )
+
+    # Legacy path: direct agent access (when feature flags allow it)
     # Obtener el agente
     agent = get_agent(agent_id)
 

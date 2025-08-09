@@ -165,7 +165,7 @@ class TestStateManager:
         state = await manager.get_conversation_state("conv1")
         assert state["conversation_id"] == "conv1"
         assert state["messages"] == []
-        assert state["agent_context"] == {}
+        assert state["metadata"] == {}  # Use metadata instead of agent_context
         assert "created_at" in state
         assert "updated_at" in state
 
@@ -185,7 +185,7 @@ class TestStateManager:
         # Update state
         updates = {
             "messages": [{"role": "user", "content": "Hello"}],
-            "agent_context": {"key": "value"},
+            "metadata": {"key": "value"},  # Use metadata instead of agent_context
         }
 
         # Use save_conversation since update_conversation_state doesn't exist
@@ -196,7 +196,7 @@ class TestStateManager:
 
         # Verify updates
         assert updated["messages"] == updates["messages"]
-        assert updated["agent_context"] == updates["agent_context"]
+        assert updated["metadata"] == updates["metadata"]
         assert updated["updated_at"] > updated["created_at"]
 
     @pytest.mark.asyncio

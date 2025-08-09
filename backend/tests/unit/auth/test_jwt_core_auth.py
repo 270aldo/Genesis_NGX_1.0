@@ -260,5 +260,5 @@ class TestOAuth2Scheme:
         from core.auth import oauth2_scheme
 
         assert oauth2_scheme.scheme_name == "OAuth2PasswordBearer"
-        assert oauth2_scheme.tokenUrl == "/auth/token"
+        assert oauth2_scheme.model.flows.password.tokenUrl == "/auth/token"
         assert oauth2_scheme.auto_error is True

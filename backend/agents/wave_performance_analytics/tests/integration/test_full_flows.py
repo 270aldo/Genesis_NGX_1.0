@@ -3,20 +3,17 @@ Integration tests for WAVE Performance Analytics Agent full workflows.
 A+ testing framework with end-to-end scenario validation.
 """
 
-import pytest
 import asyncio
 import json
 from datetime import datetime, timedelta
-from unittest.mock import Mock, AsyncMock, patch
+from unittest.mock import AsyncMock
 
-from agents.wave_performance_analytics.agent_optimized import (
-    WavePerformanceAnalyticsAgent,
-)
+import pytest
+
 from agents.wave_performance_analytics.core.exceptions import (
-    WaveAnalyticsError,
-    RecoveryError,
     AnalyticsError,
     FusionError,
+    RecoveryError,
 )
 
 

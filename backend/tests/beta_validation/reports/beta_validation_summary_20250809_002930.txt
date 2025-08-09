@@ -1,0 +1,43 @@
+================================================================================
+GENESIS BETA VALIDATION SUMMARY REPORT
+================================================================================
+
+Test Date: 2025-08-09T00:29:30.044116+00:00
+Duration: 0.73 seconds
+Overall Pass Rate: 92.0%
+Total Scenarios: 25
+Passed: 23
+Failed: 2
+
+CATEGORY BREAKDOWN
+--------------------------------------------------------------------------------
+
+USER_FRUSTRATION: 100.0% pass rate
+  Scenarios: 10
+  Passed: 10
+  Failed: 0
+
+EDGE_CASES: 86.7% pass rate
+  Scenarios: 15
+  Passed: 13
+  Failed: 2
+
+================================================================================
+WARNINGS (SHOULD FIX)
+================================================================================
+
+[WARNING] edge_cases - very_long_message
+  - Missing behaviors: {'provide_structured_response'}
+  - Edge case not handled properly
+
+[WARNING] edge_cases - missing_critical_data
+  - Edge case not handled properly
+
+================================================================================
+RECOMMENDATIONS
+================================================================================
+
+1. READY FOR BETA - All critical tests passed
+   Consider fixing warnings for better user experience
+
+2. Focus areas for improvement:

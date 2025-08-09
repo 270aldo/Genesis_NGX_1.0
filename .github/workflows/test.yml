@@ -1,0 +1,308 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main, develop, feature/* ]
+  pull_request:
+    branches: [ main, develop ]
+
+env:
+  PYTHON_VERSION: '3.12'
+  NODE_VERSION: '18'
+  POETRY_VERSION: '1.8.3'
+
+jobs:
+  # Backend Testing Pipeline
+  backend-tests:
+    name: Backend Tests
+    runs-on: ubuntu-latest
+
+    services:
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Python ${{ env.PYTHON_VERSION }}
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+
+    - name: Install Poetry
+      uses: snok/install-poetry@v1
+      with:
+        version: ${{ env.POETRY_VERSION }}
+        virtualenvs-create: true
+        virtualenvs-in-project: true
+        installer-parallel: true
+
+    - name: Load cached venv
+      id: cached-poetry-dependencies
+      uses: actions/cache@v4
+      with:
+        path: backend/.venv
+        key: venv-${{ runner.os }}-${{ hashFiles('backend/poetry.lock') }}
+        restore-keys: |
+          venv-${{ runner.os }}-
+
+    - name: Install backend dependencies
+      if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
+      working-directory: backend
+      run: poetry install --no-interaction --no-root --with dev,test
+
+    - name: Set up environment variables
+      working-directory: backend
+      run: |
+        echo "ENVIRONMENT=test" > .env
+        echo "REDIS_URL=redis://localhost:6379" >> .env
+        echo "DATABASE_URL=sqlite:///test.db" >> .env
+        echo "LOG_LEVEL=INFO" >> .env
+        echo "VERTEX_AI_PROJECT=test-project" >> .env
+        echo "VERTEX_AI_LOCATION=us-central1" >> .env
+
+    - name: Run backend linting (ruff)
+      working-directory: backend
+      run: poetry run ruff check core clients agents tools app --output-format=github
+
+    - name: Run backend type checking (mypy)
+      working-directory: backend
+      run: poetry run mypy core clients agents tools app --no-error-summary
+
+    - name: Run backend unit tests
+      working-directory: backend
+      run: |
+        poetry run pytest tests/unit/ \
+          --cov=core --cov=clients --cov=agents --cov=tools --cov=app \
+          --cov-report=xml \
+          --cov-report=term-missing \
+          --junitxml=junit.xml \
+          -v
+
+    - name: Run backend integration tests
+      working-directory: backend
+      run: |
+        poetry run pytest tests/integration/ \
+          --cov=core --cov=clients --cov=agents --cov=tools --cov=app \
+          --cov-append \
+          --cov-report=xml \
+          --junitxml=junit-integration.xml \
+          -v
+
+    - name: Run agent tests
+      working-directory: backend
+      run: |
+        poetry run pytest tests/agents/ \
+          --cov=agents \
+          --cov-append \
+          --cov-report=xml \
+          --junitxml=junit-agents.xml \
+          -v
+
+    - name: Run beta validation tests (main branch only)
+      if: github.ref == 'refs/heads/main'
+      working-directory: backend
+      run: |
+        poetry run pytest tests/beta_validation/ \
+          --junitxml=junit-beta.xml \
+          -v
+
+    - name: Upload backend coverage to Codecov
+      uses: codecov/codecov-action@v4
+      with:
+        file: backend/coverage.xml
+        flags: backend
+        name: backend-coverage
+        fail_ci_if_error: false
+        token: ${{ secrets.CODECOV_TOKEN }}
+
+    - name: Upload backend test results
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: backend-test-results
+        path: |
+          backend/junit*.xml
+          backend/coverage.xml
+
+  # Frontend Testing Pipeline
+  frontend-tests:
+    name: Frontend Tests
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Node.js ${{ env.NODE_VERSION }}
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+        cache-dependency-path: frontend/package-lock.json
+
+    - name: Install frontend dependencies
+      working-directory: frontend
+      run: npm ci
+
+    - name: Run frontend linting (ESLint)
+      working-directory: frontend
+      run: npm run lint
+
+    - name: Run frontend type checking
+      working-directory: frontend
+      run: npx tsc --noEmit
+
+    - name: Run frontend tests
+      working-directory: frontend
+      run: npm run test:ci
+
+    - name: Build frontend
+      working-directory: frontend
+      run: npm run build
+
+    - name: Upload frontend coverage to Codecov
+      uses: codecov/codecov-action@v4
+      with:
+        file: frontend/coverage/lcov.info
+        flags: frontend
+        name: frontend-coverage
+        fail_ci_if_error: false
+        token: ${{ secrets.CODECOV_TOKEN }}
+
+    - name: Upload frontend test results
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: frontend-test-results
+        path: |
+          frontend/coverage/
+          frontend/dist/
+
+    - name: Upload frontend build artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: frontend-build
+        path: frontend/dist/
+
+  # Security Scanning
+  security-scan:
+    name: Security Scan
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Run Trivy vulnerability scanner
+      uses: aquasecurity/trivy-action@master
+      with:
+        scan-type: 'fs'
+        format: 'sarif'
+        output: 'trivy-results.sarif'
+
+    - name: Upload Trivy scan results to GitHub Security tab
+      uses: github/codeql-action/upload-sarif@v3
+      if: always()
+      with:
+        sarif_file: 'trivy-results.sarif'
+
+  # Integration Tests (E2E simulation)
+  integration-suite:
+    name: Integration Suite
+    runs-on: ubuntu-latest
+    needs: [backend-tests, frontend-tests]
+    if: github.ref == 'refs/heads/main' || github.base_ref == 'main'
+
+    services:
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Python ${{ env.PYTHON_VERSION }}
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+
+    - name: Install Poetry
+      uses: snok/install-poetry@v1
+      with:
+        version: ${{ env.POETRY_VERSION }}
+        virtualenvs-create: true
+        virtualenvs-in-project: true
+
+    - name: Load cached venv
+      uses: actions/cache@v4
+      with:
+        path: backend/.venv
+        key: venv-${{ runner.os }}-${{ hashFiles('backend/poetry.lock') }}
+
+    - name: Install backend dependencies
+      working-directory: backend
+      run: poetry install --no-interaction --no-root --with dev,test
+
+    - name: Download frontend build artifacts
+      uses: actions/download-artifact@v4
+      with:
+        name: frontend-build
+        path: frontend/dist
+
+    - name: Set up test environment
+      working-directory: backend
+      run: |
+        echo "ENVIRONMENT=integration" > .env
+        echo "REDIS_URL=redis://localhost:6379" >> .env
+        echo "DATABASE_URL=sqlite:///integration.db" >> .env
+
+    - name: Run A2A integration tests
+      working-directory: backend
+      run: |
+        poetry run pytest tests/integration/test_streaming_orchestrator.py \
+          --junitxml=junit-a2a-integration.xml \
+          -v -s
+
+    - name: Upload integration test results
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: integration-test-results
+        path: backend/junit-a2a-integration.xml
+
+  # Test Results Summary
+  test-summary:
+    name: Test Results Summary
+    runs-on: ubuntu-latest
+    needs: [backend-tests, frontend-tests, integration-suite]
+    if: always()
+
+    steps:
+    - name: Download all test artifacts
+      uses: actions/download-artifact@v4
+
+    - name: Publish Test Summary
+      uses: dorny/test-reporter@v1
+      if: success() || failure()
+      with:
+        name: Test Results Summary
+        path: '**/*junit*.xml'
+        reporter: java-junit
+        fail-on-error: false
