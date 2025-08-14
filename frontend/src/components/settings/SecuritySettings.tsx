@@ -11,12 +11,10 @@ export const SecuritySettings: React.FC = () => {
   const { settings, updatePrivacy } = useSettingsStore();
 
   const handleExportData = () => {
-    console.log('Export user data');
     // TODO: Implement data export
   };
 
   const handleDeleteAccount = () => {
-    console.log('Delete account requested');
     // TODO: Implement account deletion with confirmation
   };
 
@@ -42,7 +40,7 @@ export const SecuritySettings: React.FC = () => {
             </div>
             <Switch
               checked={settings.privacy.dataCollection}
-              onCheckedChange={(checked) => 
+              onCheckedChange={(checked) =>
                 updatePrivacy({ dataCollection: checked })
               }
             />
@@ -55,7 +53,7 @@ export const SecuritySettings: React.FC = () => {
             </div>
             <Switch
               checked={settings.privacy.analytics}
-              onCheckedChange={(checked) => 
+              onCheckedChange={(checked) =>
                 updatePrivacy({ analytics: checked })
               }
             />
@@ -68,7 +66,7 @@ export const SecuritySettings: React.FC = () => {
             </div>
             <Switch
               checked={settings.privacy.shareUsage}
-              onCheckedChange={(checked) => 
+              onCheckedChange={(checked) =>
                 updatePrivacy({ shareUsage: checked })
               }
             />
@@ -85,20 +83,20 @@ export const SecuritySettings: React.FC = () => {
         </CardHeader>
         <CardContent className="space-y-6">
           <div className="space-y-3">
-            <Button 
-              variant="outline" 
+            <Button
+              variant="outline"
               className="w-full text-white border-white/20 hover:bg-white/5"
             >
               Change Password
             </Button>
-            <Button 
-              variant="outline" 
+            <Button
+              variant="outline"
               className="w-full text-white border-white/20 hover:bg-white/5"
             >
               Enable Two-Factor Authentication
             </Button>
-            <Button 
-              variant="outline" 
+            <Button
+              variant="outline"
               className="w-full text-white border-white/20 hover:bg-white/5"
               onClick={handleExportData}
             >
@@ -120,8 +118,8 @@ export const SecuritySettings: React.FC = () => {
             <p className="text-white/60 text-sm">
               Once you delete your account, there is no going back. Please be certain.
             </p>
-            <Button 
-              variant="destructive" 
+            <Button
+              variant="destructive"
               className="bg-red-600 hover:bg-red-700"
               onClick={handleDeleteAccount}
             >

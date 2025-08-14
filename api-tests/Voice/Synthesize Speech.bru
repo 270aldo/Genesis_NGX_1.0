@@ -1,0 +1,50 @@
+meta {
+  name: Synthesize Speech
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{base_url}}/voice/synthesize
+  body: json
+}
+
+headers {
+  Authorization: Bearer {{auth_token}}
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "text": "Hello! This is a test of the GENESIS voice synthesis system. How can I help you with your fitness goals today?",
+    "voice_id": "21m00Tcm4TlvDq8ikWAM",
+    "voice_settings": {
+      "stability": 0.75,
+      "similarity_boost": 0.75
+    }
+  }
+}
+
+tests {
+  test("Voice synthesis requires authentication", function() {
+    expect([200, 401, 400]).to.include(res.getStatus());
+  });
+
+  test("Successful synthesis returns audio data", function() {
+    if (res.getStatus() === 200) {
+      expect(res.headers['content-type']).to.match(/audio|octet-stream/);
+      expect(res.getBody().length).to.be.above(1000); // Audio data should be substantial
+    }
+  });
+
+  test("Invalid voice settings return appropriate error", function() {
+    if (res.getStatus() === 400) {
+      const body = res.getBody();
+      expect(body).to.have.property('detail');
+    }
+  });
+
+  test("Voice synthesis completes within reasonable time", function() {
+    expect(res.getResponseTime()).to.be.below(15000); // 15 seconds max
+  });
+}

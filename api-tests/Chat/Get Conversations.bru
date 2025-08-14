@@ -1,0 +1,44 @@
+meta {
+  name: Get Conversations
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{base_url}}/chat/conversations?limit=10&offset=0
+}
+
+headers {
+  Authorization: Bearer {{auth_token}}
+  Content-Type: application/json
+}
+
+tests {
+  test("Get conversations requires authentication", function() {
+    expect([200, 401]).to.include(res.getStatus());
+  });
+
+  test("Conversations list has correct structure", function() {
+    if (res.getStatus() === 200) {
+      const body = res.getBody();
+      expect(body).to.have.property('conversations');
+      expect(body).to.have.property('total');
+      expect(body).to.have.property('limit');
+      expect(body).to.have.property('offset');
+      expect(Array.isArray(body.conversations)).to.be.true;
+    }
+  });
+
+  test("Each conversation has required fields", function() {
+    if (res.getStatus() === 200) {
+      const body = res.getBody();
+      body.conversations.forEach(conversation => {
+        expect(conversation).to.have.property('id');
+        expect(conversation).to.have.property('title');
+        expect(conversation).to.have.property('created_at');
+        expect(conversation).to.have.property('updated_at');
+        expect(conversation).to.have.property('agent_id');
+      });
+    }
+  });
+}

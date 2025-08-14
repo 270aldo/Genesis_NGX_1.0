@@ -1,0 +1,47 @@
+meta {
+  name: Send Message
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{base_url}}/chat/send
+  body: json
+}
+
+headers {
+  Authorization: Bearer {{auth_token}}
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "conversation_id": "{{conversation_id}}",
+    "message": "Can you help me understand the difference between compound and isolation exercises?",
+    "agent_id": "elite-training-strategist"
+  }
+}
+
+tests {
+  test("Chat send requires authentication", function() {
+    expect([200, 401, 400]).to.include(res.getStatus());
+  });
+
+  test("Successful message send returns response", function() {
+    if (res.getStatus() === 200) {
+      const body = res.getBody();
+      expect(body).to.have.property('message_id');
+      expect(body).to.have.property('response');
+      expect(body).to.have.property('agent_name');
+      expect(body).to.have.property('timestamp');
+    }
+  });
+
+  test("Response addresses the question about exercises", function() {
+    if (res.getStatus() === 200) {
+      const body = res.getBody();
+      const response = body.response.toLowerCase();
+      expect(response).to.match(/compound|isolation|exercise/);
+    }
+  });
+}

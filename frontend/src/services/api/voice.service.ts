@@ -120,9 +120,9 @@ export class VoiceService {
   private isRecording = false;
   private vadCallbacks: Array<(vad: VoiceActivityDetection) => void> = [];
   private audioChunks: Blob[] = [];
-  
+
   private constructor() {}
-  
+
   static getInstance(): VoiceService {
     if (!VoiceService.instance) {
       VoiceService.instance = new VoiceService();
@@ -136,7 +136,7 @@ export class VoiceService {
   async initialize(): Promise<void> {
     try {
       // Request microphone permission
-      const stream = await navigator.mediaDevices.getUserMedia({ 
+      const stream = await navigator.mediaDevices.getUserMedia({
         audio: {
           echoCancellation: true,
           noiseSuppression: true,
@@ -172,8 +172,6 @@ export class VoiceService {
 
       // Start voice activity detection
       this.startVoiceActivityDetection();
-
-      console.log('Voice service initialized successfully');
     } catch (error) {
       console.error('Failed to initialize voice service:', error);
       throw {
@@ -240,7 +238,7 @@ export class VoiceService {
    */
   onVoiceActivity(callback: (vad: VoiceActivityDetection) => void): () => void {
     this.vadCallbacks.push(callback);
-    
+
     // Return unsubscribe function
     return () => {
       const index = this.vadCallbacks.indexOf(callback);
@@ -266,8 +264,6 @@ export class VoiceService {
       this.audioChunks = [];
       this.mediaRecorder.start(100); // Record in 100ms chunks
       this.isRecording = true;
-      
-      console.log('Recording started');
     } catch (error) {
       console.error('Failed to start recording:', error);
       throw {
@@ -316,7 +312,7 @@ export class VoiceService {
       }
 
       const formData = new FormData();
-      
+
       // Convert audio data to blob if needed
       let audioBlob: Blob;
       if (request.audioData instanceof ArrayBuffer) {
@@ -392,7 +388,7 @@ export class VoiceService {
       }
 
       const formData = new FormData();
-      
+
       // Convert audio data to blob if needed
       let audioBlob: Blob;
       if (request.audioData instanceof ArrayBuffer) {
@@ -458,7 +454,7 @@ export class VoiceService {
   async playAudio(audioData: string | ArrayBuffer): Promise<void> {
     try {
       let audioUrl: string;
-      
+
       if (typeof audioData === 'string') {
         audioUrl = audioData;
       } else {
@@ -467,7 +463,7 @@ export class VoiceService {
       }
 
       const audio = new Audio(audioUrl);
-      
+
       return new Promise((resolve, reject) => {
         audio.onended = () => {
           if (typeof audioData !== 'string') {
@@ -475,14 +471,14 @@ export class VoiceService {
           }
           resolve();
         };
-        
+
         audio.onerror = (error) => {
           if (typeof audioData !== 'string') {
             URL.revokeObjectURL(audioUrl);
           }
           reject(error);
         };
-        
+
         audio.play().catch(reject);
       });
     } catch (error) {
@@ -522,11 +518,11 @@ export class VoiceService {
     if (this.mediaRecorder && this.isRecording) {
       this.mediaRecorder.stop();
     }
-    
+
     if (this.audioContext) {
       this.audioContext.close();
     }
-    
+
     this.vadCallbacks = [];
     this.audioChunks = [];
     this.isRecording = false;

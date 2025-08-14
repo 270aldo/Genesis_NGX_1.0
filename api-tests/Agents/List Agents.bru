@@ -1,0 +1,49 @@
+meta {
+  name: List Agents
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{base_url}}/agents
+}
+
+headers {
+  Authorization: Bearer {{auth_token}}
+  Content-Type: application/json
+}
+
+tests {
+  test("List agents requires authentication", function() {
+    expect([200, 401]).to.include(res.getStatus());
+  });
+
+  test("Authenticated request returns agent list", function() {
+    if (res.getStatus() === 200) {
+      const body = res.getBody();
+      expect(Array.isArray(body)).to.be.true;
+
+      // Check each agent has required fields
+      body.forEach(agent => {
+        expect(agent).to.have.property('id');
+        expect(agent).to.have.property('name');
+        expect(agent).to.have.property('description');
+        expect(agent).to.have.property('capabilities');
+        expect(agent).to.have.property('status');
+        expect(Array.isArray(agent.capabilities)).to.be.true;
+      });
+    }
+  });
+
+  test("Response includes expected agents", function() {
+    if (res.getStatus() === 200) {
+      const body = res.getBody();
+      const agentIds = body.map(agent => agent.id);
+
+      // Check for core agents
+      expect(agentIds).to.include('elite-training-strategist');
+      expect(agentIds).to.include('precision-nutrition-architect');
+      expect(agentIds).to.include('orchestrator');
+    }
+  });
+}

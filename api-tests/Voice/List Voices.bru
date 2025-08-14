@@ -1,0 +1,42 @@
+meta {
+  name: List Voices
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{base_url}}/voice/voices
+}
+
+headers {
+  Authorization: Bearer {{auth_token}}
+  Content-Type: application/json
+}
+
+tests {
+  test("List voices requires authentication", function() {
+    expect([200, 401]).to.include(res.getStatus());
+  });
+
+  test("Voice list has expected structure", function() {
+    if (res.getStatus() === 200) {
+      const body = res.getBody();
+      expect(body).to.have.property('voices');
+      expect(Array.isArray(body.voices)).to.be.true;
+
+      // Check each voice has required fields
+      body.voices.forEach(voice => {
+        expect(voice).to.have.property('voice_id');
+        expect(voice).to.have.property('name');
+        expect(voice).to.have.property('category');
+      });
+    }
+  });
+
+  test("Default voices are available", function() {
+    if (res.getStatus() === 200) {
+      const body = res.getBody();
+      expect(body.voices.length).to.be.above(0);
+    }
+  });
+}

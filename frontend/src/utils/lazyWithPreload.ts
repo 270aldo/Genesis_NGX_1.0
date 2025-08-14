@@ -1,11 +1,11 @@
 /**
  * Enhanced lazy loading utility with preload support
- * 
+ *
  * This utility extends React.lazy with the ability to preload components
  * before they are actually rendered, improving perceived performance.
  */
 
-import { ComponentType, lazy } from 'react';
+import { ComponentType, lazy, createElement } from 'react';
 
 export interface LazyComponent<T extends ComponentType<any>> {
   preload: () => Promise<void>;
@@ -14,18 +14,18 @@ export interface LazyComponent<T extends ComponentType<any>> {
 
 /**
  * Creates a lazy loaded component with preload capability
- * 
+ *
  * @param factory - Function that returns a dynamic import
  * @returns Object with Component and preload method
- * 
+ *
  * @example
  * const LazyDashboard = lazyWithPreload(() => import('./Dashboard'));
- * 
+ *
  * // Preload on hover
  * <Link onMouseEnter={() => LazyDashboard.preload()}>
  *   Dashboard
  * </Link>
- * 
+ *
  * // Use in route
  * <Route element={<LazyDashboard.Component />} />
  */
@@ -51,11 +51,11 @@ export function lazyWithPreload<T extends ComponentType<any>>(
 
 /**
  * Creates a lazy loaded component from a named export
- * 
+ *
  * @param factory - Function that returns a dynamic import
  * @param exportName - Name of the export to use
  * @returns Lazy loaded component
- * 
+ *
  * @example
  * const ProfileSection = lazyWithNamedExport(
  *   () => import('@/components/dashboard/ProfileSection'),
@@ -75,10 +75,10 @@ export function lazyWithNamedExport<T extends ComponentType<any>>(
 
 /**
  * Preloads multiple components in parallel
- * 
+ *
  * @param components - Array of components with preload method
  * @returns Promise that resolves when all components are loaded
- * 
+ *
  * @example
  * await preloadComponents([
  *   LazyDashboard,
@@ -94,7 +94,7 @@ export async function preloadComponents(
 
 /**
  * Creates a lazy component that loads when it comes into viewport
- * 
+ *
  * @param factory - Function that returns a dynamic import
  * @param options - Intersection observer options
  * @returns Component that loads when visible
@@ -109,36 +109,32 @@ export function lazyWithIntersection<T extends ComponentType<any>>(
   return ((props: any) => {
     if (!hasLoaded) {
       // Return a placeholder that sets up intersection observer
-      return (
-        <div
-          ref={(ref) => {
-            if (!ref) return;
+      return createElement('div', {
+        ref: (ref: HTMLDivElement | null) => {
+          if (!ref) return;
 
-            const observer = new IntersectionObserver(
-              ([entry]) => {
-                if (entry.isIntersecting && !hasLoaded) {
-                  hasLoaded = true;
-                  factory().then((module) => {
-                    Component = module.default;
-                    // Force re-render
-                    ref.dispatchEvent(new Event('load'));
-                  });
-                  observer.disconnect();
-                }
-              },
-              options || { rootMargin: '50px' }
-            );
+          const observer = new IntersectionObserver(
+            ([entry]) => {
+              if (entry.isIntersecting && !hasLoaded) {
+                hasLoaded = true;
+                factory().then((module) => {
+                  Component = module.default;
+                  // Force re-render
+                  ref.dispatchEvent(new Event('load'));
+                });
+                observer.disconnect();
+              }
+            },
+            options || { rootMargin: '50px' }
+          );
 
-            observer.observe(ref);
-          }}
-        >
-          Loading...
-        </div>
-      );
+          observer.observe(ref);
+        }
+      }, 'Loading...');
     }
 
     if (Component) {
-      return <Component {...props} />;
+      return createElement(Component, props);
     }
 
     return null;
@@ -147,7 +143,7 @@ export function lazyWithIntersection<T extends ComponentType<any>>(
 
 /**
  * Retry mechanism for lazy loading
- * 
+ *
  * @param factory - Function that returns a dynamic import
  * @param retries - Number of retries (default: 3)
  * @param delay - Delay between retries in ms (default: 1000)

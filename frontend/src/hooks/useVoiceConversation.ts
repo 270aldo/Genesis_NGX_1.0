@@ -21,8 +21,7 @@ export const useVoiceConversation = () => {
       toastAI('Voice conversation ended');
     },
     onMessage: (message) => {
-      console.log('Voice message received:', message);
-      
+
       // Add voice messages to chat history
       if (message.source === 'user' && message.message) {
         const chatId = currentConversationId || createConversation();
@@ -32,7 +31,7 @@ export const useVoiceConversation = () => {
           agentId: getActiveAgent()?.id
         });
       }
-      
+
       if (message.source === 'ai' && message.message) {
         const chatId = currentConversationId || createConversation();
         addMessage(chatId, {
@@ -56,14 +55,14 @@ export const useVoiceConversation = () => {
     try {
       // Request microphone access
       await navigator.mediaDevices.getUserMedia({ audio: true });
-      
+
       // For now, we'll use a placeholder URL - in production, you'd need to:
       // 1. Create agents in ElevenLabs UI
       // 2. Get signed URLs from your backend
-      const id = await conversation.startSession({ 
+      const id = await conversation.startSession({
         agentId: agentId || 'default'
       });
-      
+
       setConversationId(id);
       toastAI('Voice mode activated', 'Speak naturally with your AI agent');
     } catch (error) {

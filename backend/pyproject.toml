@@ -26,7 +26,7 @@ cryptography = "^45.0.6"  # Added for security
 # Comunicación
 websockets = "^13.0.0"
 # Framework Google ADK para agentes A2A
-# google-adk = "^0.1.0"  # Temporalmente deshabilitado por conflictos con OpenTelemetry
+google-adk = "^0.1.0"  # Re-habilitado para resolver conflictos
 sse-starlette = "^1.6.0"
 
 # Logging
@@ -93,7 +93,7 @@ google-cloud-aiplatform = "^1.106.0"
 optional = true
 
 [tool.poetry.group.agents.dependencies]
-# google-adk = "^0.1.0"  # Temporalmente deshabilitado por conflictos con OpenTelemetry
+google-adk = "^0.1.0"  # Re-habilitado
 google-generativeai = "^0.8.5"
 pydantic = ">=2.11.0,<3.0.0"
 httpx = "^0.28.1"

@@ -70,13 +70,13 @@ const chunkConfigs: ChunkConfig[] = [
 export function preloadChunksForRoute(route: string): void {
   const chunksToLoad = chunkConfigs.filter(config => {
     // Check if chunk should be loaded for this route
-    const routeMatch = !config.routes || 
-                      config.routes.includes('*') || 
+    const routeMatch = !config.routes ||
+                      config.routes.includes('*') ||
                       config.routes.some(r => route.startsWith(r));
-    
+
     // Check conditional loading
     const conditionMatch = !config.condition || config.condition();
-    
+
     return routeMatch && conditionMatch;
   });
 
@@ -90,7 +90,7 @@ export function preloadChunksForRoute(route: string): void {
   sortedChunks.forEach((chunk, index) => {
     // Delay low priority chunks
     const delay = chunk.priority === 'low' ? 2000 + (index * 500) : index * 100;
-    
+
     setTimeout(() => {
       preloadChunk(chunk.name);
     }, delay);
@@ -106,7 +106,7 @@ function preloadChunk(chunkName: string): void {
   link.rel = 'preload';
   link.as = 'script';
   link.href = `/assets/js/${chunkName}.*.js`; // Pattern will be resolved by build
-  
+
   // Check if already preloading
   const existing = document.querySelector(`link[href*="${chunkName}"]`);
   if (!existing) {
@@ -121,7 +121,7 @@ export function preloadCriticalChunks(): void {
   const criticalChunks = chunkConfigs
     .filter(c => c.priority === 'high')
     .map(c => c.name);
-  
+
   criticalChunks.forEach(chunk => preloadChunk(chunk));
 }
 
@@ -173,8 +173,7 @@ export function monitorChunkPerformance(): void {
       list.getEntries().forEach((entry) => {
         if (entry.entryType === 'resource' && entry.name.includes('/assets/js/')) {
           const chunkName = entry.name.split('/').pop()?.split('.')[0] || 'unknown';
-          console.log(`Chunk ${chunkName} loaded in ${entry.duration}ms`);
-          
+
           // Send to analytics if needed
           if (window.gtag) {
             window.gtag('event', 'chunk_load', {
@@ -204,7 +203,7 @@ export function prefetchNextRoutes(currentRoute: string): void {
   };
 
   const nextRoutes = routeTransitions[currentRoute] || [];
-  
+
   // Prefetch chunks for likely next routes after a delay
   setTimeout(() => {
     nextRoutes.forEach(route => {
@@ -218,7 +217,7 @@ if (typeof window !== 'undefined') {
   window.addEventListener('load', () => {
     preloadCriticalChunks();
     setupInteractionBasedLoading();
-    
+
     if (process.env.NODE_ENV === 'development') {
       monitorChunkPerformance();
     }

@@ -15,7 +15,7 @@ import { useChatStore } from '../../store/chatStore';
 import { useAuthStore } from '../../store/authStore';
 
 // WebSocket message types
-export type WSMessageType = 
+export type WSMessageType =
   | 'agent_response'
   | 'agent_collaboration'
   | 'agent_status_update'
@@ -89,25 +89,25 @@ export class WebSocketService {
     lastConnected: null,
     connectionId: null
   };
-  
+
   // Event listeners
   private messageListeners: Map<WSMessageType, Array<(message: WSMessage) => void>> = new Map();
   private statusListeners: Array<(state: WSConnectionState) => void> = [];
   private agentStatusListeners: Array<(status: AgentStatus) => void> = [];
   private typingListeners: Array<(typing: TypingIndicator) => void> = [];
   private collaborationListeners: Array<(collaboration: AgentCollaboration) => void> = [];
-  
+
   // Timers and intervals
   private heartbeatInterval: NodeJS.Timeout | null = null;
   private reconnectTimeout: NodeJS.Timeout | null = null;
-  
+
   // Configuration
   private readonly HEARTBEAT_INTERVAL = 30000; // 30 seconds
   private readonly MAX_RECONNECT_ATTEMPTS = 10;
   private readonly RECONNECT_DELAY_BASE = 1000; // Base delay: 1 second
-  
+
   private constructor() {}
-  
+
   static getInstance(): WebSocketService {
     if (!WebSocketService.instance) {
       WebSocketService.instance = new WebSocketService();
@@ -135,7 +135,7 @@ export class WebSocketService {
       const wsUrl = new URL(WS_CONFIG.url);
       wsUrl.searchParams.set('userId', user.id);
       wsUrl.searchParams.set('clientType', 'web');
-      
+
       // Add auth token if available
       const authStorage = localStorage.getItem('ngx-agents-auth');
       if (authStorage) {
@@ -151,7 +151,7 @@ export class WebSocketService {
       }
 
       this.ws = new WebSocket(wsUrl.toString());
-      
+
       this.ws.onopen = this.handleOpen.bind(this);
       this.ws.onmessage = this.handleMessage.bind(this);
       this.ws.onclose = this.handleClose.bind(this);
@@ -159,7 +159,7 @@ export class WebSocketService {
 
     } catch (error) {
       console.error('WebSocket connection failed:', error);
-      this.updateConnectionState({ 
+      this.updateConnectionState({
         isConnecting: false,
         reconnectAttempts: this.connectionState.reconnectAttempts + 1
       });
@@ -174,7 +174,7 @@ export class WebSocketService {
     if (this.ws) {
       this.ws.close(1000, 'Client disconnect');
     }
-    
+
     this.clearTimers();
     this.updateConnectionState({
       isConnected: false,
@@ -215,9 +215,9 @@ export class WebSocketService {
     if (!this.messageListeners.has(type)) {
       this.messageListeners.set(type, []);
     }
-    
+
     this.messageListeners.get(type)!.push(callback);
-    
+
     // Return unsubscribe function
     return () => {
       const listeners = this.messageListeners.get(type);
@@ -235,7 +235,7 @@ export class WebSocketService {
    */
   onConnectionStatusChange(callback: (state: WSConnectionState) => void): () => void {
     this.statusListeners.push(callback);
-    
+
     // Return unsubscribe function
     return () => {
       const index = this.statusListeners.indexOf(callback);
@@ -250,7 +250,7 @@ export class WebSocketService {
    */
   onAgentStatus(callback: (status: AgentStatus) => void): () => void {
     this.agentStatusListeners.push(callback);
-    
+
     return () => {
       const index = this.agentStatusListeners.indexOf(callback);
       if (index > -1) {
@@ -264,7 +264,7 @@ export class WebSocketService {
    */
   onTyping(callback: (typing: TypingIndicator) => void): () => void {
     this.typingListeners.push(callback);
-    
+
     return () => {
       const index = this.typingListeners.indexOf(callback);
       if (index > -1) {
@@ -278,7 +278,7 @@ export class WebSocketService {
    */
   onCollaboration(callback: (collaboration: AgentCollaboration) => void): () => void {
     this.collaborationListeners.push(callback);
-    
+
     return () => {
       const index = this.collaborationListeners.indexOf(callback);
       if (index > -1) {
@@ -340,8 +340,7 @@ export class WebSocketService {
   // Private methods
 
   private handleOpen(): void {
-    console.log('WebSocket connected to A2A server');
-    
+
     this.updateConnectionState({
       isConnected: true,
       isConnecting: false,
@@ -352,7 +351,7 @@ export class WebSocketService {
     });
 
     this.startHeartbeat();
-    
+
     // Send initial presence
     this.send({
       type: 'user_presence',
@@ -370,24 +369,23 @@ export class WebSocketService {
   private handleMessage(event: MessageEvent): void {
     try {
       const message: WSMessage = JSON.parse(event.data);
-      
+
       // Handle system messages
       if (message.type === 'heartbeat') {
         this.send({ type: 'heartbeat', data: { pong: true } });
         return;
       }
-      
+
       // Dispatch to appropriate listeners
       this.dispatchMessage(message);
-      
+
     } catch (error) {
       console.error('Error parsing WebSocket message:', error);
     }
   }
 
   private handleClose(event: CloseEvent): void {
-    console.log('WebSocket disconnected:', event.code, event.reason);
-    
+
     this.updateConnectionState({
       isConnected: false,
       isConnecting: false,
@@ -395,7 +393,7 @@ export class WebSocketService {
     });
 
     this.clearTimers();
-    
+
     // Attempt reconnection if not intentional disconnect
     if (event.code !== 1000) {
       this.scheduleReconnect();
@@ -404,7 +402,7 @@ export class WebSocketService {
 
   private handleError(event: Event): void {
     console.error('WebSocket error:', event);
-    
+
     this.updateConnectionState({
       isConnected: false,
       isConnecting: false
@@ -429,15 +427,15 @@ export class WebSocketService {
       case 'agent_status_update':
         this.agentStatusListeners.forEach(callback => callback(message.data));
         break;
-        
+
       case 'typing_indicator':
         this.typingListeners.forEach(callback => callback(message.data));
         break;
-        
+
       case 'agent_collaboration':
         this.collaborationListeners.forEach(callback => callback(message.data));
         break;
-        
+
       case 'agent_response':
         // Integration with chat store
         this.handleAgentResponse(message);
@@ -448,7 +446,7 @@ export class WebSocketService {
   private handleAgentResponse(message: WSMessage): void {
     const { addMessage } = useChatStore.getState();
     const { data, conversationId } = message;
-    
+
     if (conversationId && data.content) {
       addMessage(conversationId, {
         content: data.content,
@@ -473,11 +471,10 @@ export class WebSocketService {
     }
 
     this.updateConnectionState({ isReconnecting: true });
-    
+
     const delay = this.RECONNECT_DELAY_BASE * Math.pow(2, this.connectionState.reconnectAttempts);
-    
+
     this.reconnectTimeout = setTimeout(() => {
-      console.log(`Attempting to reconnect (${this.connectionState.reconnectAttempts + 1}/${this.MAX_RECONNECT_ATTEMPTS})`);
       this.connect();
     }, delay);
   }
@@ -495,7 +492,7 @@ export class WebSocketService {
       clearInterval(this.heartbeatInterval);
       this.heartbeatInterval = null;
     }
-    
+
     if (this.reconnectTimeout) {
       clearTimeout(this.reconnectTimeout);
       this.reconnectTimeout = null;
@@ -504,7 +501,7 @@ export class WebSocketService {
 
   private updateConnectionState(updates: Partial<WSConnectionState>): void {
     this.connectionState = { ...this.connectionState, ...updates };
-    
+
     // Notify status listeners
     this.statusListeners.forEach(callback => {
       try {

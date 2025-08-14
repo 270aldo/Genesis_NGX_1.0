@@ -25,7 +25,6 @@ const SignUp: React.FC = () => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     // TODO: Implementar lógica de registro con Supabase
-    console.log('Register attempt:', formData);
   };
 
   return (
@@ -35,8 +34,8 @@ const SignUp: React.FC = () => {
       <div className="absolute top-3/4 right-1/4 w-96 h-96 bg-violet-700/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
 
       {/* Back to Home */}
-      <Link 
-        to="/" 
+      <Link
+        to="/"
         className="absolute top-8 left-8 flex items-center gap-2 text-white/60 hover:text-white transition-colors"
       >
         <ArrowLeft className="w-5 h-5" />
@@ -173,8 +172,8 @@ const SignUp: React.FC = () => {
           <div className="text-center">
             <p className="text-white/60">
               Already have an account?{' '}
-              <Link 
-                to="/sign-in" 
+              <Link
+                to="/sign-in"
                 className="text-purple-400 hover:text-purple-300 transition-colors font-medium"
               >
                 Sign in here

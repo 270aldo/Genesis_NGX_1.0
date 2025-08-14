@@ -1,0 +1,650 @@
+name: Nightly Regression Testing
+
+on:
+  schedule:
+    # Run every night at 2 AM UTC
+    - cron: '0 2 * * *'
+  workflow_dispatch:
+    inputs:
+      test_suite:
+        description: 'Test suite to run'
+        required: true
+        default: 'all'
+        type: choice
+        options:
+        - all
+        - e2e
+        - load
+        - ai-quality
+        - integration
+      environment:
+        description: 'Environment to test against'
+        required: true
+        default: 'staging'
+        type: choice
+        options:
+        - staging
+        - production
+
+env:
+  NODE_VERSION: '18'
+  PYTHON_VERSION: '3.11'
+
+jobs:
+  # Job 1: Extended E2E Regression Tests
+  extended-e2e-tests:
+    name: Extended E2E Regression
+    runs-on: ubuntu-latest
+    if: github.event.inputs.test_suite == 'all' || github.event.inputs.test_suite == 'e2e' || github.event_name == 'schedule'
+    strategy:
+      matrix:
+        browser: [chromium, firefox, webkit]
+        viewport: [desktop, tablet, mobile]
+      fail-fast: false
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+
+    - name: Install E2E dependencies
+      run: |
+        cd e2e
+        npm ci
+        npx playwright install --with-deps
+
+    - name: Set test environment
+      run: |
+        echo "ENVIRONMENT=${{ github.event.inputs.environment || 'staging' }}" >> $GITHUB_ENV
+        if [[ "${{ env.ENVIRONMENT }}" == "production" ]]; then
+          echo "E2E_BASE_URL=https://app.genesis.com" >> $GITHUB_ENV
+          echo "E2E_API_URL=https://api.genesis.com" >> $GITHUB_ENV
+        else
+          echo "E2E_BASE_URL=https://staging.genesis.com" >> $GITHUB_ENV
+          echo "E2E_API_URL=https://api-staging.genesis.com" >> $GITHUB_ENV
+        fi
+
+    - name: Run extended E2E test suite
+      run: |
+        cd e2e
+        npx playwright test --project=${{ matrix.browser }} \
+          --grep=".*" \
+          --reporter=json:results-${{ matrix.browser }}-${{ matrix.viewport }}.json
+      env:
+        VIEWPORT: ${{ matrix.viewport }}
+        E2E_TEST_EMAIL: ${{ secrets.E2E_TEST_EMAIL }}
+        E2E_TEST_PASSWORD: ${{ secrets.E2E_TEST_PASSWORD }}
+
+    - name: Run visual regression tests
+      run: |
+        cd e2e
+        npx playwright test --project=visual-regression \
+          --update-snapshots=false
+      continue-on-error: true
+
+    - name: Upload E2E results
+      if: always()
+      uses: actions/upload-artifact@v3
+      with:
+        name: e2e-results-${{ matrix.browser }}-${{ matrix.viewport }}
+        path: |
+          e2e/results-*.json
+          e2e/test-results/
+          e2e/playwright-report/
+        retention-days: 14
+
+  # Job 2: Comprehensive Load Testing
+  comprehensive-load-tests:
+    name: Comprehensive Load Testing
+    runs-on: ubuntu-latest
+    if: github.event.inputs.test_suite == 'all' || github.event.inputs.test_suite == 'load' || github.event_name == 'schedule'
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up K6
+      uses: grafana/setup-k6-action@v1
+
+    - name: Set test environment
+      run: |
+        if [[ "${{ github.event.inputs.environment || 'staging' }}" == "production" ]]; then
+          echo "BASE_URL=https://api.genesis.com" >> $GITHUB_ENV
+          echo "MAX_VUS=100" >> $GITHUB_ENV  # Lower load for production
+          echo "DURATION=10m" >> $GITHUB_ENV
+        else
+          echo "BASE_URL=https://api-staging.genesis.com" >> $GITHUB_ENV
+          echo "MAX_VUS=200" >> $GITHUB_ENV
+          echo "DURATION=15m" >> $GITHUB_ENV
+        fi
+
+    - name: Run load test suite
+      run: |
+        cd load-tests
+
+        # Run standard load test
+        k6 run --out json=load-test-results.json \
+          --env BASE_URL=$BASE_URL \
+          tests/load-test.js
+
+        # Run AI agent specific load test
+        k6 run --out json=agents-load-results.json \
+          --env BASE_URL=$BASE_URL \
+          tests/agents-load-test.js
+
+        # Run stress test
+        k6 run --out json=stress-test-results.json \
+          --env BASE_URL=$BASE_URL \
+          tests/stress-test.js
+
+    - name: Analyze performance trends
+      run: |
+        node -e "
+        const fs = require('fs');
+
+        // Load test results
+        const loadResults = JSON.parse(fs.readFileSync('load-tests/load-test-results.json', 'utf8'));
+        const agentsResults = JSON.parse(fs.readFileSync('load-tests/agents-load-results.json', 'utf8'));
+        const stressResults = JSON.parse(fs.readFileSync('load-tests/stress-test-results.json', 'utf8'));
+
+        // Extract key metrics
+        const metrics = {
+          timestamp: new Date().toISOString(),
+          environment: '${{ env.ENVIRONMENT }}',
+          load_test: {
+            avg_response_time: loadResults.metrics?.http_req_duration?.avg || 0,
+            p95_response_time: loadResults.metrics?.http_req_duration?.['p(95)'] || 0,
+            error_rate: loadResults.metrics?.http_req_failed?.rate || 0,
+            requests_per_second: loadResults.metrics?.http_reqs?.rate || 0
+          },
+          agents_test: {
+            avg_response_time: agentsResults.metrics?.http_req_duration?.avg || 0,
+            p95_response_time: agentsResults.metrics?.http_req_duration?.['p(95)'] || 0,
+            ai_response_quality: agentsResults.metrics?.ai_response_quality?.rate || 0
+          },
+          stress_test: {
+            max_response_time: stressResults.metrics?.http_req_duration?.max || 0,
+            error_rate: stressResults.metrics?.http_req_failed?.rate || 0,
+            throughput: stressResults.metrics?.http_reqs?.rate || 0
+          }
+        };
+
+        // Performance regression detection
+        const alerts = [];
+
+        if (metrics.load_test.p95_response_time > 3000) {
+          alerts.push('P95 response time above 3s threshold');
+        }
+
+        if (metrics.load_test.error_rate > 0.05) {
+          alerts.push('Error rate above 5% threshold');
+        }
+
+        if (metrics.agents_test.ai_response_quality < 0.8) {
+          alerts.push('AI response quality below 80% threshold');
+        }
+
+        if (metrics.stress_test.error_rate > 0.1) {
+          alerts.push('Stress test error rate above 10% threshold');
+        }
+
+        metrics.alerts = alerts;
+
+        // Save metrics
+        fs.writeFileSync('load-tests/performance-metrics.json', JSON.stringify(metrics, null, 2));
+
+        console.log('Performance Metrics Summary:');
+        console.log(JSON.stringify(metrics, null, 2));
+
+        if (alerts.length > 0) {
+          console.log('Performance Alerts:');
+          alerts.forEach(alert => console.log('⚠️ ', alert));
+        }
+        "
+
+    - name: Upload load test results
+      if: always()
+      uses: actions/upload-artifact@v3
+      with:
+        name: load-test-results
+        path: |
+          load-tests/*.json
+        retention-days: 30
+
+  # Job 3: AI Quality Regression Testing
+  ai-quality-regression:
+    name: AI Quality Regression
+    runs-on: ubuntu-latest
+    if: github.event.inputs.test_suite == 'all' || github.event.inputs.test_suite == 'ai-quality' || github.event_name == 'schedule'
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+
+    - name: Install dependencies
+      run: |
+        cd backend
+        pip install poetry
+        poetry install --with dev,test
+
+    - name: Run comprehensive AI quality tests
+      run: |
+        cd backend
+        poetry run pytest tests/ai/ -v --json-report --json-report-file=ai-quality-results.json
+
+    - name: Generate AI quality report
+      run: |
+        cd backend
+        python -c "
+        import json
+        from tests.ai.semantic_validator import SemanticValidator
+        import asyncio
+        from datetime import datetime
+
+        async def generate_quality_report():
+            validator = SemanticValidator()
+
+            # Extended test scenarios for regression testing
+            test_scenarios = [
+                # BLAZE scenarios
+                ('I want to build muscle mass as a beginner', 'BLAZE', ['muscle', 'beginner', 'compound', 'progressive']),
+                ('I have a knee injury, what exercises should I avoid?', 'BLAZE', ['knee', 'avoid', 'safe', 'alternative']),
+                ('Create a home workout with no equipment', 'BLAZE', ['home', 'bodyweight', 'routine', 'beginner']),
+
+                # SAGE scenarios
+                ('I am vegetarian and want to lose weight', 'SAGE', ['vegetarian', 'weight loss', 'protein', 'deficit']),
+                ('What should I eat before and after workouts?', 'SAGE', ['pre-workout', 'post-workout', 'timing', 'recovery']),
+                ('I have diabetes, help me plan meals', 'SAGE', ['diabetes', 'blood sugar', 'meal plan', 'carbs']),
+
+                # STELLA scenarios
+                ('Show me my workout progress this month', 'STELLA', ['progress', 'workout', 'month', 'improvement']),
+                ('How am I doing compared to my goals?', 'STELLA', ['goals', 'comparison', 'achievement', 'tracking']),
+                ('Generate a progress report', 'STELLA', ['report', 'metrics', 'analysis', 'trends'])
+            ]
+
+            # Mock responses for regression testing (in production, these would be actual API calls)
+            mock_responses = [
+                'For building muscle as a beginner, focus on compound exercises like squats, deadlifts, and push-ups. Start with 3 sets of 8-12 reps and progress gradually.',
+                'With a knee injury, avoid deep squats, lunges, and high-impact exercises. Instead, try wall sits, glute bridges, and upper body movements. Always consult a physical therapist.',
+                'Here is an excellent home bodyweight routine: Push-ups (3x8-12), Bodyweight squats (3x10-15), Plank (3x30-60s), Mountain climbers (3x30s). Progress by increasing reps weekly.',
+                'For vegetarian weight loss, focus on high-protein plant foods like legumes, quinoa, and tofu. Create a moderate caloric deficit while ensuring adequate nutrition.',
+                'Pre-workout: Eat easily digestible carbs 30-60 minutes before. Post-workout: Combine protein and carbs within 30 minutes for optimal recovery.',
+                'For diabetes management, focus on consistent meal timing, complex carbs, lean proteins, and healthy fats. Monitor portions and work with a registered dietitian.',
+                'Your workout progress shows excellent consistency this month with 85% adherence. Strength gains average 12% across major lifts.',
+                'Compared to your initial goals, you have achieved 80% of your strength targets and 70% of your body composition goals. Great progress!',
+                'Progress Report: 4 weeks of consistent training, 15% strength increase, improved cardiovascular endurance, body fat reduced by 3%.'
+            ]
+
+            results = []
+            for i, (query, agent, keywords) in enumerate(test_scenarios):
+                if i < len(mock_responses):
+                    result = await validator.validate_response(query, mock_responses[i], agent)
+                    results.append(result)
+
+            # Generate comprehensive report
+            report = validator.generate_quality_report(results)
+
+            # Add regression-specific metrics
+            report['regression_metrics'] = {
+                'test_date': datetime.now().isoformat(),
+                'total_scenarios': len(test_scenarios),
+                'scenarios_tested': len(results),
+                'quality_distribution': {
+                    'excellent': len([r for r in results if r.overall_score >= 0.9]),
+                    'good': len([r for r in results if 0.8 <= r.overall_score < 0.9]),
+                    'acceptable': len([r for r in results if 0.7 <= r.overall_score < 0.8]),
+                    'poor': len([r for r in results if r.overall_score < 0.7])
+                },
+                'agent_performance': {}
+            }
+
+            # Agent-specific performance
+            for agent in ['BLAZE', 'SAGE', 'STELLA']:
+                agent_results = [r for r in results if agent.lower() in r.agent_name.lower()]
+                if agent_results:
+                    report['regression_metrics']['agent_performance'][agent] = {
+                        'avg_quality': sum(r.overall_score for r in agent_results) / len(agent_results),
+                        'total_tests': len(agent_results),
+                        'pass_rate': len([r for r in agent_results if r.is_valid()]) / len(agent_results)
+                    }
+
+            # Save report
+            with open('ai-quality-regression-report.json', 'w') as f:
+                json.dump(report, f, indent=2)
+
+            print('AI Quality Regression Report Generated')
+            print(f'Overall validation rate: {report[\"summary\"][\"validation_rate\"]:.2%}')
+
+            # Check for quality degradation
+            if report['summary']['validation_rate'] < 0.85:
+                print('⚠️ AI quality below acceptable threshold')
+                return False
+            return True
+
+        success = asyncio.run(generate_quality_report())
+        exit(0 if success else 1)
+        "
+
+    - name: Upload AI quality results
+      if: always()
+      uses: actions/upload-artifact@v3
+      with:
+        name: ai-quality-regression-results
+        path: |
+          backend/ai-quality-*.json
+        retention-days: 30
+
+  # Job 4: API Integration Regression
+  api-integration-regression:
+    name: API Integration Regression
+    runs-on: ubuntu-latest
+    if: github.event.inputs.test_suite == 'all' || github.event.inputs.test_suite == 'integration' || github.event_name == 'schedule'
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+
+    - name: Install Bruno CLI
+      run: npm install -g @usebruno/cli
+
+    - name: Set test environment
+      run: |
+        if [[ "${{ github.event.inputs.environment || 'staging' }}" == "production" ]]; then
+          echo "TEST_ENV=production" >> $GITHUB_ENV
+        else
+          echo "TEST_ENV=staging" >> $GITHUB_ENV
+        fi
+
+    - name: Run comprehensive API regression tests
+      run: |
+        cd api-tests
+
+        # Run all API test collections
+        bru run --env $TEST_ENV --output results-health.json --folder "Health Check"
+        bru run --env $TEST_ENV --output results-auth.json --folder "Authentication"
+        bru run --env $TEST_ENV --output results-agents.json --folder "Agents"
+        bru run --env $TEST_ENV --output results-voice.json --folder "Voice"
+        bru run --env $TEST_ENV --output results-chat.json --folder "Chat"
+        bru run --env $TEST_ENV --output results-features.json --folder "Feature Flags"
+      env:
+        E2E_TEST_EMAIL: ${{ secrets.E2E_TEST_EMAIL }}
+        E2E_TEST_PASSWORD: ${{ secrets.E2E_TEST_PASSWORD }}
+
+    - name: Analyze API regression results
+      run: |
+        cd api-tests
+        node -e "
+        const fs = require('fs');
+        const glob = require('glob');
+
+        const resultFiles = glob.sync('results-*.json');
+        const summary = {
+          timestamp: new Date().toISOString(),
+          environment: '${{ env.TEST_ENV }}',
+          categories: {},
+          overall: {
+            total_tests: 0,
+            passed: 0,
+            failed: 0,
+            error_rate: 0
+          }
+        };
+
+        resultFiles.forEach(file => {
+          try {
+            const results = JSON.parse(fs.readFileSync(file, 'utf8'));
+            const category = file.replace('results-', '').replace('.json', '');
+
+            summary.categories[category] = {
+              total: results.stats?.total || 0,
+              passed: results.stats?.passed || 0,
+              failed: results.stats?.failed || 0,
+              avg_response_time: results.stats?.avg_response_time || 0
+            };
+
+            summary.overall.total_tests += summary.categories[category].total;
+            summary.overall.passed += summary.categories[category].passed;
+            summary.overall.failed += summary.categories[category].failed;
+          } catch (e) {
+            console.warn(\`Could not parse \${file}: \${e.message}\`);
+          }
+        });
+
+        summary.overall.error_rate = summary.overall.total_tests > 0
+          ? (summary.overall.failed / summary.overall.total_tests)
+          : 0;
+
+        fs.writeFileSync('api-regression-summary.json', JSON.stringify(summary, null, 2));
+
+        console.log('API Regression Summary:');
+        console.log(JSON.stringify(summary, null, 2));
+
+        if (summary.overall.error_rate > 0.05) {
+          console.log('⚠️ API regression detected - error rate above 5%');
+          process.exit(1);
+        }
+        "
+
+    - name: Upload API regression results
+      if: always()
+      uses: actions/upload-artifact@v3
+      with:
+        name: api-regression-results
+        path: |
+          api-tests/results-*.json
+          api-tests/api-regression-summary.json
+        retention-days: 14
+
+  # Job 5: Generate Regression Report
+  generate-regression-report:
+    name: Generate Regression Report
+    runs-on: ubuntu-latest
+    needs: [extended-e2e-tests, comprehensive-load-tests, ai-quality-regression, api-integration-regression]
+    if: always()
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Download all test artifacts
+      uses: actions/download-artifact@v3
+
+    - name: Generate comprehensive regression report
+      run: |
+        node -e "
+        const fs = require('fs');
+        const path = require('path');
+
+        const report = {
+          timestamp: new Date().toISOString(),
+          environment: '${{ github.event.inputs.environment || 'staging' }}',
+          test_suite: '${{ github.event.inputs.test_suite || 'all' }}',
+          execution_summary: {
+            e2e_tests: '${{ needs.extended-e2e-tests.result }}',
+            load_tests: '${{ needs.comprehensive-load-tests.result }}',
+            ai_quality: '${{ needs.ai-quality-regression.result }}',
+            api_integration: '${{ needs.api-integration-regression.result }}'
+          },
+          detailed_results: {},
+          alerts: [],
+          recommendations: []
+        };
+
+        // Analyze downloaded artifacts
+        function scanForResults(dir) {
+          if (!fs.existsSync(dir)) return;
+
+          const items = fs.readdirSync(dir, { withFileTypes: true });
+          items.forEach(item => {
+            if (item.isFile() && item.name.endsWith('.json')) {
+              const filePath = path.join(dir, item.name);
+              try {
+                const content = JSON.parse(fs.readFileSync(filePath, 'utf8'));
+                report.detailed_results[item.name] = content;
+
+                // Extract alerts based on content
+                if (content.alerts && Array.isArray(content.alerts)) {
+                  report.alerts.push(...content.alerts);
+                }
+
+                // Check for performance degradation
+                if (content.load_test && content.load_test.p95_response_time > 3000) {
+                  report.alerts.push('Performance degradation detected: P95 response time > 3s');
+                }
+
+                // Check for AI quality issues
+                if (content.summary && content.summary.validation_rate < 0.85) {
+                  report.alerts.push('AI quality degradation detected: validation rate < 85%');
+                }
+              } catch (e) {
+                console.warn(\`Could not parse \${filePath}: \${e.message}\`);
+              }
+            } else if (item.isDirectory()) {
+              scanForResults(path.join(dir, item.name));
+            }
+          });
+        }
+
+        scanForResults('.');
+
+        // Generate recommendations
+        if (report.alerts.length === 0) {
+          report.recommendations.push('All regression tests passed successfully');
+        } else {
+          report.recommendations.push('Review failing tests and investigate performance degradation');
+          report.recommendations.push('Consider rolling back recent changes if critical issues detected');
+        }
+
+        // Calculate overall health score
+        const passedTests = Object.values(report.execution_summary).filter(result => result === 'success').length;
+        const totalTests = Object.keys(report.execution_summary).length;
+        report.health_score = totalTests > 0 ? (passedTests / totalTests * 100).toFixed(1) : 0;
+
+        fs.writeFileSync('nightly-regression-report.json', JSON.stringify(report, null, 2));
+
+        // Generate markdown summary
+        const markdownReport = \`
+# 🌙 GENESIS Nightly Regression Report
+
+**Generated:** \${report.timestamp}
+**Environment:** \${report.environment}
+**Health Score:** \${report.health_score}%
+
+## Executive Summary
+
+\${report.health_score >= 90 ? '✅ System health is excellent' :
+  report.health_score >= 75 ? '⚠️ System health needs attention' :
+  '❌ Critical issues detected - immediate action required'}
+
+## Test Results Summary
+
+| Test Suite | Status | Details |
+|------------|--------|---------|
+| E2E Tests | \${report.execution_summary.e2e_tests === 'success' ? '✅ Passed' : '❌ Failed'} | Cross-browser compatibility and user journeys |
+| Load Tests | \${report.execution_summary.load_tests === 'success' ? '✅ Passed' : '❌ Failed'} | Performance and scalability validation |
+| AI Quality | \${report.execution_summary.ai_quality === 'success' ? '✅ Passed' : '❌ Failed'} | AI response quality and consistency |
+| API Integration | \${report.execution_summary.api_integration === 'success' ? '✅ Passed' : '❌ Failed'} | API contract and functionality validation |
+
+\${report.alerts.length > 0 ? \`
+## 🚨 Alerts
+
+\${report.alerts.map(alert => \`- ⚠️ \${alert}\`).join('\n')}
+\` : '## ✅ No alerts - all systems operating normally'}
+
+## Recommendations
+
+\${report.recommendations.map(rec => \`- \${rec}\`).join('\n')}
+
+## Next Steps
+
+\${report.health_score < 75 ?
+  \`1. Investigate failing test suites immediately
+2. Check for recent deployments or configuration changes
+3. Consider rollback if critical issues persist
+4. Schedule emergency review meeting\` :
+  \`1. Continue monitoring system health
+2. Review any minor issues in next planning cycle
+3. Update regression test scenarios as needed\`}
+        \`;
+
+        fs.writeFileSync('NIGHTLY_REGRESSION_REPORT.md', markdownReport);
+
+        console.log(\`Nightly Regression Report Generated - Health Score: \${report.health_score}%\`);
+
+        // Exit with error if critical issues detected
+        if (report.health_score < 50) {
+          console.log('❌ Critical regression issues detected');
+          process.exit(1);
+        }
+        "
+
+    - name: Upload regression report
+      if: always()
+      uses: actions/upload-artifact@v3
+      with:
+        name: nightly-regression-report
+        path: |
+          nightly-regression-report.json
+          NIGHTLY_REGRESSION_REPORT.md
+        retention-days: 90
+
+    - name: Notify team of results
+      if: always()
+      uses: 8398a7/action-slack@v3
+      with:
+        status: custom
+        custom_payload: |
+          {
+            "text": "🌙 GENESIS Nightly Regression Complete",
+            "attachments": [{
+              "color": "${{ needs.extended-e2e-tests.result == 'success' && needs.comprehensive-load-tests.result == 'success' && needs.ai-quality-regression.result == 'success' && needs.api-integration-regression.result == 'success' ? 'good' : 'danger' }}",
+              "fields": [
+                {
+                  "title": "Environment",
+                  "value": "${{ github.event.inputs.environment || 'staging' }}",
+                  "short": true
+                },
+                {
+                  "title": "Test Suite",
+                  "value": "${{ github.event.inputs.test_suite || 'all' }}",
+                  "short": true
+                },
+                {
+                  "title": "E2E Tests",
+                  "value": "${{ needs.extended-e2e-tests.result }}",
+                  "short": true
+                },
+                {
+                  "title": "Load Tests",
+                  "value": "${{ needs.comprehensive-load-tests.result }}",
+                  "short": true
+                },
+                {
+                  "title": "AI Quality",
+                  "value": "${{ needs.ai-quality-regression.result }}",
+                  "short": true
+                },
+                {
+                  "title": "API Integration",
+                  "value": "${{ needs.api-integration-regression.result }}",
+                  "short": true
+                }
+              ]
+            }]
+          }
+      env:
+        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}

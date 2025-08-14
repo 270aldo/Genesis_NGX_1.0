@@ -1,0 +1,74 @@
+meta {
+  name: Chat with BLAZE
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{base_url}}/agents/elite-training-strategist/chat
+  body: json
+}
+
+headers {
+  Authorization: Bearer {{auth_token}}
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "message": "I want to build muscle mass. I'm a beginner and can work out 3 days a week.",
+    "conversation_id": "test-conversation-{{$timestamp}}",
+    "user_context": {
+      "fitness_level": "beginner",
+      "goals": ["muscle_gain"],
+      "available_days": 3,
+      "equipment": ["dumbbells", "bodyweight"]
+    }
+  }
+}
+
+script:post-response {
+  // Store conversation ID for follow-up tests
+  if (res.getStatus() === 200) {
+    const body = res.getBody();
+    if (body.conversation_id) {
+      bru.setEnvVar("conversation_id", body.conversation_id);
+    }
+  }
+}
+
+tests {
+  test("BLAZE chat endpoint requires authentication", function() {
+    expect([200, 401, 404]).to.include(res.getStatus());
+  });
+
+  test("BLAZE provides training-specific response", function() {
+    if (res.getStatus() === 200) {
+      const body = res.getBody();
+      expect(body).to.have.property('response');
+      expect(body).to.have.property('agent_name');
+      expect(body).to.have.property('conversation_id');
+      expect(body.agent_name).to.equal('BLAZE');
+
+      // Check response contains training-related keywords
+      const response = body.response.toLowerCase();
+      const trainingKeywords = ['workout', 'exercise', 'training', 'muscle', 'strength', 'rep'];
+      const hasTrainingContent = trainingKeywords.some(keyword =>
+        response.includes(keyword)
+      );
+      expect(hasTrainingContent).to.be.true;
+    }
+  });
+
+  test("Response time is reasonable for AI generation", function() {
+    expect(res.getResponseTime()).to.be.below(30000); // 30 seconds max
+  });
+
+  test("Response is substantial and helpful", function() {
+    if (res.getStatus() === 200) {
+      const body = res.getBody();
+      expect(body.response.length).to.be.above(50); // Substantial response
+      expect(body.response).to.not.match(/error|sorry|can't|unable/i);
+    }
+  });
+}

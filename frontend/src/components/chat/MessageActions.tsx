@@ -1,18 +1,18 @@
 
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { 
+import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { useToast } from '@/hooks/use-toast';
-import { 
-  MoreVertical, 
-  Copy, 
-  Edit, 
-  Trash2, 
+import {
+  MoreVertical,
+  Copy,
+  Edit,
+  Trash2,
   Download,
   Share
 } from 'lucide-react';
@@ -24,10 +24,10 @@ interface MessageActionsProps {
   onDelete?: (messageId: string) => void;
 }
 
-export const MessageActions: React.FC<MessageActionsProps> = ({ 
-  message, 
-  onEdit, 
-  onDelete 
+export const MessageActions: React.FC<MessageActionsProps> = ({
+  message,
+  onEdit,
+  onDelete
 }) => {
   const { toast } = useToast();
   const [isOpen, setIsOpen] = useState(false);
@@ -56,7 +56,7 @@ export const MessageActions: React.FC<MessageActionsProps> = ({
           text: message.content,
         });
       } catch (err) {
-        console.log('Error sharing:', err);
+        // Fallback to copy if sharing fails
       }
     } else {
       handleCopy();

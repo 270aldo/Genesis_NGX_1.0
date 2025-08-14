@@ -40,12 +40,12 @@ export const QuickActions: React.FC = () => {
     {
       label: 'Export Data',
       icon: Download,
-      onClick: () => console.log('Export data'),
+      onClick: () => {/* TODO: Implement export functionality */},
     },
     {
       label: 'Help & Support',
       icon: HelpCircle,
-      onClick: () => console.log('Help'),
+      onClick: () => {/* TODO: Implement help functionality */},
     },
   ];
 
@@ -62,8 +62,8 @@ export const QuickActions: React.FC = () => {
               key={index}
               variant={action.primary ? "default" : "ghost"}
               className={`w-full justify-start gap-3 ${
-                action.primary 
-                  ? 'bg-gradient-to-r from-purple-500 to-violet-600 hover:from-purple-600 hover:to-violet-700 text-white' 
+                action.primary
+                  ? 'bg-gradient-to-r from-purple-500 to-violet-600 hover:from-purple-600 hover:to-violet-700 text-white'
                   : 'text-white/60 hover:text-white hover:bg-white/5'
               }`}
               onClick={action.onClick}
@@ -81,7 +81,7 @@ export const QuickActions: React.FC = () => {
             content
           );
         })}
-        
+
         {/* Token Purchase Button */}
         <TokenPurchase />
       </CardContent>

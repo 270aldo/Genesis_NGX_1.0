@@ -12,21 +12,28 @@ Tools supported:
 - NEXUS_Conversations: Multi-agent collaboration platform
 """
 
-from typing import Dict, Any, List, Optional
-from datetime import datetime
 import json
+from datetime import datetime
+from typing import Any, Dict, List, Optional
 
-from fastapi import APIRouter, Depends, HTTPException, status, BackgroundTasks, Query, Request
+from fastapi import (
+    APIRouter,
+    BackgroundTasks,
+    Depends,
+    HTTPException,
+    Query,
+    Request,
+    status,
+)
 from pydantic import BaseModel, Field
 
-from core.auth import get_current_user
-from core.logging_config import get_logger
-from core.settings_lazy import settings
-from app.schemas.agents import AgentRunRequest, AgentRunResponse
-from app.schemas.pagination import PaginatedResponse, PaginationParams
-from core.pagination_helpers import paginate_list
 from agents import get_orchestrator
 from app.routers.agents import execute_agent
+from app.schemas.agent import AgentRunRequest
+from app.schemas.pagination import PaginatedResponse, PaginationParams
+from core.auth import get_current_user
+from core.logging_config import get_logger
+from core.pagination_helpers import paginate_list
 
 # Configure logger
 logger = get_logger(__name__)
@@ -51,7 +58,10 @@ RATE_LIMITS = {
 # Request/Response Models
 class EcosystemRequest(BaseModel):
     """Base request for ecosystem tools"""
-    app_id: str = Field(..., description="Application ID (blog, crm, pulse, core, conversations)")
+
+    app_id: str = Field(
+        ..., description="Application ID (blog, crm, pulse, core, conversations)"
+    )
     app_version: str = Field("1.0.0", description="Application version")
     request_id: str = Field(..., description="Unique request ID for tracking")
     timestamp: datetime = Field(default_factory=datetime.now)
@@ -60,6 +70,7 @@ class EcosystemRequest(BaseModel):
 
 class BlogContentRequest(EcosystemRequest):
     """Request for blog content generation"""
+
     topic: str
     author_agent: str = Field(..., description="Agent ID to write the content")
     content_type: str = Field("article", description="article, tutorial, guide, etc.")
@@ -71,8 +82,11 @@ class BlogContentRequest(EcosystemRequest):
 
 class CRMAnalysisRequest(EcosystemRequest):
     """Request for CRM customer analysis"""
+
     customer_id: str
-    analysis_type: str = Field("behavior", description="behavior, churn_risk, upsell, health")
+    analysis_type: str = Field(
+        "behavior", description="behavior, churn_risk, upsell, health"
+    )
     include_history: bool = True
     prediction_window: int = Field(30, description="Days to predict ahead")
     data: Dict[str, Any] = Field(..., description="Customer data to analyze")
@@ -80,15 +94,21 @@ class CRMAnalysisRequest(EcosystemRequest):
 
 class PulseBiometricRequest(EcosystemRequest):
     """Request for biometric data analysis"""
+
     user_id: str
-    biometric_type: str = Field(..., description="hrv, sleep, activity, nutrition, recovery")
+    biometric_type: str = Field(
+        ..., description="hrv, sleep, activity, nutrition, recovery"
+    )
     data_points: List[Dict[str, Any]] = Field(..., description="Biometric measurements")
-    analysis_depth: str = Field("standard", description="quick, standard, comprehensive")
+    analysis_depth: str = Field(
+        "standard", description="quick, standard, comprehensive"
+    )
     include_recommendations: bool = True
 
 
 class CoreWorkflowRequest(EcosystemRequest):
     """Request for executive workflow execution"""
+
     workflow_id: str
     workflow_type: str = Field(..., description="analysis, report, automation, alert")
     parameters: Dict[str, Any] = Field(default_factory=dict)
@@ -97,54 +117,54 @@ class CoreWorkflowRequest(EcosystemRequest):
 
 class ConversationInsightRequest(EcosystemRequest):
     """Request for conversation insights"""
+
     session_id: str
-    insight_type: str = Field("summary", description="summary, chemistry, virality, quality")
+    insight_type: str = Field(
+        "summary", description="summary, chemistry, virality, quality"
+    )
     include_metrics: bool = True
 
 
 # Ecosystem endpoints
 @router.post("/blog/generate-content", response_model=Dict[str, Any])
 async def generate_blog_content(
-    request: BlogContentRequest,
-    user_id: str = Depends(get_current_user)
+    request: BlogContentRequest, user_id: str = Depends(get_current_user)
 ):
     """
     Generate blog content using specified agent.
-    
+
     This endpoint is used by NGX_AGENTS_BLOG to create content.
     """
     try:
         # Log ecosystem request
         logger.info(f"Ecosystem request from {request.app_id} v{request.app_version}")
-        
+
         # Construct prompt for the agent
         prompt = f"""
         Write a {request.content_type} about "{request.topic}" for a {request.target_audience} audience.
-        
+
         Requirements:
         - Target word count: {request.word_count} words
         - Include practical examples: {request.include_examples}
         - SEO keywords to incorporate: {', '.join(request.seo_keywords) if request.seo_keywords else 'None specified'}
-        
+
         Make it engaging, informative, and aligned with NGX's mission of empowering fitness and wellness.
         """
-        
+
         # Execute agent
         agent_request = AgentRunRequest(
             prompt=prompt,
             context={
                 "ecosystem_app": request.app_id,
                 "content_type": request.content_type,
-                "request_metadata": request.metadata
-            }
+                "request_metadata": request.metadata,
+            },
         )
-        
+
         response = await execute_agent(
-            agent_id=request.author_agent,
-            request=agent_request,
-            user_id=user_id
+            agent_id=request.author_agent, request=agent_request, user_id=user_id
         )
-        
+
         return {
             "request_id": request.request_id,
             "content": response.response,
@@ -152,61 +172,58 @@ async def generate_blog_content(
             "metadata": {
                 "word_count": len(response.response.split()),
                 "execution_time": response.metadata.get("execution_time", 0),
-                "app_id": request.app_id
-            }
+                "app_id": request.app_id,
+            },
         }
-        
+
     except Exception as e:
         logger.error(f"Error generating blog content: {str(e)}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to generate content: {str(e)}"
+            detail=f"Failed to generate content: {str(e)}",
         )
 
 
 @router.post("/crm/analyze-customer", response_model=Dict[str, Any])
 async def analyze_customer(
-    request: CRMAnalysisRequest,
-    user_id: str = Depends(get_current_user)
+    request: CRMAnalysisRequest, user_id: str = Depends(get_current_user)
 ):
     """
     Analyze customer data for CRM insights.
-    
+
     This endpoint is used by NEXUS-CRM for customer intelligence.
     """
     try:
         # Use STELLA (progress tracker) for customer analysis
         agent_id = "stella"
-        
+
         prompt = f"""
         Analyze customer {request.customer_id} for {request.analysis_type}.
-        
+
         Customer Data:
         {json.dumps(request.data, indent=2)}
-        
+
         Analysis Requirements:
         - Type: {request.analysis_type}
         - Include history: {request.include_history}
         - Prediction window: {request.prediction_window} days
-        
+
         Provide actionable insights and predictions.
         """
-        
+
         agent_request = AgentRunRequest(
             prompt=prompt,
             context={
                 "ecosystem_app": request.app_id,
                 "analysis_type": request.analysis_type,
-                "customer_id": request.customer_id
-            }
+                "customer_id": request.customer_id,
+            },
         )
-        
+
         response = await execute_agent(
-            agent_id=agent_id,
-            request=agent_request,
-            user_id=user_id
+            agent_id=agent_id, request=agent_request, user_id=user_id
         )
-        
+
         return {
             "request_id": request.request_id,
             "customer_id": request.customer_id,
@@ -214,76 +231,73 @@ async def analyze_customer(
             "predictions": {
                 "churn_risk": 0.15,  # This would be calculated by ML model
                 "ltv_estimate": 2500,
-                "next_best_action": "Offer premium upgrade"
+                "next_best_action": "Offer premium upgrade",
             },
             "metadata": {
                 "analysis_type": request.analysis_type,
                 "execution_time": response.metadata.get("execution_time", 0),
-                "app_id": request.app_id
-            }
+                "app_id": request.app_id,
+            },
         }
-        
+
     except Exception as e:
         logger.error(f"Error analyzing customer: {str(e)}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to analyze customer: {str(e)}"
+            detail=f"Failed to analyze customer: {str(e)}",
         )
 
 
 @router.post("/pulse/analyze-biometrics", response_model=Dict[str, Any])
 async def analyze_biometrics(
-    request: PulseBiometricRequest,
-    user_id: str = Depends(get_current_user)
+    request: PulseBiometricRequest, user_id: str = Depends(get_current_user)
 ):
     """
     Analyze biometric data for health insights.
-    
+
     This endpoint is used by NGX_PULSE for health analytics.
     """
     try:
         # Use WAVE (performance analytics) for biometric analysis
         agent_id = "wave"
-        
+
         # Prepare data summary
         data_summary = f"""
         Biometric Type: {request.biometric_type}
         Number of data points: {len(request.data_points)}
         Analysis depth: {request.analysis_depth}
-        
+
         Recent measurements:
         {json.dumps(request.data_points[-5:], indent=2) if request.data_points else 'No data'}
         """
-        
+
         prompt = f"""
         Analyze the following biometric data for user {request.user_id}:
-        
+
         {data_summary}
-        
+
         Provide:
         1. Current health status assessment
         2. Trends and patterns identified
         3. Areas of concern (if any)
         {"4. Personalized recommendations" if request.include_recommendations else ""}
-        
+
         Be specific and actionable in your analysis.
         """
-        
+
         agent_request = AgentRunRequest(
             prompt=prompt,
             context={
                 "ecosystem_app": request.app_id,
                 "biometric_type": request.biometric_type,
-                "user_id": request.user_id
-            }
+                "user_id": request.user_id,
+            },
         )
-        
+
         response = await execute_agent(
-            agent_id=agent_id,
-            request=agent_request,
-            user_id=user_id
+            agent_id=agent_id, request=agent_request, user_id=user_id
         )
-        
+
         return {
             "request_id": request.request_id,
             "user_id": request.user_id,
@@ -292,21 +306,21 @@ async def analyze_biometrics(
                 "health_score": 85,  # This would be calculated
                 "trend": "improving",
                 "risk_factors": [],
-                "optimization_potential": 0.15
+                "optimization_potential": 0.15,
             },
             "metadata": {
                 "biometric_type": request.biometric_type,
                 "data_points_analyzed": len(request.data_points),
                 "execution_time": response.metadata.get("execution_time", 0),
-                "app_id": request.app_id
-            }
+                "app_id": request.app_id,
+            },
         }
-        
+
     except Exception as e:
         logger.error(f"Error analyzing biometrics: {str(e)}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to analyze biometrics: {str(e)}"
+            detail=f"Failed to analyze biometrics: {str(e)}",
         )
 
 
@@ -314,42 +328,38 @@ async def analyze_biometrics(
 async def execute_workflow(
     request: CoreWorkflowRequest,
     background_tasks: BackgroundTasks,
-    user_id: str = Depends(get_current_user)
+    user_id: str = Depends(get_current_user),
 ):
     """
     Execute executive workflows using GENESIS agents.
-    
+
     This endpoint is used by NEXUS_CORE for automation.
     """
     try:
         # Use NEXUS (orchestrator) for workflow execution
         orchestrator = get_orchestrator()
-        
+
         prompt = f"""
         Execute workflow: {request.workflow_id}
         Type: {request.workflow_type}
-        
+
         Parameters:
         {json.dumps(request.parameters, indent=2)}
-        
+
         Coordinate the necessary agents to complete this workflow and provide a comprehensive result.
         """
-        
+
         if request.execute_async:
             # Add to background tasks
             background_tasks.add_task(
-                execute_workflow_async,
-                orchestrator,
-                prompt,
-                request,
-                user_id
+                execute_workflow_async, orchestrator, prompt, request, user_id
             )
-            
+
             return {
                 "request_id": request.request_id,
                 "status": "queued",
                 "message": "Workflow execution started in background",
-                "workflow_id": request.workflow_id
+                "workflow_id": request.workflow_id,
             }
         else:
             # Execute synchronously
@@ -358,10 +368,10 @@ async def execute_workflow(
                 context={
                     "ecosystem_app": request.app_id,
                     "workflow_type": request.workflow_type,
-                    "workflow_id": request.workflow_id
-                }
+                    "workflow_id": request.workflow_id,
+                },
             )
-            
+
             return {
                 "request_id": request.request_id,
                 "status": "completed",
@@ -371,81 +381,82 @@ async def execute_workflow(
                 "metadata": {
                     "workflow_type": request.workflow_type,
                     "execution_time": result.metadata.get("execution_time", 0),
-                    "app_id": request.app_id
-                }
+                    "app_id": request.app_id,
+                },
             }
-        
+
     except Exception as e:
         logger.error(f"Error executing workflow: {str(e)}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to execute workflow: {str(e)}"
+            detail=f"Failed to execute workflow: {str(e)}",
         )
 
 
 @router.post("/conversations/insights", response_model=Dict[str, Any])
 async def get_conversation_insights(
-    request: ConversationInsightRequest,
-    user_id: str = Depends(get_current_user)
+    request: ConversationInsightRequest, user_id: str = Depends(get_current_user)
 ):
     """
     Get insights from multi-agent conversations.
-    
+
     This endpoint is used by NEXUS_Conversations for analytics.
     """
     try:
         # Use NEXUS for conversation analysis
         agent_id = "nexus"
-        
+
         prompt = f"""
         Analyze conversation session {request.session_id} and provide {request.insight_type} insights.
-        
+
         Focus on:
         1. Key discussion points and outcomes
         2. Agent collaboration effectiveness
         3. Quality of insights generated
         {"4. Detailed metrics and scores" if request.include_metrics else ""}
-        
+
         Provide actionable insights for improving future conversations.
         """
-        
+
         agent_request = AgentRunRequest(
             prompt=prompt,
             context={
                 "ecosystem_app": request.app_id,
                 "session_id": request.session_id,
-                "insight_type": request.insight_type
-            }
+                "insight_type": request.insight_type,
+            },
         )
-        
+
         response = await execute_agent(
-            agent_id=agent_id,
-            request=agent_request,
-            user_id=user_id
+            agent_id=agent_id, request=agent_request, user_id=user_id
         )
-        
+
         return {
             "request_id": request.request_id,
             "session_id": request.session_id,
             "insights": response.response,
-            "metrics": {
-                "chemistry_score": 0.85,
-                "virality_potential": 0.72,
-                "content_quality": 0.90,
-                "engagement_level": 0.88
-            } if request.include_metrics else None,
+            "metrics": (
+                {
+                    "chemistry_score": 0.85,
+                    "virality_potential": 0.72,
+                    "content_quality": 0.90,
+                    "engagement_level": 0.88,
+                }
+                if request.include_metrics
+                else None
+            ),
             "metadata": {
                 "insight_type": request.insight_type,
                 "execution_time": response.metadata.get("execution_time", 0),
-                "app_id": request.app_id
-            }
+                "app_id": request.app_id,
+            },
         }
-        
+
     except Exception as e:
         logger.error(f"Error getting conversation insights: {str(e)}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to get insights: {str(e)}"
+            detail=f"Failed to get insights: {str(e)}",
         )
 
 
@@ -462,10 +473,10 @@ async def get_ecosystem_status(user_id: str = Depends(get_current_user)):
             "crm": {"status": "active", "version": "1.0.0"},
             "pulse": {"status": "active", "version": "1.0.0"},
             "core": {"status": "active", "version": "1.0.0"},
-            "conversations": {"status": "active", "version": "1.0.0"}
+            "conversations": {"status": "active", "version": "1.0.0"},
         },
         "rate_limits": RATE_LIMITS,
-        "timestamp": datetime.now().isoformat()
+        "timestamp": datetime.now().isoformat(),
     }
 
 
@@ -476,14 +487,18 @@ async def get_ecosystem_usage(
     page: int = Query(default=1, ge=1, description="Page number"),
     page_size: int = Query(default=20, ge=1, le=100, description="Items per page"),
     sort_by: str = Query(default="app_id", description="Field to sort by"),
-    sort_order: str = Query(default="asc", pattern="^(asc|desc)$", description="Sort order"),
-    date_from: Optional[datetime] = Query(None, description="Start date for usage data"),
+    sort_order: str = Query(
+        default="asc", pattern="^(asc|desc)$", description="Sort order"
+    ),
+    date_from: Optional[datetime] = Query(
+        None, description="Start date for usage data"
+    ),
     date_to: Optional[datetime] = Query(None, description="End date for usage data"),
-    user_id: str = Depends(get_current_user)
+    user_id: str = Depends(get_current_user),
 ):
     """
     Get usage statistics for ecosystem applications with pagination.
-    
+
     Returns paginated usage data that can be filtered by app and date range.
     """
     # This would connect to a real metrics system
@@ -493,60 +508,54 @@ async def get_ecosystem_usage(
         "crm": {"requests_today": 892, "requests_month": 18340},
         "pulse": {"requests_today": 1205, "requests_month": 28900},
         "core": {"requests_today": 156, "requests_month": 3200},
-        "conversations": {"requests_today": 2340, "requests_month": 48500}
+        "conversations": {"requests_today": 2340, "requests_month": 48500},
     }
-    
+
     # Convert to list format for pagination
     usage_list = []
     for app, stats in usage_data.items():
         if app_id and app != app_id:
             continue
-            
-        usage_list.append({
-            "app_id": app,
-            "requests_today": stats["requests_today"],
-            "requests_month": stats["requests_month"],
-            "cost_savings": {
-                "estimated_monthly": f"${stats['requests_month'] * 0.25:.2f}",
-                "percentage": f"{min(95, stats['requests_month'] / 100):.0f}%"
-            },
-            "timestamp": datetime.now()
-        })
-    
+
+        usage_list.append(
+            {
+                "app_id": app,
+                "requests_today": stats["requests_today"],
+                "requests_month": stats["requests_month"],
+                "cost_savings": {
+                    "estimated_monthly": f"${stats['requests_month'] * 0.25:.2f}",
+                    "percentage": f"{min(95, stats['requests_month'] / 100):.0f}%",
+                },
+                "timestamp": datetime.now(),
+            }
+        )
+
     # Create pagination params
     pagination_params = PaginationParams(
-        page=page,
-        page_size=page_size,
-        sort_by=sort_by,
-        sort_order=sort_order
+        page=page, page_size=page_size, sort_by=sort_by, sort_order=sort_order
     )
-    
+
     # Apply pagination
-    base_url = str(request.url).split('?')[0]
+    base_url = str(request.url).split("?")[0]
     paginated_response = paginate_list(
-        items=usage_list,
-        params=pagination_params,
-        base_url=base_url
+        items=usage_list, params=pagination_params, base_url=base_url
     )
-    
+
     # Add summary to metadata
-    if hasattr(paginated_response, 'metadata'):
+    if hasattr(paginated_response, "metadata"):
         total_requests = sum(item["requests_month"] for item in usage_list)
         paginated_response.metadata.summary = {
             "total_monthly_requests": total_requests,
             "total_cost_savings": f"${total_requests * 0.25:.2f}",
-            "average_savings_percentage": "82%"
+            "average_savings_percentage": "82%",
         }
-    
+
     return paginated_response
 
 
 # Background task for async workflow execution
 async def execute_workflow_async(
-    orchestrator,
-    prompt: str,
-    request: CoreWorkflowRequest,
-    user_id: str
+    orchestrator, prompt: str, request: CoreWorkflowRequest, user_id: str
 ):
     """
     Execute workflow in background and store results.
@@ -557,12 +566,12 @@ async def execute_workflow_async(
             context={
                 "ecosystem_app": request.app_id,
                 "workflow_type": request.workflow_type,
-                "workflow_id": request.workflow_id
-            }
+                "workflow_id": request.workflow_id,
+            },
         )
-        
+
         # Store result in database or cache
         logger.info(f"Workflow {request.workflow_id} completed successfully")
-        
+
     except Exception as e:
         logger.error(f"Background workflow execution failed: {str(e)}")

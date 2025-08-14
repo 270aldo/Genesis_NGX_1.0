@@ -1,0 +1,699 @@
+name: GENESIS Comprehensive Testing Suite
+
+on:
+  push:
+    branches: [ main, develop, feature/* ]
+  pull_request:
+    branches: [ main, develop ]
+  schedule:
+    # Run comprehensive tests daily at 2 AM UTC
+    - cron: '0 2 * * *'
+
+env:
+  NODE_VERSION: '18'
+  PYTHON_VERSION: '3.11'
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  # Job 1: Unit and Integration Tests (Backend)
+  backend-tests:
+    name: Backend Testing
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        test-type: [unit, integration, agents, contract]
+
+    services:
+      redis:
+        image: redis:7-alpine
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 3
+        ports:
+          - 6379:6379
+
+      postgres:
+        image: postgres:15-alpine
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: genesis_test
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 3
+        ports:
+          - 5432:5432
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+
+    - name: Install Poetry
+      uses: snok/install-poetry@v1
+      with:
+        virtualenvs-create: true
+        virtualenvs-in-project: true
+
+    - name: Cache Poetry dependencies
+      uses: actions/cache@v3
+      with:
+        path: backend/.venv
+        key: ${{ runner.os }}-poetry-${{ hashFiles('backend/poetry.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-poetry-
+
+    - name: Install dependencies
+      run: |
+        cd backend
+        poetry install --with dev,test
+
+    - name: Set up test environment
+      run: |
+        cd backend
+        cp .env.example .env.test
+        echo "REDIS_URL=redis://localhost:6379/1" >> .env.test
+        echo "DATABASE_URL=postgresql://postgres:postgres@localhost:5432/genesis_test" >> .env.test
+        echo "ENVIRONMENT=test" >> .env.test
+
+    - name: Run linting
+      if: matrix.test-type == 'unit'
+      run: |
+        cd backend
+        poetry run ruff check .
+        poetry run mypy .
+
+    - name: Run unit tests
+      if: matrix.test-type == 'unit'
+      run: |
+        cd backend
+        poetry run pytest tests/unit/ -v --cov=core --cov=agents --cov=clients \
+          --cov-report=xml --cov-report=term-missing
+
+    - name: Run integration tests
+      if: matrix.test-type == 'integration'
+      run: |
+        cd backend
+        poetry run pytest tests/integration/ -v --maxfail=5
+
+    - name: Run agent tests
+      if: matrix.test-type == 'agents'
+      run: |
+        cd backend
+        poetry run pytest tests/agents/ -v --maxfail=3
+
+    - name: Run contract tests
+      if: matrix.test-type == 'contract'
+      run: |
+        cd backend
+        poetry run pytest tests/contract/ -v --maxfail=5
+
+    - name: Run AI semantic tests
+      if: matrix.test-type == 'agents'
+      run: |
+        cd backend
+        poetry run pytest tests/ai/ -v --maxfail=3
+
+    - name: Upload coverage reports
+      if: matrix.test-type == 'unit'
+      uses: codecov/codecov-action@v3
+      with:
+        file: backend/coverage.xml
+        flags: backend
+        name: backend-coverage
+
+    - name: Upload test results
+      if: always()
+      uses: actions/upload-artifact@v3
+      with:
+        name: backend-test-results-${{ matrix.test-type }}
+        path: |
+          backend/test-results/
+          backend/coverage.xml
+        retention-days: 7
+
+  # Job 2: Frontend Testing
+  frontend-tests:
+    name: Frontend Testing
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        test-type: [unit, integration]
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+        cache-dependency-path: frontend/package-lock.json
+
+    - name: Install dependencies
+      run: |
+        cd frontend
+        npm ci
+
+    - name: Run linting
+      if: matrix.test-type == 'unit'
+      run: |
+        cd frontend
+        npm run lint
+
+    - name: Run unit tests
+      if: matrix.test-type == 'unit'
+      run: |
+        cd frontend
+        npm run test:ci
+
+    - name: Run integration tests
+      if: matrix.test-type == 'integration'
+      run: |
+        cd frontend
+        npm run test -- --testPathPattern=integration
+
+    - name: Build application
+      run: |
+        cd frontend
+        npm run build
+
+    - name: Upload coverage reports
+      if: matrix.test-type == 'unit'
+      uses: codecov/codecov-action@v3
+      with:
+        file: frontend/coverage/lcov.info
+        flags: frontend
+        name: frontend-coverage
+
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: frontend-build
+        path: frontend/dist/
+        retention-days: 7
+
+  # Job 3: API Contract Testing with Bruno
+  api-contract-tests:
+    name: API Contract Testing (Bruno)
+    runs-on: ubuntu-latest
+    needs: [backend-tests]
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+
+    - name: Install Bruno CLI
+      run: npm install -g @usebruno/cli
+
+    - name: Set up Python and Backend
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+
+    - name: Start backend server
+      run: |
+        cd backend
+        pip install poetry
+        poetry install --only main
+        poetry run uvicorn app.main:app --host 0.0.0.0 --port 8000 &
+        sleep 30  # Wait for server to start
+
+    - name: Wait for backend health
+      run: |
+        timeout 60 bash -c 'until curl -f http://localhost:8000/health; do sleep 2; done'
+
+    - name: Run Bruno API tests
+      run: |
+        cd api-tests
+        bru run --env local --output results.json
+      env:
+        E2E_BASE_URL: http://localhost:8000
+        E2E_TEST_EMAIL: test@genesis.com
+        E2E_TEST_PASSWORD: TestPassword123!
+
+    - name: Upload API test results
+      if: always()
+      uses: actions/upload-artifact@v3
+      with:
+        name: api-test-results
+        path: api-tests/results.json
+        retention-days: 7
+
+  # Job 4: Load Testing with K6
+  load-testing:
+    name: Load Testing (K6)
+    runs-on: ubuntu-latest
+    needs: [backend-tests]
+    if: github.event_name == 'schedule' || contains(github.event.pull_request.labels.*.name, 'performance')
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up K6
+      uses: grafana/setup-k6-action@v1
+
+    - name: Set up backend services
+      run: |
+        cd backend
+        pip install poetry
+        poetry install --only main
+        poetry run uvicorn app.main:app --host 0.0.0.0 --port 8000 &
+        sleep 30
+
+    - name: Wait for backend health
+      run: |
+        timeout 60 bash -c 'until curl -f http://localhost:8000/health; do sleep 2; done'
+
+    - name: Run load tests
+      run: |
+        cd load-tests
+        k6 run --out json=results.json tests/load-test.js
+      env:
+        ENVIRONMENT: local
+
+    - name: Run AI agent specific load tests
+      run: |
+        cd load-tests
+        k6 run --out json=agent-results.json tests/agents-load-test.js
+      env:
+        ENVIRONMENT: local
+
+    - name: Upload load test results
+      if: always()
+      uses: actions/upload-artifact@v3
+      with:
+        name: load-test-results
+        path: |
+          load-tests/results.json
+          load-tests/agent-results.json
+        retention-days: 30
+
+  # Job 5: E2E Testing with Playwright
+  e2e-testing:
+    name: E2E Testing (Playwright)
+    runs-on: ubuntu-latest
+    needs: [backend-tests, frontend-tests]
+    strategy:
+      matrix:
+        project: [chromium, firefox, webkit]
+      fail-fast: false
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+
+    - name: Install E2E dependencies
+      run: |
+        cd e2e
+        npm ci
+
+    - name: Install Playwright browsers
+      run: |
+        cd e2e
+        npx playwright install --with-deps ${{ matrix.project }}
+
+    - name: Set up backend services
+      run: |
+        cd backend
+        pip install poetry
+        poetry install --only main
+        poetry run uvicorn app.main:app --host 0.0.0.0 --port 8000 &
+        sleep 30
+
+    - name: Set up frontend
+      run: |
+        cd frontend
+        npm ci
+        npm run build
+        npm run preview &
+        sleep 10
+
+    - name: Wait for services
+      run: |
+        timeout 60 bash -c 'until curl -f http://localhost:8000/health; do sleep 2; done'
+        timeout 60 bash -c 'until curl -f http://localhost:5173; do sleep 2; done'
+
+    - name: Run E2E tests
+      run: |
+        cd e2e
+        npx playwright test --project=${{ matrix.project }}
+      env:
+        E2E_BASE_URL: http://localhost:5173
+        E2E_API_URL: http://localhost:8000
+        E2E_TEST_EMAIL: test@genesis.com
+        E2E_TEST_PASSWORD: TestPassword123!
+
+    - name: Upload E2E test results
+      if: always()
+      uses: actions/upload-artifact@v3
+      with:
+        name: e2e-results-${{ matrix.project }}
+        path: |
+          e2e/test-results/
+          e2e/playwright-report/
+        retention-days: 7
+
+  # Job 6: Security and Code Quality
+  security-analysis:
+    name: Security Analysis
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Run Trivy vulnerability scanner
+      uses: aquasecurity/trivy-action@master
+      with:
+        scan-type: 'fs'
+        scan-ref: '.'
+        format: 'sarif'
+        output: 'trivy-results.sarif'
+
+    - name: Upload Trivy scan results to GitHub Security tab
+      uses: github/codeql-action/upload-sarif@v2
+      if: always()
+      with:
+        sarif_file: 'trivy-results.sarif'
+
+    - name: Run CodeQL Analysis
+      uses: github/codeql-action/analyze@v2
+      with:
+        languages: python, javascript
+
+  # Job 7: Test Results Aggregation and Reporting
+  test-results:
+    name: Test Results Summary
+    runs-on: ubuntu-latest
+    needs: [backend-tests, frontend-tests, api-contract-tests, e2e-testing]
+    if: always()
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Download all test artifacts
+      uses: actions/download-artifact@v3
+
+    - name: Set up Node.js for report generation
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+
+    - name: Generate comprehensive test report
+      run: |
+        node -e "
+        const fs = require('fs');
+        const path = require('path');
+
+        const report = {
+          timestamp: new Date().toISOString(),
+          summary: {
+            total_tests: 0,
+            passed: 0,
+            failed: 0,
+            skipped: 0
+          },
+          details: {},
+          artifacts: []
+        };
+
+        // Scan for test result files
+        function scanDirectory(dir) {
+          if (!fs.existsSync(dir)) return;
+
+          const items = fs.readdirSync(dir);
+          items.forEach(item => {
+            const fullPath = path.join(dir, item);
+            const stat = fs.statSync(fullPath);
+
+            if (stat.isDirectory()) {
+              scanDirectory(fullPath);
+            } else if (item.endsWith('.json') || item.endsWith('.xml')) {
+              report.artifacts.push(fullPath);
+
+              if (item.includes('results')) {
+                try {
+                  const content = fs.readFileSync(fullPath, 'utf8');
+                  const data = JSON.parse(content);
+
+                  // Extract test statistics (format varies by tool)
+                  if (data.stats) {
+                    report.summary.total_tests += data.stats.total || 0;
+                    report.summary.passed += data.stats.passed || 0;
+                    report.summary.failed += data.stats.failed || 0;
+                    report.summary.skipped += data.stats.skipped || 0;
+                  }
+
+                  report.details[item] = {
+                    file: fullPath,
+                    summary: data.stats || data.summary || 'No summary available'
+                  };
+                } catch (e) {
+                  console.log(\`Could not parse \${fullPath}: \${e.message}\`);
+                }
+              }
+            }
+          });
+        }
+
+        scanDirectory('.');
+
+        // Calculate success rate
+        const totalTests = report.summary.total_tests;
+        const passedTests = report.summary.passed;
+        const successRate = totalTests > 0 ? (passedTests / totalTests * 100).toFixed(2) : 0;
+
+        report.success_rate = \`\${successRate}%\`;
+
+        // Write comprehensive report
+        fs.writeFileSync('comprehensive-test-report.json', JSON.stringify(report, null, 2));
+
+        // Generate markdown summary
+        const markdownSummary = \`
+        # GENESIS Test Results Summary
+
+        **Generated:** \${report.timestamp}
+
+        ## Overall Results
+        - **Total Tests:** \${totalTests}
+        - **Passed:** \${passedTests}
+        - **Failed:** \${report.summary.failed}
+        - **Skipped:** \${report.summary.skipped}
+        - **Success Rate:** \${successRate}%
+
+        ## Test Categories
+        \${Object.keys(report.details).map(key =>
+          \`- **\${key}**: \${JSON.stringify(report.details[key].summary, null, 2)}\`
+        ).join('\n')}
+
+        ## Artifacts Generated
+        \${report.artifacts.map(artifact => \`- \${artifact}\`).join('\n')}
+        \`;
+
+        fs.writeFileSync('TEST_RESULTS_SUMMARY.md', markdownSummary);
+
+        console.log('Test Results Summary:');
+        console.log(\`Total Tests: \${totalTests}\`);
+        console.log(\`Success Rate: \${successRate}%\`);
+        console.log(\`Failed Tests: \${report.summary.failed}\`);
+
+        // Exit with error code if tests failed
+        if (report.summary.failed > 0) {
+          console.log('❌ Some tests failed');
+          process.exit(1);
+        } else {
+          console.log('✅ All tests passed');
+        }
+        "
+
+    - name: Upload comprehensive test report
+      if: always()
+      uses: actions/upload-artifact@v3
+      with:
+        name: comprehensive-test-report
+        path: |
+          comprehensive-test-report.json
+          TEST_RESULTS_SUMMARY.md
+        retention-days: 30
+
+    - name: Comment PR with test results
+      if: github.event_name == 'pull_request'
+      uses: actions/github-script@v6
+      with:
+        script: |
+          const fs = require('fs');
+          if (fs.existsSync('TEST_RESULTS_SUMMARY.md')) {
+            const summary = fs.readFileSync('TEST_RESULTS_SUMMARY.md', 'utf8');
+
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: summary
+            });
+          }
+
+  # Job 8: Deploy to Staging (on main branch)
+  deploy-staging:
+    name: Deploy to Staging
+    runs-on: ubuntu-latest
+    needs: [backend-tests, frontend-tests, api-contract-tests]
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    environment: staging
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v2
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ secrets.AWS_REGION }}
+
+    - name: Deploy backend to staging
+      run: |
+        echo "Deploying backend to staging environment"
+        # Add actual deployment commands here
+        # e.g., AWS ECS, Kubernetes, etc.
+
+    - name: Deploy frontend to staging
+      run: |
+        echo "Deploying frontend to staging environment"
+        # Add actual deployment commands here
+        # e.g., AWS S3, CloudFront, etc.
+
+    - name: Run post-deployment tests
+      run: |
+        cd api-tests
+        npm install -g @usebruno/cli
+        bru run --env staging
+      env:
+        E2E_BASE_URL: https://staging.genesis.com
+        E2E_API_URL: https://api-staging.genesis.com
+
+    - name: Notify deployment status
+      if: always()
+      uses: 8398a7/action-slack@v3
+      with:
+        status: ${{ job.status }}
+        text: |
+          GENESIS Staging Deployment: ${{ job.status }}
+          Commit: ${{ github.sha }}
+          Author: ${{ github.actor }}
+      env:
+        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+
+  # Job 9: Performance Monitoring
+  performance-monitoring:
+    name: Performance Monitoring
+    runs-on: ubuntu-latest
+    needs: [load-testing]
+    if: always()
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Download load test results
+      if: needs.load-testing.result == 'success'
+      uses: actions/download-artifact@v3
+      with:
+        name: load-test-results
+
+    - name: Analyze performance metrics
+      run: |
+        node -e "
+        const fs = require('fs');
+
+        if (fs.existsSync('results.json')) {
+          const results = JSON.parse(fs.readFileSync('results.json', 'utf8'));
+
+          const metrics = {
+            avg_response_time: results.metrics?.http_req_duration?.avg || 0,
+            p95_response_time: results.metrics?.http_req_duration?.['p(95)'] || 0,
+            error_rate: results.metrics?.http_req_failed?.rate || 0,
+            requests_per_second: results.metrics?.http_reqs?.rate || 0
+          };
+
+          console.log('Performance Metrics:');
+          console.log(JSON.stringify(metrics, null, 2));
+
+          // Performance thresholds
+          if (metrics.p95_response_time > 2000) {
+            console.log('⚠️ P95 response time above 2s threshold');
+          }
+
+          if (metrics.error_rate > 0.05) {
+            console.log('⚠️ Error rate above 5% threshold');
+            process.exit(1);
+          }
+
+          fs.writeFileSync('performance-summary.json', JSON.stringify(metrics, null, 2));
+        } else {
+          console.log('No load test results found');
+        }
+        "
+
+    - name: Upload performance summary
+      if: always()
+      uses: actions/upload-artifact@v3
+      with:
+        name: performance-summary
+        path: performance-summary.json
+        retention-days: 30
+
+# Cleanup old artifacts
+  cleanup:
+    name: Cleanup Old Artifacts
+    runs-on: ubuntu-latest
+    if: github.event_name == 'schedule'
+
+    steps:
+    - name: Delete old artifacts
+      uses: actions/github-script@v6
+      with:
+        script: |
+          const artifacts = await github.rest.actions.listArtifactsForRepo({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            per_page: 100
+          });
+
+          const oldArtifacts = artifacts.data.artifacts.filter(artifact => {
+            const createdAt = new Date(artifact.created_at);
+            const daysOld = (Date.now() - createdAt.getTime()) / (1000 * 60 * 60 * 24);
+            return daysOld > 7; // Delete artifacts older than 7 days
+          });
+
+          for (const artifact of oldArtifacts) {
+            await github.rest.actions.deleteArtifact({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              artifact_id: artifact.id
+            });
+            console.log(\`Deleted artifact: \${artifact.name}\`);
+          }

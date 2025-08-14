@@ -69,14 +69,14 @@ class BiometricUpdatesService {
     try {
       const wsUrl = import.meta.env.VITE_WS_URL || 'ws://localhost:9000';
       const profile = useHybridIntelligenceStore.getState().profile;
-      
+
       if (!profile) {
         throw new Error('No user profile available for biometric connection');
       }
 
       // Establish WebSocket connection with authentication
       this.ws = new WebSocket(`${wsUrl}/biometric-updates?userId=${profile.user_id}`);
-      
+
       this.ws.onopen = this.handleOpen.bind(this);
       this.ws.onmessage = this.handleMessage.bind(this);
       this.ws.onclose = this.handleClose.bind(this);
@@ -92,23 +92,22 @@ class BiometricUpdatesService {
       }, 10000);
 
     } catch (error) {
-      console.error('Failed to connect to biometric updates service:', error);
+      // Handle connection error gracefully
       this.isConnecting = false;
       this.handleReconnect();
     }
   }
 
   private handleOpen(): void {
-    console.log('Biometric updates WebSocket connected');
     this.isConnecting = false;
     this.reconnectAttempts = 0;
-    
+
     // Start heartbeat to keep connection alive
     this.startHeartbeat();
-    
+
     // Request initial device status
     this.requestDeviceStatus();
-    
+
     // Emit connection event
     this.emit('connected', { timestamp: new Date().toISOString() });
   }
@@ -116,44 +115,43 @@ class BiometricUpdatesService {
   private handleMessage(event: MessageEvent): void {
     try {
       const message: BiometricWebSocketMessage = JSON.parse(event.data);
-      
+
       switch (message.type) {
         case 'biometric_update':
           this.handleBiometricUpdate(message.payload as BiometricUpdate);
           break;
-          
+
         case 'device_status':
           this.handleDeviceStatus(message.payload as DeviceConnectionStatus);
           break;
-          
+
         case 'sync_request':
           this.handleSyncRequest();
           break;
-          
+
         case 'error':
           this.handleServerError(message.payload as { error: string });
           break;
-          
+
         default:
-          console.warn('Unknown biometric message type:', message.type);
+          // Unknown message type - ignore
       }
     } catch (error) {
-      console.error('Failed to parse biometric WebSocket message:', error);
+      // Message parsing error - ignore malformed messages
     }
   }
 
   private handleClose(event: CloseEvent): void {
-    console.log('Biometric updates WebSocket disconnected:', event.code, event.reason);
     this.ws = null;
     this.stopHeartbeat();
-    
+
     // Emit disconnection event
-    this.emit('disconnected', { 
-      code: event.code, 
-      reason: event.reason, 
-      timestamp: new Date().toISOString() 
+    this.emit('disconnected', {
+      code: event.code,
+      reason: event.reason,
+      timestamp: new Date().toISOString()
     });
-    
+
     // Attempt to reconnect if not intentionally closed
     if (event.code !== 1000) {
       this.handleReconnect();
@@ -174,9 +172,7 @@ class BiometricUpdatesService {
 
     this.reconnectAttempts++;
     const delay = this.reconnectInterval * Math.pow(2, this.reconnectAttempts - 1); // Exponential backoff
-    
-    console.log(`Attempting to reconnect to biometric updates (${this.reconnectAttempts}/${this.maxReconnectAttempts}) in ${delay}ms`);
-    
+
     setTimeout(() => {
       this.connect();
     }, delay);
@@ -184,7 +180,7 @@ class BiometricUpdatesService {
 
   private handleBiometricUpdate(update: BiometricUpdate): void {
     const { updateBiometrics, updateBiomarkers } = useHybridIntelligenceStore.getState();
-    
+
     try {
       // Update the appropriate store based on update type
       if (update.type === 'biometrics') {
@@ -192,15 +188,13 @@ class BiometricUpdatesService {
       } else if (update.type === 'biomarkers') {
         updateBiomarkers(update.data as BiomarkerData);
       }
-      
+
       // Emit update event for components to listen
       this.emit('biometric_update', {
         ...update,
         processed: true,
         processedAt: new Date().toISOString(),
       });
-      
-      console.log('Biometric data updated:', update.type, update.source);
     } catch (error) {
       console.error('Failed to process biometric update:', error);
       this.emit('update_error', { update, error: error.toString() });
@@ -209,16 +203,14 @@ class BiometricUpdatesService {
 
   private handleDeviceStatus(status: DeviceConnectionStatus): void {
     this.deviceStatus.set(status.deviceId, status);
-    
+
     this.emit('device_status', status);
-    
-    console.log('Device status updated:', status.deviceId, status.isConnected ? 'connected' : 'disconnected');
   }
 
   private handleSyncRequest(): void {
     // Server is requesting a sync of current biometric data
     const { currentBiometrics, biomarkers } = useHybridIntelligenceStore.getState();
-    
+
     if (currentBiometrics || biomarkers) {
       this.sendSyncResponse({
         biometrics: currentBiometrics,
@@ -294,7 +286,7 @@ class BiometricUpdatesService {
       data: biometrics,
       reliability: source === 'manual' ? 0.8 : 1.0,
     };
-    
+
     this.send({
       type: 'biometric_update',
       payload: update,
@@ -310,7 +302,7 @@ class BiometricUpdatesService {
       data: biomarkers,
       reliability: source === 'manual' ? 0.9 : 1.0,
     };
-    
+
     this.send({
       type: 'biometric_update',
       payload: update,
@@ -344,9 +336,9 @@ class BiometricUpdatesService {
     if (!this.listeners.has(event)) {
       this.listeners.set(event, new Set());
     }
-    
+
     this.listeners.get(event)!.add(callback);
-    
+
     // Return unsubscribe function
     return () => {
       this.listeners.get(event)?.delete(callback);
@@ -398,17 +390,17 @@ export const biometricUpdatesService = new BiometricUpdatesService();
 export const useBiometricUpdates = () => {
   const [connectionInfo, setConnectionInfo] = React.useState(biometricUpdatesService.getConnectionInfo());
   const [devices, setDevices] = React.useState<DeviceConnectionStatus[]>([]);
-  
+
   React.useEffect(() => {
     // Subscribe to connection events
     const unsubscribeConnected = biometricUpdatesService.on('connected', () => {
       setConnectionInfo(biometricUpdatesService.getConnectionInfo());
     });
-    
+
     const unsubscribeDisconnected = biometricUpdatesService.on('disconnected', () => {
       setConnectionInfo(biometricUpdatesService.getConnectionInfo());
     });
-    
+
     const unsubscribeDeviceStatus = biometricUpdatesService.on('device_status', (status) => {
       setDevices(prev => {
         const updated = [...prev];
@@ -421,14 +413,14 @@ export const useBiometricUpdates = () => {
         return updated;
       });
     });
-    
+
     const unsubscribeBiometricUpdate = biometricUpdatesService.on('biometric_update', () => {
       setConnectionInfo(biometricUpdatesService.getConnectionInfo());
     });
-    
+
     // Initialize devices
     setDevices(biometricUpdatesService.getDeviceStatus() as DeviceConnectionStatus[]);
-    
+
     return () => {
       unsubscribeConnected();
       unsubscribeDisconnected();
@@ -436,7 +428,7 @@ export const useBiometricUpdates = () => {
       unsubscribeBiometricUpdate();
     };
   }, []);
-  
+
   return {
     ...connectionInfo,
     devices,

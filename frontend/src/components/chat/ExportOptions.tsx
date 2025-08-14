@@ -29,7 +29,7 @@ export const ExportOptions: React.FC = () => {
   // Get agent color for dynamic styling
   const getAgentGradient = () => {
     if (!activeAgent) return 'from-purple-500 to-violet-600';
-    
+
     const colorMap: Record<string, string> = {
       'nexus': 'from-purple-500 to-violet-600',
       'blaze': 'from-orange-500 to-red-600',
@@ -41,7 +41,7 @@ export const ExportOptions: React.FC = () => {
       'nova': 'from-violet-500 to-purple-600',
       'codex': 'from-blue-500 to-indigo-600'
     };
-    
+
     return colorMap[activeAgent.id] || 'from-purple-500 to-violet-600';
   };
 
@@ -56,10 +56,10 @@ export const ExportOptions: React.FC = () => {
     conversation.messages.forEach((message, index) => {
       const agent = message.agentId ? getAgent(message.agentId) : null;
       const speaker = message.role === 'user' ? 'Tú' : (agent?.name || 'NGX Agent');
-      
+
       text += `${speaker} [${message.timestamp.toLocaleTimeString()}]:\n`;
       text += `${message.content}\n\n`;
-      
+
       if (index < conversation.messages.length - 1) {
         text += `${'-'.repeat(30)}\n\n`;
       }
@@ -98,7 +98,7 @@ export const ExportOptions: React.FC = () => {
       const agent = message.agentId ? getAgent(message.agentId) : null;
       const speaker = message.role === 'user' ? 'Tú' : (agent?.name || 'NGX Agent');
       const messageClass = message.role === 'user' ? 'user' : 'assistant';
-      
+
       html += `
     <div class="message ${messageClass}">
         <div class="speaker">${speaker}</div>
@@ -116,10 +116,10 @@ export const ExportOptions: React.FC = () => {
 
   const handleExport = async (type: 'txt' | 'html') => {
     setIsExporting(true);
-    
+
     // Simulate export delay for better UX
     await new Promise(resolve => setTimeout(resolve, 800));
-    
+
     try {
       if (type === 'txt') {
         const text = generateConversationText();
@@ -132,7 +132,7 @@ export const ExportOptions: React.FC = () => {
         a.click();
         document.body.removeChild(a);
         URL.revokeObjectURL(url);
-        
+
         toast({
           title: "Conversación exportada",
           description: "La conversación se ha descargado como archivo de texto.",
@@ -148,7 +148,7 @@ export const ExportOptions: React.FC = () => {
         a.click();
         document.body.removeChild(a);
         URL.revokeObjectURL(url);
-        
+
         toast({
           title: "Conversación exportada",
           description: "La conversación se ha descargado como archivo HTML.",
@@ -160,7 +160,7 @@ export const ExportOptions: React.FC = () => {
         description: "No se pudo exportar la conversación.",
       });
     }
-    
+
     setIsExporting(false);
     setIsOpen(false);
   };
@@ -191,7 +191,7 @@ export const ExportOptions: React.FC = () => {
           text: text,
         });
       } catch (err) {
-        console.log('Error sharing:', err);
+        // Fallback to copy if sharing fails
         copyToClipboard();
       }
     } else {
@@ -224,7 +224,7 @@ export const ExportOptions: React.FC = () => {
             "absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300",
             `bg-gradient-to-r ${getAgentGradient()}/5 blur-lg`
           )} />
-          
+
           {/* Content */}
           <div className="relative flex items-center gap-2">
             {isExporting ? (
@@ -237,7 +237,7 @@ export const ExportOptions: React.FC = () => {
                 <Download className="w-4 h-4 transition-transform group-hover:scale-110" />
                 <span className="text-sm font-medium">Exportar</span>
                 {messageCount > 0 && (
-                  <Badge 
+                  <Badge
                     className={cn(
                       "ml-1 h-5 px-1.5 text-xs font-semibold border-0",
                       `bg-gradient-to-r ${getAgentGradient()}/20 text-white`
@@ -252,19 +252,19 @@ export const ExportOptions: React.FC = () => {
           </div>
         </Button>
       </DropdownMenuTrigger>
-      
-      <DropdownMenuContent 
-        align="end" 
+
+      <DropdownMenuContent
+        align="end"
         className="w-56 glass-ultra border-white/10 bg-black/80 backdrop-blur-xl"
       >
-        <DropdownMenuItem 
+        <DropdownMenuItem
           onClick={() => handleExport('txt')}
           className="hover:bg-white/5 text-white/90 hover:text-white"
         >
           <FileText className="h-4 w-4 mr-2" />
           Exportar como TXT
         </DropdownMenuItem>
-        <DropdownMenuItem 
+        <DropdownMenuItem
           onClick={() => handleExport('html')}
           className="hover:bg-white/5 text-white/90 hover:text-white"
         >
@@ -272,14 +272,14 @@ export const ExportOptions: React.FC = () => {
           Exportar como HTML
         </DropdownMenuItem>
         <DropdownMenuSeparator className="bg-white/10" />
-        <DropdownMenuItem 
+        <DropdownMenuItem
           onClick={copyToClipboard}
           className="hover:bg-white/5 text-white/90 hover:text-white"
         >
           <Copy className="h-4 w-4 mr-2" />
           Copiar al portapapeles
         </DropdownMenuItem>
-        <DropdownMenuItem 
+        <DropdownMenuItem
           onClick={shareConversation}
           className="hover:bg-white/5 text-white/90 hover:text-white"
         >

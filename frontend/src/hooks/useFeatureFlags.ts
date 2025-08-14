@@ -76,8 +76,6 @@ export const useFeatureFlags = (): UseFeatureFlagsReturn => {
         // Update cache
         cachedFlags = newFlags;
         cacheTimestamp = now;
-
-        console.log('Feature flags loaded:', newFlags);
       } else {
         throw new Error('Invalid feature flags response');
       }

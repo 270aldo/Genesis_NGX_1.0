@@ -1,6 +1,6 @@
 /**
  * CDN Configuration for Frontend Assets
- * 
+ *
  * This module configures CDN URLs for static assets, images, and API endpoints
  * to optimize performance and reduce load on the origin server.
  */
@@ -84,21 +84,21 @@ export function getOptimizedImageUrl(
   } = {}
 ): string {
   const baseUrl = getCDNUrl(path, 'image');
-  
+
   if (!cdnConfig.enabled) {
     return baseUrl;
   }
 
   const params = new URLSearchParams();
-  
+
   if (options.width) params.append('w', options.width.toString());
   if (options.height) params.append('h', options.height.toString());
   if (options.quality) params.append('q', options.quality.toString());
   if (options.format) params.append('f', options.format);
-  
+
   // Add cache busting parameter based on build version
   params.append('v', import.meta.env.VITE_APP_VERSION || '1.0.0');
-  
+
   return `${baseUrl}?${params.toString()}`;
 }
 
@@ -122,7 +122,7 @@ export function preloadAssets(assets: string[]): void {
   assets.forEach(asset => {
     const link = document.createElement('link');
     link.rel = 'preload';
-    
+
     // Determine asset type
     if (asset.match(/\.(jpg|jpeg|png|webp|avif)$/i)) {
       link.as = 'image';
@@ -138,7 +138,7 @@ export function preloadAssets(assets: string[]): void {
       link.href = getCDNUrl(asset, 'static');
       link.crossOrigin = 'anonymous';
     }
-    
+
     document.head.appendChild(link);
   });
 }
@@ -149,8 +149,7 @@ export function preloadAssets(assets: string[]): void {
 export function configureCDNCaching(): void {
   if ('serviceWorker' in navigator && cdnConfig.enabled) {
     navigator.serviceWorker.register('/sw.js').then(registration => {
-      console.log('Service Worker registered for CDN caching');
-      
+
       // Send CDN config to service worker
       if (registration.active) {
         registration.active.postMessage({

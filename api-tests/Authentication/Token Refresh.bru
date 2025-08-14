@@ -1,0 +1,46 @@
+meta {
+  name: Token Refresh
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{base_url}}/auth/refresh
+  body: json
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "refresh_token": "{{refresh_token}}"
+  }
+}
+
+script:post-response {
+  // Update auth token with refreshed token
+  if (res.getStatus() === 200) {
+    const body = res.getBody();
+    bru.setEnvVar("auth_token", body.access_token);
+    if (body.refresh_token) {
+      bru.setEnvVar("refresh_token", body.refresh_token);
+    }
+  }
+}
+
+tests {
+  test("Token refresh with valid refresh token", function() {
+    expect([200, 401]).to.include(res.getStatus());
+  });
+
+  test("Successful refresh returns new access token", function() {
+    if (res.getStatus() === 200) {
+      const body = res.getBody();
+      expect(body).to.have.property('access_token');
+      expect(body).to.have.property('token_type');
+      expect(body.access_token).to.match(/^[A-Za-z0-9\-_]+\.[A-Za-z0-9\-_]+\.[A-Za-z0-9\-_]+$/);
+    }
+  });
+}

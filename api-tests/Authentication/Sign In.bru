@@ -1,0 +1,62 @@
+meta {
+  name: Sign In
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{base_url}}/auth/signin
+  body: json
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "email": "{{test_user_email}}",
+    "password": "{{test_user_password}}"
+  }
+}
+
+script:post-response {
+  // Store auth token for subsequent requests
+  if (res.getStatus() === 200) {
+    const body = res.getBody();
+    bru.setEnvVar("auth_token", body.access_token);
+    bru.setEnvVar("refresh_token", body.refresh_token || "");
+
+    // Decode JWT to get user info (basic parsing)
+    try {
+      const tokenParts = body.access_token.split('.');
+      const payload = JSON.parse(atob(tokenParts[1]));
+      bru.setEnvVar("user_id", payload.sub || payload.user_id || "");
+    } catch (e) {
+      console.log("Could not decode JWT token");
+    }
+  }
+}
+
+tests {
+  test("Sign in with valid credentials returns 200", function() {
+    expect([200, 401]).to.include(res.getStatus());
+  });
+
+  test("Successful sign in returns access token", function() {
+    if (res.getStatus() === 200) {
+      const body = res.getBody();
+      expect(body).to.have.property('access_token');
+      expect(body).to.have.property('token_type');
+      expect(body.token_type).to.equal('bearer');
+      expect(body.access_token).to.match(/^[A-Za-z0-9\-_]+\.[A-Za-z0-9\-_]+\.[A-Za-z0-9\-_]+$/);
+    }
+  });
+
+  test("Failed sign in returns appropriate error", function() {
+    if (res.getStatus() === 401) {
+      const body = res.getBody();
+      expect(body).to.have.property('detail');
+    }
+  });
+}

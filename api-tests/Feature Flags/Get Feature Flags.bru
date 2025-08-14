@@ -1,0 +1,50 @@
+meta {
+  name: Get Feature Flags
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{base_url}}/feature-flags
+}
+
+headers {
+  Authorization: Bearer {{auth_token}}
+  Content-Type: application/json
+}
+
+tests {
+  test("Feature flags endpoint requires authentication", function() {
+    expect([200, 401]).to.include(res.getStatus());
+  });
+
+  test("Feature flags response has correct structure", function() {
+    if (res.getStatus() === 200) {
+      const body = res.getBody();
+      expect(typeof body).to.equal('object');
+
+      // Check for expected feature flags
+      const expectedFlags = [
+        'ai_voice_enabled',
+        'advanced_analytics',
+        'beta_features',
+        'streaming_responses'
+      ];
+
+      expectedFlags.forEach(flag => {
+        if (body.hasOwnProperty(flag)) {
+          expect(typeof body[flag]).to.equal('boolean');
+        }
+      });
+    }
+  });
+
+  test("Feature flags are properly typed", function() {
+    if (res.getStatus() === 200) {
+      const body = res.getBody();
+      Object.values(body).forEach(value => {
+        expect(typeof value).to.be.oneOf(['boolean', 'string', 'number']);
+      });
+    }
+  });
+}

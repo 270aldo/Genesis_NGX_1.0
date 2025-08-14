@@ -1,0 +1,69 @@
+meta {
+  name: Chat with SAGE
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{base_url}}/agents/precision-nutrition-architect/chat
+  body: json
+}
+
+headers {
+  Authorization: Bearer {{auth_token}}
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "message": "I'm vegetarian and want to lose weight. Can you help me create a meal plan?",
+    "conversation_id": "nutrition-test-{{$timestamp}}",
+    "user_context": {
+      "dietary_restrictions": ["vegetarian"],
+      "goals": ["weight_loss"],
+      "current_weight": 70,
+      "target_weight": 65,
+      "activity_level": "moderate"
+    }
+  }
+}
+
+tests {
+  test("SAGE nutrition endpoint is accessible", function() {
+    expect([200, 401, 404]).to.include(res.getStatus());
+  });
+
+  test("SAGE provides nutrition-specific response", function() {
+    if (res.getStatus() === 200) {
+      const body = res.getBody();
+      expect(body).to.have.property('response');
+      expect(body).to.have.property('agent_name');
+      expect(body).to.have.property('conversation_id');
+      expect(body.agent_name).to.equal('SAGE');
+
+      // Check response contains nutrition-related keywords
+      const response = body.response.toLowerCase();
+      const nutritionKeywords = ['nutrition', 'meal', 'diet', 'calories', 'protein', 'vegetarian', 'weight'];
+      const hasNutritionContent = nutritionKeywords.some(keyword =>
+        response.includes(keyword)
+      );
+      expect(hasNutritionContent).to.be.true;
+    }
+  });
+
+  test("SAGE acknowledges vegetarian requirement", function() {
+    if (res.getStatus() === 200) {
+      const body = res.getBody();
+      const response = body.response.toLowerCase();
+      expect(response).to.match(/vegetarian|plant.*based|meat.*free/);
+    }
+  });
+
+  test("Response addresses weight loss goal", function() {
+    if (res.getStatus() === 200) {
+      const body = res.getBody();
+      const response = body.response.toLowerCase();
+      expect(response).to.match(/weight.*loss|lose.*weight|caloric.*deficit|deficit/);
+    }
+  });
+}

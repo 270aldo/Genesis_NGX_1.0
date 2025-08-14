@@ -50,9 +50,9 @@ export interface PasswordResetData {
  */
 export class AuthService {
   private static instance: AuthService;
-  
+
   private constructor() {}
-  
+
   static getInstance(): AuthService {
     if (!AuthService.instance) {
       AuthService.instance = new AuthService();
@@ -66,14 +66,14 @@ export class AuthService {
   async login(credentials: LoginCredentials): Promise<AuthResponse> {
     try {
       useAuthStore.getState().setLoading(true);
-      
+
       const response = await apiClient.post<AuthResponse>(
         API_ENDPOINTS.AUTH.LOGIN,
         credentials
       );
-      
+
       const { user, token, refreshToken } = response.data;
-      
+
       // Store tokens in localStorage for API client interceptors
       const authStorage = {
         state: {
@@ -84,12 +84,12 @@ export class AuthService {
         },
         version: 0,
       };
-      
+
       localStorage.setItem('ngx-agents-auth', JSON.stringify(authStorage));
-      
+
       // Update auth store
       useAuthStore.getState().setUser(user);
-      
+
       return response.data;
     } catch (error: any) {
       console.error('Login error:', error);
@@ -108,12 +108,12 @@ export class AuthService {
   async register(credentials: RegisterCredentials): Promise<AuthResponse> {
     try {
       useAuthStore.getState().setLoading(true);
-      
+
       // Validate passwords match
       if (credentials.password !== credentials.confirmPassword) {
         throw { message: 'Passwords do not match', code: 400 };
       }
-      
+
       const response = await apiClient.post<AuthResponse>(
         API_ENDPOINTS.AUTH.REGISTER,
         {
@@ -122,9 +122,9 @@ export class AuthService {
           name: credentials.name,
         }
       );
-      
+
       const { user, token, refreshToken } = response.data;
-      
+
       // Store tokens in localStorage for API client interceptors
       const authStorage = {
         state: {
@@ -135,12 +135,12 @@ export class AuthService {
         },
         version: 0,
       };
-      
+
       localStorage.setItem('ngx-agents-auth', JSON.stringify(authStorage));
-      
+
       // Update auth store
       useAuthStore.getState().setUser(user);
-      
+
       return response.data;
     } catch (error: any) {
       console.error('Registration error:', error);
@@ -176,23 +176,23 @@ export class AuthService {
     try {
       const authStorage = localStorage.getItem('ngx-agents-auth');
       let refreshToken = null;
-      
+
       if (authStorage) {
         const parsedStorage = JSON.parse(authStorage);
         refreshToken = parsedStorage.state?.refreshToken || parsedStorage.refreshToken;
       }
-      
+
       if (!refreshToken) {
         throw new Error('No refresh token available');
       }
-      
+
       const response = await apiClient.post<RefreshTokenResponse>(
         API_ENDPOINTS.AUTH.REFRESH,
         { refresh_token: refreshToken }
       );
-      
+
       const { access_token, refresh_token: newRefreshToken } = response.data;
-      
+
       // Update stored tokens
       if (authStorage) {
         const parsedStorage = JSON.parse(authStorage);
@@ -202,7 +202,7 @@ export class AuthService {
         }
         localStorage.setItem('ngx-agents-auth', JSON.stringify(parsedStorage));
       }
-      
+
       return access_token;
     } catch (error: any) {
       console.error('Token refresh error:', error);
@@ -269,10 +269,10 @@ export class AuthService {
   async getCurrentUser(): Promise<User> {
     try {
       const response = await apiClient.get<User>(API_ENDPOINTS.USER.PROFILE);
-      
+
       // Update auth store with latest user data
       useAuthStore.getState().setUser(response.data);
-      
+
       return response.data;
     } catch (error: any) {
       console.error('Get current user error:', error);
@@ -292,10 +292,10 @@ export class AuthService {
         API_ENDPOINTS.USER.PROFILE,
         updates
       );
-      
+
       // Update auth store with updated user data
       useAuthStore.getState().updateProfile(response.data);
-      
+
       return response.data;
     } catch (error: any) {
       console.error('Update profile error:', error);
@@ -326,17 +326,16 @@ export class AuthService {
   async initializeAuth(): Promise<void> {
     try {
       const authStorage = localStorage.getItem('ngx-agents-auth');
-      
+
       if (authStorage) {
         const parsedStorage = JSON.parse(authStorage);
         const { user, token, isAuthenticated } = parsedStorage.state || {};
-        
+
         if (isAuthenticated && user && token) {
           // Verify token is still valid by fetching current user
           try {
             const currentUser = await this.getCurrentUser();
             // User data refreshed successfully, authentication is valid
-            console.log('Authentication initialized successfully');
           } catch (error) {
             // Token is invalid, clear storage
             console.warn('Invalid token found, clearing authentication');

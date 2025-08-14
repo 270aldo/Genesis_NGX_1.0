@@ -20,15 +20,18 @@ export default defineConfig(({ mode }) => ({
       open: false,
       gzipSize: true,
       brotliSize: true,
+      template: 'treemap',
     }),
     // Compression for production
     mode === 'production' && compression({
       algorithm: 'gzip',
       ext: '.gz',
+      threshold: 1024,
     }),
     mode === 'production' && compression({
       algorithm: 'brotliCompress',
       ext: '.br',
+      threshold: 1024,
     }),
   ].filter(Boolean),
   resolve: {
@@ -43,99 +46,101 @@ export default defineConfig(({ mode }) => ({
         // Enhanced manual chunks strategy
         manualChunks: (id) => {
           // Core React ecosystem
-          if (id.includes('node_modules/react/') || 
-              id.includes('node_modules/react-dom/') || 
+          if (id.includes('node_modules/react/') ||
+              id.includes('node_modules/react-dom/') ||
               id.includes('node_modules/react-router')) {
             return 'react-core';
           }
-          
+
           // UI Component libraries
           if (id.includes('@radix-ui') || id.includes('@headlessui')) {
             return 'ui-components';
           }
-          
+
           // State management
           if (id.includes('zustand') || id.includes('immer')) {
             return 'state-management';
           }
-          
+
           // Data fetching and API
-          if (id.includes('@tanstack/react-query') || 
-              id.includes('axios') || 
+          if (id.includes('@tanstack/react-query') ||
+              id.includes('axios') ||
               id.includes('@supabase')) {
             return 'data-fetching';
           }
-          
+
           // Form handling
-          if (id.includes('react-hook-form') || 
-              id.includes('@hookform') || 
+          if (id.includes('react-hook-form') ||
+              id.includes('@hookform') ||
               id.includes('zod')) {
             return 'forms';
           }
-          
+
           // Charts and data visualization
-          if (id.includes('recharts') || 
-              id.includes('d3') || 
+          if (id.includes('recharts') ||
+              id.includes('d3') ||
               id.includes('victory')) {
             return 'data-viz';
           }
-          
+
           // Utilities
-          if (id.includes('date-fns') || 
-              id.includes('lodash') || 
-              id.includes('clsx') || 
+          if (id.includes('date-fns') ||
+              id.includes('lodash') ||
+              id.includes('clsx') ||
               id.includes('tailwind-merge')) {
             return 'utilities';
           }
-          
+
           // Icons
           if (id.includes('lucide-react') || id.includes('@heroicons')) {
             return 'icons';
           }
-          
+
           // Animation libraries
           if (id.includes('framer-motion') || id.includes('@react-spring')) {
             return 'animations';
           }
-          
+
           // Media handling
-          if (id.includes('react-player') || 
-              id.includes('react-audio') || 
+          if (id.includes('react-player') ||
+              id.includes('react-audio') ||
               id.includes('wavesurfer')) {
             return 'media';
           }
         },
-        
+
         // Optimize chunk names
         chunkFileNames: (chunkInfo) => {
           const name = chunkInfo.name || 'chunk';
           // Use content hash for better caching
           return `assets/js/${name}.[hash].js`;
         },
-        
+
         // Entry chunk naming
         entryFileNames: 'assets/js/[name].[hash].js',
-        
+
         // Asset naming
         assetFileNames: (assetInfo) => {
           const info = assetInfo.name?.split('.');
           const ext = info?.[info.length - 1];
-          
+
           if (/png|jpe?g|svg|gif|tiff|bmp|ico/i.test(ext || '')) {
             return `assets/images/[name].[hash][extname]`;
           }
-          
+
           if (/woff2?|ttf|otf|eot/i.test(ext || '')) {
             return `assets/fonts/[name].[hash][extname]`;
           }
-          
+
           return `assets/[name].[hash][extname]`;
         },
       },
-      
-      // Preserve module structure for better tree shaking
-      preserveModules: false,
-      
+
+      // Tree shaking optimization
+      treeshake: {
+        preset: 'smallest',
+      },
+
       // External dependencies (if using CDN)
       external: mode === 'production' ? [] : [],
     },
@@ -169,7 +174,7 @@ export default defineConfig(({ mode }) => ({
     // Force optimize deps on start
     force: mode === 'development',
   },
-  
+
   // CSS code splitting
   css: {
     modules: {
@@ -181,7 +186,7 @@ export default defineConfig(({ mode }) => ({
       ],
     },
   },
-  
+
   // Enable build optimizations
   esbuild: {
     // Remove console and debugger in production

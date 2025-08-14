@@ -1,0 +1,26 @@
+{
+  "name": "genesis-e2e-tests",
+  "version": "1.0.0",
+  "description": "E2E Testing Suite for GENESIS AI Platform",
+  "private": true,
+  "scripts": {
+    "test": "playwright test",
+    "test:ui": "playwright test --ui",
+    "test:headed": "playwright test --headed",
+    "test:debug": "playwright test --debug",
+    "test:trace": "playwright test --trace on",
+    "test:report": "playwright show-report",
+    "test:codegen": "playwright codegen",
+    "test:browsers": "playwright test --project=chromium --project=firefox --project=webkit",
+    "test:mobile": "playwright test --project=mobile-chrome --project=mobile-safari",
+    "test:visual": "playwright test --project=visual-regression",
+    "test:api": "playwright test --project=api-tests",
+    "install": "playwright install",
+    "install:deps": "playwright install-deps"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.48.0",
+    "@types/node": "^22.5.5",
+    "dotenv": "^16.4.7"
+  }
+}

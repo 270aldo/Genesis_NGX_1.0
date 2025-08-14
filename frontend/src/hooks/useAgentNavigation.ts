@@ -16,7 +16,6 @@ export const useAgentNavigation = () => {
   const { isNexusOnlyMode } = useFeatureFlags();
 
   const navigateToAgent = (agentId: string, context?: { originalAgentId?: string }) => {
-    console.log('Navigating to agent:', agentId, 'NEXUS-only mode:', isNexusOnlyMode);
 
     // In NEXUS-only mode, always navigate to NEXUS but preserve original agent context
     if (isNexusOnlyMode && agentId !== 'nexus') {
@@ -29,7 +28,6 @@ export const useAgentNavigation = () => {
           agentSpecialty: getAgentSpecialty(originalAgentId)
         }
       });
-      console.log(`NEXUS coordination activated for ${originalAgentId} specialty`);
     } else {
       setActiveAgent(agentId);
       navigate(`/chat/${agentId}`);
@@ -37,7 +35,6 @@ export const useAgentNavigation = () => {
   };
 
   const navigateToAgentSpecialty = (agentId: string) => {
-    console.log('Navigating to agent specialty:', agentId);
 
     if (isNexusOnlyMode) {
       // Show agent info but route to NEXUS for actual interaction
@@ -56,7 +53,6 @@ export const useAgentNavigation = () => {
   };
 
   const navigateToNexusWithContext = (originalAgentId: string, additionalContext?: Record<string, any>) => {
-    console.log('Navigating to NEXUS with context:', originalAgentId, additionalContext);
 
     setActiveAgent('nexus');
     navigate('/chat/nexus', {

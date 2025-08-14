@@ -1,0 +1,28 @@
+{
+  "name": "genesis-load-tests",
+  "version": "1.0.0",
+  "description": "K6 Load Testing Suite for GENESIS AI Platform",
+  "scripts": {
+    "test": "k6 run scenarios/baseline.js",
+    "test:baseline": "k6 run scenarios/baseline.js",
+    "test:stress": "k6 run scenarios/stress.js",
+    "test:spike": "k6 run scenarios/spike.js",
+    "test:soak": "k6 run scenarios/soak.js",
+    "test:ai-agents": "k6 run scenarios/ai-agents.js",
+    "test:streaming": "k6 run scenarios/streaming.js",
+    "test:benchmarks": "k6 run benchmarks/performance-suite.js",
+    "test:all": "./run-all-tests.sh local",
+    "test:all-soak": "./run-all-tests.sh local include-soak",
+    "test:report": "k6 run --out json=results/benchmark-results.json --out csv=results/benchmark-results.csv benchmarks/performance-suite.js"
+  },
+  "devDependencies": {
+    "k6": "^0.48.0"
+  },
+  "keywords": [
+    "load-testing",
+    "k6",
+    "performance",
+    "api-testing",
+    "ai-agents"
+  ]
+}

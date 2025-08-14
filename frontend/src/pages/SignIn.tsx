@@ -22,7 +22,6 @@ const SignIn: React.FC = () => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     // TODO: Implementar lógica de login con Supabase
-    console.log('Login attempt:', formData);
   };
 
   return (
@@ -32,8 +31,8 @@ const SignIn: React.FC = () => {
       <div className="absolute inset-0 bg-gradient-to-t from-purple-900/5 via-transparent to-transparent pointer-events-none"></div>
 
       {/* Back to Home */}
-      <Link 
-        to="/" 
+      <Link
+        to="/"
         className="absolute top-8 left-8 flex items-center gap-2 text-white/60 hover:text-white transition-colors"
       >
         <ArrowLeft className="w-5 h-5" />
@@ -100,8 +99,8 @@ const SignIn: React.FC = () => {
 
             {/* Forgot Password */}
             <div className="text-right">
-              <Link 
-                to="/forgot-password" 
+              <Link
+                to="/forgot-password"
                 className="text-purple-400 hover:text-purple-300 text-sm transition-colors"
               >
                 Forgot your password?
@@ -125,8 +124,8 @@ const SignIn: React.FC = () => {
           <div className="text-center">
             <p className="text-white/60">
               Don't have an account?{' '}
-              <Link 
-                to="/sign-up" 
+              <Link
+                to="/sign-up"
                 className="text-purple-400 hover:text-purple-300 transition-colors font-medium"
               >
                 Sign up for free
